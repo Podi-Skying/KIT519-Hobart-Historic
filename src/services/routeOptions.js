@@ -40,11 +40,11 @@ export function chooseOptions(candidates) {
 
   const within = (factor) => candidates.filter((c) => c.durationSeconds <= normal.durationSeconds * factor)
   const accessible = within(MAX_SLOWDOWN.accessible).reduce((best, c) => (difficultyScore(c) < difficultyScore(best) ? c : best), normal)
-  const steepPool = within(MAX_SLOWDOWN.steep)
-  const steep = steepPool.reduce((best, c) => {
-    if (c.climbMeters !== best.climbMeters) return c.climbMeters > best.climbMeters ? c : best
-    return c.maxGrade > best.maxGrade ? c : best
-  }, steepPool.find((c) => c !== accessible) ?? normal)
+  // Steep = the hardest remaining option. Never the Accessible pick: if nothing is
+  // harder than Normal, Steep equals Normal and the UI says so.
+  const steep = within(MAX_SLOWDOWN.steep)
+    .filter((c) => c !== accessible)
+    .reduce((best, c) => (difficultyScore(c) > difficultyScore(best) ? c : best), normal)
   return { normal, accessible, steep }
 }
 

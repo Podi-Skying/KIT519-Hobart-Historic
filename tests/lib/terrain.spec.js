@@ -46,6 +46,14 @@ describe('chooseOptions', () => {
     expect(o.accessible.name).toBe('flat')
     expect(o.steep.name).toBe('hilly')
   })
+  it('never gives Steep the same route as Accessible', () => {
+    // A slightly longer but gentler detour: more total climb than Normal, yet flatter.
+    const gentleDetour = route('gentle detour', 13, 40, 0.05)
+    const normalSteeper = route('normal', 10, 30, 0.12)
+    const o = chooseOptions([normalSteeper, gentleDetour])
+    expect(o.accessible.name).toBe('gentle detour')
+    expect(o.steep.name).toBe('normal') // nothing harder exists → same as Normal
+  })
   it('ignores candidates that take far longer than Normal', () => {
     expect(chooseOptions([fastest, tooSlow]).accessible.name).toBe('fastest')
   })
