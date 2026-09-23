@@ -32,7 +32,8 @@ describe('rankByLikes', () => {
 
 describe('nearestSite', () => {
   it('picks the shortest walk', () => {
-    expect(nearestSite(SITES).id).toBe(4)
+    const sites = [{ id: 'a', walkMinutes: 9 }, { id: 'b', walkMinutes: 3 }, { id: 'c', walkMinutes: 5 }]
+    expect(nearestSite(sites).id).toBe('b')
   })
 })
 

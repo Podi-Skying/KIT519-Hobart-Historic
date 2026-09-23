@@ -6,7 +6,7 @@ Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 - **Leading page** → 點 *Tap to start* 進入 Home
 - **Home**：Top 5 輪播、景點清單（搜尋＋分類篩選）、按讚
 - **景點詳情**：資訊、步行路線、語音導覽、歷年相簿
-- **Map**：選擇目的地、路線類型（一般／無障礙／陡坡）、最多 4 個停靠點
+- **Map**：Google Maps 顯示各景點實際座標與使用者即時定位；路線類型（一般／無障礙／陡坡）、最多 4 個停靠點
 - **導航**：標準地圖／AR 導航／可列印地圖
 - **AR**：模擬掃描辨識、可拖曳資訊泡泡、1844 年今昔對照
 - **Weather**：步行天氣、最佳步行時段、一週預報
@@ -49,6 +49,24 @@ npm test           # 單元測試（Vitest）
 
 ---
 
+### Google Maps 設定
+
+Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用插畫版地圖**，其他功能不受影響。
+
+1. 到 [Google Cloud Console](https://console.cloud.google.com/) 建立專案，啟用 **Maps JavaScript API**（需綁定帳單，每月有免費額度）。
+2. 在 **Credentials** 建立 API key，並設定 **Application restrictions → Websites**：
+   - `http://localhost:5173/*`
+   - `https://podi-skying.github.io/*`
+   （Maps JS 的 key 會出現在網頁原始碼中，這是正常設計；靠網域限制防止他人盜用。）
+3. 本機：複製 `.env.example` 成 `.env.local`，填入 `VITE_GOOGLE_MAPS_API_KEY`。`.env.local` 不會被 git 追蹤。
+4. 線上版：GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**，新增 `GOOGLE_MAPS_API_KEY`。下次部署時自動套用。
+5. （選用）在 **Map Management** 建立 Map ID 並套用米色地圖樣式，填入 `VITE_GOOGLE_MAPS_MAP_ID` / secret `GOOGLE_MAPS_MAP_ID`；未設定時使用 Google 預設樣式。
+
+**定位**：Map 頁會向瀏覽器請求位置權限。
+- 使用者在 Hobart 25 km 內 → 地圖顯示藍色定位點，距離與步行時間從使用者位置計算。
+- 拒絕權限、無法定位或不在 Hobart → 距離改從市中心（Franklin Square）計算，並標示「from city centre」。
+- 瀏覽器只在 HTTPS 或 localhost 提供定位；GitHub Pages 為 HTTPS，可正常使用。
+
 ## 2. 技術架構
 
 | 層級 | 選擇 | 理由 |
@@ -89,19 +107,22 @@ hobart-heritage/
 │   │   ├── tokens.css         # ★ 設計 token：色彩、字體、間距、圓角、陰影、動效
 │   │   └── base.css           # reset、排版工具類、轉場、列印、減少動態
 │   ├── data/                  # 靜態內容（改內容只需改這裡）
-│   │   ├── sites.js           # 景點（含相簿、地圖座標、今昔對照）
+│   │   ├── sites.js           # 景點（實際經緯度、相簿、今昔對照；距離由座標計算）
 │   │   ├── categories.js      # Home 分類
-│   │   ├── navigation.js      # 路線類型、停靠點、導航模式、使用者位置
+│   │   ├── navigation.js      # 路線類型、停靠點、導航模式、市中心參考點
 │   │   ├── narration.js       # 語音導覽章節與逐字稿
 │   │   └── weather.js         # 天氣資料（日後可替換為 API）
 │   ├── lib/                   # 純函式（有單元測試）
 │   │   ├── sites.js           # filterSites / rankByLikes / nearestSite / walkMinutesFor
+│   │   ├── geo.js             # distanceKm / walkingMinutes / projectToBox（地理計算）
 │   │   ├── format.js          # formatClock / pluralize / formatKm
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
+│   ├── services/googleMaps.js # Google Maps API 載入器（讀取 VITE_ 環境變數）
 │   ├── stores/                # Pinia stores（依領域拆分）
 │   │   ├── favorites.js       # 按讚
 │   │   ├── trip.js            # 目的地、路線類型、停靠點、地圖偏好
+│   │   ├── location.js        # 使用者即時定位（Geolocation API）與距離計算
 │   │   ├── player.js          # 語音導覽播放
 │   │   └── ui.js              # Toast、狀態列底色
 │   ├── composables/           # 可重用的組合式函式
@@ -123,7 +144,7 @@ hobart-heritage/
 │   │   ├── splash/            # SplashScreen.vue、TapToStart.vue
 │   │   ├── home/              # SearchField、HeritageCarousel、SiteGridCard
 │   │   ├── site/              # GalleryRail
-│   │   ├── map/               # MapBackdrop、MapCanvas、StopPicker、SiteList、RouteTypePicker
+│   │   ├── map/               # GoogleMap、MapCanvas（插畫備援）、MapBackdrop、StopPicker、SiteList、RouteTypePicker
 │   │   └── ar/                # ArBubble、ArStatusPill、ArHelpOverlay
 │   └── views/                 # 一個路由 = 一個 View（皆為 lazy-load）
 │       ├── HomeView.vue  SiteDetailView.vue  GalleryView.vue  AudioTourView.vue
@@ -180,7 +201,7 @@ hobart-heritage/
 
 | 需求 | 修改位置 |
 | --- | --- |
-| 新增景點 | `src/data/sites.js` 加一筆（含 `gallery`、`mapPosition`）即可，所有頁面自動顯示 |
+| 新增景點 | `src/data/sites.js` 加一筆（含 `coordinates` 經緯度、`gallery`）即可；距離、步行時間、地圖位置都會自動計算 |
 | 新增分類 | `src/data/categories.js` ＋ 景點的 `category`（Home 篩選列自動出現） |
 | 調整品牌色／字體 | `src/styles/tokens.css` |
 | 新增圖示 | `src/assets/icons.js`（24×24、2px 線條） |

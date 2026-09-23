@@ -8,6 +8,7 @@ import MapBackdrop from '@/components/map/MapBackdrop.vue'
 import { getSiteById } from '@/data/sites'
 import { formatKm, pluralize } from '@/lib/format'
 import { useTripStore } from '@/stores/trip'
+import { useLocationStore } from '@/stores/location'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -21,6 +22,7 @@ const ROUTE_PATH = `M${START.x} ${START.y} C185 330 200 290 212 262 S238 190 ${D
 
 const router = useRouter()
 const trip = useTripStore()
+const location = useLocationStore()
 const site = computed(() => getSiteById(props.id))
 const zoom = ref(ZOOM.initial)
 
@@ -61,7 +63,7 @@ const endRoute = () => router.push({ name: 'map' })
         <div>
           <p class="summary__eta">{{ trip.minutesTo(site) }} min</p>
           <p class="t-small muted">
-            {{ formatKm(site.distanceKm) }} · {{ trip.routeTypeConfig.label }} route<template v-if="trip.stops.length"> · {{ pluralize(trip.stops.length, 'stop') }}</template>
+            {{ formatKm(location.distanceTo(site).km) }} · {{ trip.routeTypeConfig.label }} route<template v-if="trip.stops.length"> · {{ pluralize(trip.stops.length, 'stop') }}</template>
           </p>
         </div>
         <BaseButton variant="secondary" size="sm" icon="ar" :to="{ name: 'navigate-ar', params: { id } }">AR view</BaseButton>

@@ -17,16 +17,20 @@
  * @property {string} categoryLabel
  * @property {string} area
  * @property {string} builtYear
- * @property {number} walkMinutes   Normal-route walking time from the city centre
- * @property {number} distanceKm
+ * @property {{lat:number,lng:number}} coordinates  Real WGS84 position (OpenStreetMap)
+ * @property {number} walkMinutes   Derived: walking time from the city centre
+ * @property {number} distanceKm    Derived: straight-line km from the city centre
  * @property {boolean} accessible
  * @property {number} baseLikes     Seed like count before the user's own like
  * @property {string} image
  * @property {string} description
- * @property {{x:number,y:number}} mapPosition  Percent of the map canvas
+ * @property {{x:number,y:number}} mapPosition  Derived: position on the illustrated fallback map (%)
  * @property {GalleryPhoto[]} gallery
  * @property {Object} [timeTravel]  AR "then vs now" content
  */
+
+import { HOBART_CENTRE } from './navigation'
+import { boundsOf, distanceKm, projectToBox, roundKm, walkingMinutes } from '@/lib/geo'
 
 const IMAGE_BASE = 'https://ginaintas-art.github.io/hobart-heritage-ar-prototype/images/landmarks/'
 
@@ -40,8 +44,8 @@ const photo = (file, caption, year, description) => ({
   description,
 })
 
-/** @type {HeritageSite[]} */
-export const SITES = [
+/** @type {HeritageSite[]} Raw entries; derived fields are added below. */
+const CATALOGUE = [
   {
     id: 1,
     name: 'Cascade Female Factory',
@@ -50,14 +54,12 @@ export const SITES = [
     categoryLabel: 'Convict Heritage',
     area: 'South Hobart',
     builtYear: '1828',
-    walkMinutes: 12,
-    distanceKm: 1.1,
+    coordinates: { lat: -42.89382, lng: 147.29926 },
     accessible: true,
     baseLikes: 248,
     image: landmarkImage('cascade-main.webp'),
     description:
       "One of Australia's most significant convict heritage sites. This sandstone complex held female convicts and their children in the colonial era, and its preserved yards tell stories of resilience, labour and survival.",
-    mapPosition: { x: 20, y: 33 },
     gallery: [
       photo('cascade-gallery-1.webp', 'World Heritage entrance', 'Present day', 'The entrance to the historic precinct.'),
       photo('cascade-gallery-2.webp', 'Factory yard panorama', 'Present day', 'Looking across the surviving sandstone yards.'),
@@ -82,14 +84,12 @@ export const SITES = [
     categoryLabel: 'Religious Heritage',
     area: 'Battery Point',
     builtYear: '1842',
-    walkMinutes: 8,
-    distanceKm: 0.7,
+    coordinates: { lat: -42.89152, lng: 147.3321 },
     accessible: false,
     baseLikes: 196,
     image: landmarkImage('st-georges-main.webp'),
     description:
       'A fine example of Georgian church architecture. Its sandstone façade and tower have overlooked Battery Point for almost two centuries, and it is still an active place of worship.',
-    mapPosition: { x: 66, y: 11 },
     gallery: [
       photo('st-georges-gallery-1.webp', "St George's Church", '2013', 'The tower and sandstone façade.'),
       photo('st-georges-gallery-2.webp', 'From Battery Point', '2022', 'The church within the Battery Point streetscape.'),
@@ -105,14 +105,12 @@ export const SITES = [
     categoryLabel: 'Colonial Commerce',
     area: 'Waterfront',
     builtYear: '1835–1860',
-    walkMinutes: 5,
-    distanceKm: 0.4,
+    coordinates: { lat: -42.88716, lng: 147.3369 },
     accessible: true,
     baseLikes: 181,
     image: landmarkImage('salamanca-main.webp'),
     description:
       'Rows of sandstone warehouses that once stored whaling and trading goods. Today the precinct hosts markets, galleries and restaurants while keeping its colonial character.',
-    mapPosition: { x: 44, y: 17 },
     gallery: [
       photo('salamanca-gallery-1.webp', 'Salamanca streetscape', '2008', 'The row of convict-built warehouses.'),
       photo('salamanca-gallery-2.webp', 'Salamanca Market', '2007', 'Market stalls along the warehouses.'),
@@ -128,14 +126,12 @@ export const SITES = [
     categoryLabel: 'Convict Heritage',
     area: 'CBD',
     builtYear: '1831',
-    walkMinutes: 3,
-    distanceKm: 0.2,
+    coordinates: { lat: -42.87732, lng: 147.32753 },
     accessible: false,
     baseLikes: 143,
     image: landmarkImage('penitentiary-main.webp'),
     description:
       "A complex of sandstone buildings — chapel, cells and courts — linked by underground tunnels. One of Hobart's most atmospheric heritage experiences.",
-    mapPosition: { x: 30, y: 24 },
     gallery: [
       photo('penitentiary-gallery-1.webp', 'Chapel exterior', '2017', 'The surviving chapel complex.'),
       photo('penitentiary-gallery-2.webp', 'Old Trinity and Penitentiary', 'c.1900', 'An archival view of the precinct.'),
@@ -151,14 +147,12 @@ export const SITES = [
     categoryLabel: 'Colonial Living',
     area: 'Battery Point',
     builtYear: '1836',
-    walkMinutes: 10,
-    distanceKm: 0.9,
+    coordinates: { lat: -42.88929, lng: 147.33155 },
     accessible: true,
     baseLikes: 126,
     image: landmarkImage('narryna-main.webp'),
     description:
       "One of Australia's oldest and most complete colonial merchant houses, with a collection that gives an intimate picture of life in early Van Diemen's Land.",
-    mapPosition: { x: 78, y: 27 },
     gallery: [
       photo('narryna-gallery-1.webp', "Narryna merchant's house", 'Present day', 'The Georgian façade and fountain.'),
       photo('narryna-gallery-2.webp', 'Narryna courtyard', '2015', 'The working courtyard.'),
@@ -167,6 +161,24 @@ export const SITES = [
     ],
   },
 ]
+
+/**
+ * Area of the illustrated fallback map (percent of the canvas) where pins may sit:
+ * the lower part is covered by the map's bottom panel.
+ */
+export const FALLBACK_MAP_BOX = { x: [10, 86], y: [9, 40] }
+export const SITE_BOUNDS = boundsOf(CATALOGUE.map((s) => s.coordinates), 0.08)
+
+/** @type {HeritageSite[]} */
+export const SITES = CATALOGUE.map((site) => {
+  const km = distanceKm(HOBART_CENTRE, site.coordinates)
+  return {
+    ...site,
+    distanceKm: roundKm(km),
+    walkMinutes: walkingMinutes(km),
+    mapPosition: projectToBox(site.coordinates, SITE_BOUNDS, FALLBACK_MAP_BOX),
+  }
+})
 
 /** Site shown in the AR camera demo (the only one with time-travel content). */
 export const AR_DEMO_SITE_ID = 1

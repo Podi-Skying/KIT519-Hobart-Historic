@@ -4,7 +4,8 @@ import { ROUTE_TYPES } from '@/data/navigation'
 import { walkMinutesFor } from '@/lib/sites'
 
 defineProps({
-  site: { type: Object, required: true },
+  /** Normal-route walking minutes; other types are scaled from this. */
+  baseMinutes: { type: Number, required: true },
 })
 const model = defineModel({ type: String, required: true })
 </script>
@@ -22,7 +23,7 @@ const model = defineModel({ type: String, required: true })
       @click="model = type.key"
     >
       {{ type.label }}
-      <small>{{ walkMinutesFor(site, type.key) }} min</small>
+      <small>{{ walkMinutesFor({ walkMinutes: baseMinutes }, type.key) }} min</small>
     </button>
   </div>
 </template>

@@ -1,8 +1,12 @@
-/** Walking-route presets. `factor` scales a site's normal walking time. */
+/**
+ * Walking-route presets. `factor` scales a site's normal walking time.
+ * `color` is a CSS token for DOM/SVG; `hex` is the same colour for Google Maps
+ * (which can't read CSS variables) — keep them in sync with tokens.css.
+ */
 export const ROUTE_TYPES = [
-  { key: 'normal', label: 'Normal', factor: 1, color: 'var(--brand-600)', dashed: true },
-  { key: 'accessible', label: 'Accessible', factor: 1.75, color: 'var(--success-600)', dashed: false },
-  { key: 'steep', label: 'Steep', factor: 0.65, color: 'var(--accent-500)', dashed: true },
+  { key: 'normal', label: 'Normal', factor: 1, color: 'var(--brand-600)', hex: '#7D3045', dashed: true },
+  { key: 'accessible', label: 'Accessible', factor: 1.75, color: 'var(--success-600)', hex: '#4A6741', dashed: false },
+  { key: 'steep', label: 'Steep', factor: 0.65, color: 'var(--accent-500)', hex: '#D98A3D', dashed: true },
 ]
 
 export const DEFAULT_ROUTE_TYPE = 'normal'
@@ -19,8 +23,14 @@ export const WAYPOINTS = [
 
 export const MAX_STOPS = 4
 
-/** Walker's simulated position on the map canvas (percent). */
-export const USER_POSITION = { x: 54, y: 36 }
+/**
+ * Reference point for distances when the walker's real location is unknown,
+ * denied, or outside Hobart: Franklin Square, the centre of the CBD.
+ */
+export const HOBART_CENTRE = { lat: -42.88338, lng: 147.3303 }
+
+/** Beyond this distance from the centre the walker is treated as "not in Hobart". */
+export const HOBART_RADIUS_KM = 25
 
 /** The three ways to follow a route (Navigate › choose mode). */
 export const NAVIGATION_MODES = [

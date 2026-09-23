@@ -47,8 +47,10 @@ describe('trip store', () => {
     const trip = useTripStore()
     trip.setRouteType('helicopter')
     expect(trip.routeType).toBe('normal')
+    const site = getSiteById(2)
+    const normal = trip.minutesTo(site)
     trip.setRouteType('accessible')
-    expect(trip.minutesTo(getSiteById(2))).toBe(14)
+    expect(trip.minutesTo(site)).toBe(Math.round(normal * 1.75))
   })
 })
 

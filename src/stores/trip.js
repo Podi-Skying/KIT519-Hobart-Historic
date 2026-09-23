@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { getSiteById } from '@/data/sites'
 import { DEFAULT_ROUTE_TYPE, MAX_STOPS, ROUTE_TYPES, WAYPOINTS } from '@/data/navigation'
 import { walkMinutesFor } from '@/lib/sites'
+import { useLocationStore } from './location'
 
 /** The walk being planned: destination, route type, optional stops, map prefs. */
 export const useTripStore = defineStore('trip', {
@@ -21,8 +22,9 @@ export const useTripStore = defineStore('trip', {
     stops: (state) => state.stopIds.map((id) => WAYPOINTS.find((w) => w.id === id)).filter(Boolean),
     hasStop: (state) => (id) => state.stopIds.includes(id),
     isFull: (state) => state.stopIds.length >= MAX_STOPS,
-    /** Walking minutes to a site with the current route type. */
-    minutesTo: (state) => (site) => walkMinutesFor(site, state.routeType),
+    /** Walking minutes to a site with the current route type, from the walker's live position. */
+    minutesTo: (state) => (site) =>
+      walkMinutesFor({ walkMinutes: useLocationStore().distanceTo(site).minutes }, state.routeType),
   },
 
   actions: {

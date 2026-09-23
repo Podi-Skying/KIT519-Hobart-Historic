@@ -1,14 +1,21 @@
 <script setup>
-/** Interactive map: numbered site pins, user position and the planned route line. */
+/**
+ * Illustrated fallback map (used when Google Maps isn't configured or fails):
+ * numbered site pins, the walker's position and the planned route line.
+ * Positions are percentages of the canvas, projected from real coordinates.
+ */
 import { computed } from 'vue'
 import MapBackdrop from './MapBackdrop.vue'
-import { USER_POSITION } from '@/data/navigation'
 
 const props = defineProps({
   sites: { type: Array, required: true },
   selectedId: { type: Number, default: null },
   /** ROUTE_TYPES entry used to style the route line. */
   routeType: { type: Object, required: true },
+  /** Walker position on the canvas (%), or null when outside the mapped area. */
+  userPosition: { type: Object, default: null },
+  /** Where the route line starts (%): the walker, or the city centre. */
+  originPosition: { type: Object, required: true },
 })
 const emit = defineEmits(['select'])
 
@@ -21,8 +28,8 @@ const selected = computed(() => props.sites.find((s) => s.id === props.selectedI
 
     <svg v-if="selected" class="map-canvas__route" aria-hidden="true">
       <line
-        :x1="`${USER_POSITION.x}%`"
-        :y1="`${USER_POSITION.y}%`"
+        :x1="`${originPosition.x}%`"
+        :y1="`${originPosition.y}%`"
         :x2="`${selected.mapPosition.x}%`"
         :y2="`${selected.mapPosition.y}%`"
         :stroke="routeType.color"
@@ -33,8 +40,9 @@ const selected = computed(() => props.sites.find((s) => s.id === props.selectedI
     </svg>
 
     <span
+      v-if="userPosition"
       class="map-canvas__user"
-      :style="{ left: `${USER_POSITION.x}%`, top: `${USER_POSITION.y}%` }"
+      :style="{ left: `${userPosition.x}%`, top: `${userPosition.y}%` }"
       role="img"
       aria-label="Your location"
     />

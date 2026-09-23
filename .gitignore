@@ -7,3 +7,7 @@ dist/
 coverage/
 # v1 single-file prototype, kept locally for reference only
 archive/
+
+# Local secrets (API keys)
+.env.local
+.env.*.local
