@@ -3,7 +3,8 @@
  * Map tab: every heritage site at its real coordinates (Google Maps, or the
  * illustrated map as a fallback), the walker's live position, and route planning.
  * The app covers a small, fixed set of Hobart sites, so there is no search —
- * sites are picked from the map or the "nearby" list.
+ * sites are picked from the map markers or the "nearest" shortcut.
+ * The browse panel can be dragged down out of the way; a small tab brings it back.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,12 +13,12 @@ import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import StopPicker from '@/components/map/StopPicker.vue'
-import SiteList from '@/components/map/SiteList.vue'
 import RouteTypePicker from '@/components/map/RouteTypePicker.vue'
 import { useContent } from '@/i18n/content'
 import { MAX_STOPS } from '@/data/navigation'
 import { formatMeters } from '@/lib/format'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
+import { useSheetDrag } from '@/composables/useSheetDrag'
 import { useTripStore } from '@/stores/trip'
 import { useUiStore } from '@/stores/ui'
 import { useLocationStore } from '@/stores/location'
@@ -54,6 +55,27 @@ onMounted(() => {
   if (panel.value) resizeObserver.observe(panel.value)
 })
 onBeforeUnmount(() => resizeObserver?.disconnect())
+
+// ---- browse panel: drag down to tuck it away; tap or drag the tab up to bring it back ----
+const PEEK_RAISE = 16
+const browseOpen = ref(true)
+const reopened = ref(false)
+const sheetDrag = useSheetDrag(() => (browseOpen.value = false))
+
+function openBrowse() {
+  browseOpen.value = true
+  reopened.value = true
+}
+
+let peekStartY = null
+const peekHandlers = {
+  pointerdown: (e) => (peekStartY = e.clientY),
+  pointerup: (e) => {
+    if (peekStartY !== null && peekStartY - e.clientY > PEEK_RAISE) openBrowse()
+    peekStartY = null
+  },
+  pointercancel: () => (peekStartY = null),
+}
 
 // ---- location ----
 onMounted(() => location.start())
@@ -139,7 +161,12 @@ function toggleOffline() {
       />
     </div>
 
-    <div ref="panel" class="panel">
+    <div
+      ref="panel"
+      class="panel"
+      :class="{ 'is-dragging': sheetDrag.dragging.value }"
+      :style="selected ? null : sheetDrag.style.value"
+    >
       <!-- Selected destination -->
       <section v-if="selected" class="panel__selected" :aria-label="t('map.selected')">
         <div class="selected">
@@ -174,7 +201,14 @@ function toggleOffline() {
       </section>
 
       <!-- Browse -->
-      <section v-else class="panel__browse" :aria-label="t('map.planWalk')">
+      <section
+        v-else-if="browseOpen"
+        class="panel__browse"
+        :class="{ 'is-reopened': reopened }"
+        :aria-label="t('map.planWalk')"
+        v-on="sheetDrag.handlers"
+        @click.capture="sheetDrag.swallowClick"
+      >
         <span class="panel__grip" aria-hidden="true" />
         <button type="button" class="nearest" @click="trip.setDestination(nearest.id)">
           <span class="nearest__icon"><AppIcon name="pin" :size="20" /></span>
@@ -190,12 +224,13 @@ function toggleOffline() {
           {{ t('map.addStop') }}<template v-if="trip.stopIds.length"> · {{ trip.stopIds.length }}/{{ MAX_STOPS }}</template>
         </p>
         <StopPicker :selected-ids="trip.stopIds" @toggle="toggleStop" />
-
-        <p class="t-caption panel__label panel__label--inset">
-          {{ t('map.allSitesFrom', { origin: originLabel }) }}
-        </p>
-        <SiteList :sites="SITES" :distances="distances" @select="trip.setDestination" />
       </section>
+
+      <!-- Tucked away: just the grip, as a tab -->
+      <button v-else type="button" class="peek" aria-expanded="false" v-on="peekHandlers" @click="openBrowse">
+        <span class="panel__grip" aria-hidden="true" />
+        {{ t('map.planWalk') }}
+      </button>
     </div>
   </div>
 </template>
@@ -232,6 +267,10 @@ function toggleOffline() {
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   box-shadow: var(--e-3);
   scrollbar-width: none;
+  transition: transform var(--dur) var(--ease);
+}
+.panel.is-dragging {
+  transition: none;
 }
 .panel::-webkit-scrollbar {
   display: none;
@@ -242,6 +281,22 @@ function toggleOffline() {
 }
 .panel__browse {
   padding: var(--s-3) 0 var(--s-3);
+  touch-action: pan-x; /* vertical drags move the panel; the stop row still scrolls sideways */
+  user-select: none;
+  cursor: grab;
+}
+.panel.is-dragging .panel__browse {
+  cursor: grabbing;
+}
+.panel__browse.is-reopened {
+  animation: slide-up var(--dur-slow) var(--ease);
+}
+.peek {
+  width: 100%;
+  padding: var(--s-3) var(--gutter) var(--s-4);
+  font: var(--t-label);
+  color: var(--ink-700);
+  touch-action: none;
 }
 .panel__grip {
   display: block;
