@@ -1,12 +1,18 @@
 <script setup>
-import { computed, ref } from 'vue'
+/**
+ * Turn-by-turn navigation on Google Maps: the real walking route (Routes API),
+ * the next manoeuvre from the walker's live position, zoom / recentre controls.
+ */
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '@/components/base/AppIcon.vue'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import MapBackdrop from '@/components/map/MapBackdrop.vue'
+import SiteMap from '@/components/map/SiteMap.vue'
 import { getSiteById } from '@/data/sites'
-import { formatKm, pluralize } from '@/lib/format'
+import { formatMeters, pluralize } from '@/lib/format'
+import { maneuverIcon, nextGuidance } from '@/lib/guidance'
+import { useWalkingRoute } from '@/composables/useWalkingRoute'
 import { useTripStore } from '@/stores/trip'
 import { useLocationStore } from '@/stores/location'
 
@@ -14,56 +20,72 @@ const props = defineProps({
   id: { type: Number, required: true },
 })
 
-const ZOOM = { min: 0.8, max: 1.8, step: 0.2, initial: 1 }
-// Illustrative route in MapBackdrop's 390×520 coordinate space.
-const START = { x: 175, y: 380 }
-const DESTINATION = { x: 250, y: 150 }
-const ROUTE_PATH = `M${START.x} ${START.y} C185 330 200 290 212 262 S238 190 ${DESTINATION.x} ${DESTINATION.y}`
-
 const router = useRouter()
 const trip = useTripStore()
 const location = useLocationStore()
 const site = computed(() => getSiteById(props.id))
-const zoom = ref(ZOOM.initial)
+const walk = useWalkingRoute(site)
+const map = ref(null)
 
-const zoomBy = (delta) => {
-  zoom.value = Math.min(ZOOM.max, Math.max(ZOOM.min, +(zoom.value + delta).toFixed(1)))
+const user = computed(() => (location.isInHobart ? location.coords : null))
+const guidance = computed(() => nextGuidance(walk.route.value, user.value))
+const mapSites = computed(() => [site.value, ...walk.stopSites.value])
+
+onMounted(() => location.start())
+
+function recenter() {
+  if (user.value) map.value?.focusUser()
+  else map.value?.recenter()
 }
-const recenter = () => (zoom.value = ZOOM.initial)
 const endRoute = () => router.push({ name: 'map' })
 </script>
 
 <template>
   <div class="nav-view">
-    <div class="nav-view__map" :style="{ transform: `scale(${zoom})` }">
-      <MapBackdrop>
-        <!-- Route kept inside the visible band (between the instruction card and the summary sheet) -->
-        <path :d="ROUTE_PATH" stroke="var(--brand-600)" stroke-width="6" fill="none" stroke-linecap="round" />
-        <circle :cx="DESTINATION.x" :cy="DESTINATION.y" r="9" fill="var(--brand-600)" stroke="var(--paper)" stroke-width="3" />
-        <circle :cx="START.x" :cy="START.y" r="9" fill="var(--info-600)" stroke="var(--paper)" stroke-width="3" />
-      </MapBackdrop>
-    </div>
+    <SiteMap
+      ref="map"
+      class="nav-view__map"
+      :sites="mapSites"
+      :selected-id="site.id"
+      :route-path="walk.path.value"
+      :route-type="trip.routeTypeConfig"
+      :real-route="walk.isRealRoute.value"
+      :user="user"
+      :start="location.origin"
+      fit="route"
+      :padding="{ top: 170, right: 76, bottom: 200, left: 40 }"
+      :box="{ x: [12, 84], y: [26, 70] }"
+    />
 
-    <div class="instruction" role="status">
-      <span class="instruction__icon"><AppIcon name="turnLeft" :size="24" /></span>
-      <div>
-        <p class="instruction__title">Turn left in 120 m</p>
-        <p class="instruction__sub">onto Davey St</p>
+    <div class="instruction" role="status" aria-live="polite">
+      <span class="instruction__icon"><AppIcon :name="maneuverIcon(guidance.maneuver)" :size="24" /></span>
+      <div class="instruction__text">
+        <template v-if="walk.status.value === 'loading'">
+          <p class="instruction__title">Finding a walking route…</p>
+        </template>
+        <template v-else-if="walk.isRealRoute.value">
+          <p class="instruction__title">{{ guidance.meters ? `In ${formatMeters(guidance.meters)}` : 'Start' }}</p>
+          <p class="instruction__sub">{{ guidance.instruction }}</p>
+        </template>
+        <template v-else>
+          <p class="instruction__title">Head to {{ site.shortName }}</p>
+          <p class="instruction__sub">Street directions unavailable — showing a straight-line guide</p>
+        </template>
       </div>
     </div>
 
     <div class="zoom">
-      <IconButton variant="float" icon="plus" label="Zoom in" @click="zoomBy(ZOOM.step)" />
-      <IconButton variant="float" icon="minus" label="Zoom out" @click="zoomBy(-ZOOM.step)" />
-      <IconButton variant="float" icon="locate" label="Recenter" @click="recenter" />
+      <IconButton variant="float" icon="plus" label="Zoom in" @click="map?.zoomIn()" />
+      <IconButton variant="float" icon="minus" label="Zoom out" @click="map?.zoomOut()" />
+      <IconButton variant="float" icon="locate" :label="user ? 'Follow my location' : 'Show whole route'" @click="recenter" />
     </div>
 
     <section class="summary" aria-label="Route summary">
       <div class="summary__row">
         <div>
-          <p class="summary__eta">{{ trip.minutesTo(site) }} min</p>
+          <p class="summary__eta">{{ walk.minutes.value }} min</p>
           <p class="t-small muted">
-            {{ formatKm(location.distanceTo(site).km) }} · {{ trip.routeTypeConfig.label }} route<template v-if="trip.stops.length"> · {{ pluralize(trip.stops.length, 'stop') }}</template>
+            {{ formatMeters(walk.distanceMeters.value) }} · {{ trip.routeTypeConfig.label }} route<template v-if="trip.stops.length"> · {{ pluralize(trip.stops.length, 'stop') }}</template>
           </p>
         </div>
         <BaseButton variant="secondary" size="sm" icon="ar" :to="{ name: 'navigate-ar', params: { id } }">AR view</BaseButton>
@@ -81,12 +103,6 @@ const endRoute = () => router.push({ name: 'map' })
   position: relative;
   overflow: hidden;
   background: var(--map-land);
-}
-.nav-view__map {
-  position: absolute;
-  inset: 0;
-  transform-origin: 50% 60%;
-  transition: transform var(--dur) var(--ease);
 }
 .instruction {
   position: absolute;
@@ -106,22 +122,26 @@ const endRoute = () => router.push({ name: 'map' })
 .instruction__icon {
   width: var(--hit);
   height: var(--hit);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--r-md);
   background: rgba(245, 239, 230, 0.12);
 }
+.instruction__text {
+  min-width: 0;
+}
 .instruction__title {
   font: 700 18px var(--font-label);
 }
 .instruction__sub {
   font: var(--t-small);
-  opacity: 0.8;
+  opacity: 0.85;
 }
 .zoom {
   position: absolute;
-  top: 150px;
+  top: 160px;
   right: var(--gutter);
   z-index: 3;
   display: flex;

@@ -1,9 +1,10 @@
 <script setup>
 /**
- * Google Map with heritage-site pins at their real coordinates, the walker's
- * live position and a route line to the selected site.
- * Emits `error` if the API can't load or the key is rejected, so the parent can
- * fall back to the illustrated map.
+ * Google Map used by every map screen (Map tab, turn-by-turn, AR mini-map, print).
+ * Draws site pins at their real coordinates, the walker (or route start), and a
+ * route polyline — solid along real streets, dashed when it is only a straight-line
+ * estimate. Emits `error` if the API can't load or the key is rejected so the
+ * parent can fall back to the illustrated map.
  */
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { loadGoogleMaps, MAP_ID, onGoogleMapsAuthFailure } from '@/services/googleMaps'
@@ -12,14 +13,22 @@ import { HOBART_CENTRE } from '@/data/navigation'
 const props = defineProps({
   sites: { type: Array, required: true },
   selectedId: { type: Number, default: null },
-  /** ROUTE_TYPES entry (uses `hex` + `dashed`). */
-  routeType: { type: Object, required: true },
-  /** Live walker position, or null when unknown / outside Hobart. */
+  /** Points to draw as the route (empty = no route). */
+  routePath: { type: Array, default: () => [] },
+  /** Hex colour of the route line. */
+  routeColor: { type: String, default: '#7D3045' },
+  /** true = follows real streets (solid line); false = straight-line estimate (dashed). */
+  realRoute: { type: Boolean, default: false },
+  /** Live walker position (blue dot), or null. */
   user: { type: Object, default: null },
-  /** Where the route starts (walker if in Hobart, else city centre). */
-  origin: { type: Object, required: true },
-  /** Pixels of map hidden behind the bottom panel — keeps pins out from under it. */
-  bottomInset: { type: Number, default: 0 },
+  /** Route start marker, shown when there is no live walker position. */
+  start: { type: Object, default: null },
+  /** 'all' frames every pin (+ walker); 'route' frames the route. */
+  fit: { type: String, default: 'all', validator: (v) => ['all', 'route'].includes(v) },
+  interactive: { type: Boolean, default: true },
+  showLabels: { type: Boolean, default: true },
+  /** Map padding (px) around fitted content — keep pins clear of overlays. */
+  padding: { type: Object, default: () => ({ top: 96, right: 72, bottom: 32, left: 32 }) },
 })
 const emit = defineEmits(['select', 'error', 'ready'])
 
@@ -27,12 +36,12 @@ const container = ref(null)
 const map = shallowRef(null)
 let api = null
 let userMarker = null
+let startMarker = null
 let routeLine = null
 const pins = new Map() // siteId → { marker, element }
 let offAuthFailure = () => {}
 
-const padding = () => ({ top: 96, right: 72, bottom: props.bottomInset + 32, left: 32 })
-
+// ---------- marker DOM ----------
 function pinElement(site) {
   const el = document.createElement('div')
   el.className = 'gm-pin'
@@ -41,42 +50,49 @@ function pinElement(site) {
   const num = document.createElement('b')
   num.textContent = String(site.id)
   head.append(num)
-  const label = document.createElement('span')
-  label.className = 'gm-pin__label'
-  label.textContent = site.shortName
-  el.append(head, label)
+  el.append(head)
+  if (props.showLabels) {
+    const label = document.createElement('span')
+    label.className = 'gm-pin__label'
+    label.textContent = site.shortName
+    el.append(label)
+  }
   return el
 }
-
-function userElement() {
+const dotElement = (className) => {
   const el = document.createElement('div')
-  el.className = 'gm-user'
+  el.className = className
   return el
 }
 
-function fitTo(points) {
+// ---------- camera ----------
+function frame(points) {
   if (!map.value || !points.length) return
   if (points.length === 1) {
-    map.value.panTo(points[0])
+    map.value.setCenter(points[0])
+    if (map.value.getZoom() < 16) map.value.setZoom(16)
     return
   }
   const bounds = new api.LatLngBounds()
   points.forEach((p) => bounds.extend(p))
-  map.value.fitBounds(bounds, padding())
+  map.value.fitBounds(bounds, props.padding)
 }
 
-/** Frame every site (and the walker, when in Hobart). */
-function showAll() {
-  fitTo([...props.sites.map((s) => s.coordinates), ...(props.user ? [props.user] : [])])
+/** Frame according to `fit`. */
+function recenter() {
+  if (props.fit === 'route' && props.routePath.length) return frame(props.routePath)
+  frame([...props.sites.map((s) => s.coordinates), ...(props.user ? [props.user] : [])])
 }
 
-/** Centre on the walker (used by the "my location" button). */
 function focusUser() {
   if (!map.value || !props.user) return
   map.value.panTo(props.user)
-  if (map.value.getZoom() < 16) map.value.setZoom(16)
+  if (map.value.getZoom() < 17) map.value.setZoom(17)
 }
 
+const zoomBy = (delta) => map.value?.setZoom(map.value.getZoom() + delta)
+
+// ---------- overlays ----------
 function syncSelection() {
   for (const [id, { marker, element }] of pins) {
     const selected = id === props.selectedId
@@ -88,38 +104,40 @@ function syncSelection() {
 function syncRoute() {
   routeLine?.setMap(null)
   routeLine = null
-  const site = props.sites.find((s) => s.id === props.selectedId)
-  if (!site || !map.value) return
-
-  const { hex, dashed } = props.routeType
+  if (!map.value || props.routePath.length < 2) return
+  const color = props.routeColor
   routeLine = new api.Polyline({
     map: map.value,
-    path: [props.origin, site.coordinates],
+    path: props.routePath,
     geodesic: true,
-    strokeColor: hex,
-    strokeWeight: 4,
-    strokeOpacity: dashed ? 0 : 0.9,
-    icons: dashed
-      ? [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: hex, scale: 3 }, offset: '0', repeat: '12px' }]
-      : [],
+    strokeColor: color,
+    strokeWeight: props.realRoute ? 5 : 4,
+    strokeOpacity: props.realRoute ? 0.9 : 0,
+    icons: props.realRoute
+      ? []
+      : [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: color, scale: 3 }, offset: '0', repeat: '12px' }],
   })
-  fitTo([props.origin, site.coordinates])
 }
 
-function syncUser() {
+function syncMarker(current, position, className, title) {
+  if (!position) {
+    if (current) current.map = null
+    return null
+  }
+  if (current) {
+    current.position = position
+    return current
+  }
+  return new api.AdvancedMarkerElement({ map: map.value, position, content: dotElement(className), title, zIndex: 20 })
+}
+
+function syncPeople() {
   if (!map.value) return
-  if (!props.user) {
-    if (userMarker) userMarker.map = null
-    userMarker = null
-    return
-  }
-  if (!userMarker) {
-    userMarker = new api.AdvancedMarkerElement({ map: map.value, position: props.user, content: userElement(), title: 'Your location', zIndex: 20 })
-  } else {
-    userMarker.position = props.user
-  }
+  userMarker = syncMarker(userMarker, props.user, 'gm-user', 'Your location')
+  startMarker = syncMarker(startMarker, props.user ? null : props.start, 'gm-start', 'Route start')
 }
 
+// ---------- lifecycle ----------
 onMounted(async () => {
   offAuthFailure = onGoogleMapsAuthFailure(() => emit('error', new Error('Google Maps key was rejected')))
   try {
@@ -136,7 +154,8 @@ onMounted(async () => {
     mapId: MAP_ID,
     disableDefaultUI: true,
     clickableIcons: false,
-    gestureHandling: 'greedy',
+    gestureHandling: props.interactive ? 'greedy' : 'none',
+    keyboardShortcuts: props.interactive,
   })
 
   for (const site of props.sites) {
@@ -146,26 +165,28 @@ onMounted(async () => {
       position: site.coordinates,
       content: element,
       title: site.name,
-      gmpClickable: true,
+      gmpClickable: props.interactive,
     })
-    marker.addListener('click', () => emit('select', site.id))
+    if (props.interactive) marker.addListener('click', () => emit('select', site.id))
     pins.set(site.id, { marker, element })
   }
 
-  syncUser()
+  syncPeople()
   syncSelection()
-  if (props.selectedId) syncRoute()
-  else showAll()
+  syncRoute()
+  recenter()
   emit('ready')
 })
 
-watch(() => props.selectedId, (id) => {
-  syncSelection()
-  syncRoute()
-  if (!id) showAll()
-})
-watch(() => [props.routeType.key, props.origin.lat, props.origin.lng], syncRoute)
-watch(() => props.user && [props.user.lat, props.user.lng], syncUser)
+watch(() => props.selectedId, syncSelection)
+watch(
+  () => [props.routePath, props.realRoute, props.routeColor],
+  () => {
+    syncRoute()
+    recenter()
+  },
+)
+watch(() => [props.user?.lat, props.user?.lng, props.start?.lat, props.start?.lng], syncPeople)
 
 /** Run a teardown step without letting a Google-side failure (e.g. after an auth error) block unmounting. */
 const safely = (fn) => {
@@ -180,11 +201,12 @@ onBeforeUnmount(() => {
   offAuthFailure()
   safely(() => routeLine?.setMap(null))
   safely(() => userMarker && (userMarker.map = null))
+  safely(() => startMarker && (startMarker.map = null))
   pins.forEach(({ marker }) => safely(() => (marker.map = null)))
   pins.clear()
 })
 
-defineExpose({ showAll, focusUser })
+defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoomBy(-1) })
 </script>
 
 <template>
@@ -250,13 +272,20 @@ defineExpose({ showAll, focusUser })
   opacity: 1;
   transform: none;
 }
-.gm-user {
+.gm-user,
+.gm-start {
   width: 18px;
   height: 18px;
   border-radius: 50%;
   border: 3px solid var(--paper);
+  transform: translateY(50%); /* anchor the dot's centre on the position */
+}
+.gm-user {
   background: var(--info-600);
   box-shadow: 0 0 0 8px rgba(47, 111, 237, 0.2);
-  transform: translateY(50%); /* anchor the dot's centre on the position */
+}
+.gm-start {
+  background: var(--ink-900);
+  box-shadow: var(--e-1);
 }
 </style>

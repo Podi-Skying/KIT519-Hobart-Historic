@@ -1,12 +1,17 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BottomSheet from '@/components/base/BottomSheet.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
+import SiteMap from '@/components/map/SiteMap.vue'
 import { AR_NAVIGATION_IMAGE, getSiteById } from '@/data/sites'
+import { formatMeters } from '@/lib/format'
+import { maneuverIcon, nextGuidance } from '@/lib/guidance'
+import { useWalkingRoute } from '@/composables/useWalkingRoute'
 import { useTripStore } from '@/stores/trip'
+import { useLocationStore } from '@/stores/location'
 import { useGoBack } from '@/composables/useGoBack'
 
 const props = defineProps({
@@ -14,7 +19,16 @@ const props = defineProps({
 })
 
 const trip = useTripStore()
+const location = useLocationStore()
 const site = computed(() => getSiteById(props.id))
+const walk = useWalkingRoute(site)
+const user = computed(() => (location.isInHobart ? location.coords : null))
+const guidance = computed(() => nextGuidance(walk.route.value, user.value))
+const instruction = computed(() => {
+  if (!walk.isRealRoute.value) return `Head to ${site.value.shortName}`
+  return guidance.value.meters ? `${formatMeters(guidance.value.meters)} · ${guidance.value.instruction}` : guidance.value.instruction
+})
+onMounted(() => location.start())
 const arrived = ref(false)
 const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 </script>
@@ -29,7 +43,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
       <BaseButton variant="secondary" size="sm" icon="map" :to="{ name: 'navigate-map', params: { id } }">Map</BaseButton>
     </div>
 
-    <ArStatusPill icon="up" class="ar-nav__instruction">Continue 120 m</ArStatusPill>
+    <ArStatusPill :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
 
     <div class="ar-nav__arrows" aria-hidden="true">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
@@ -38,18 +52,25 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
     </div>
 
     <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__minimap" aria-label="Open full map">
-      <svg width="100%" height="100%" viewBox="0 0 100 100" aria-hidden="true">
-        <rect width="100" height="100" fill="var(--map-land)" />
-        <path d="M0 40 L100 35 M0 72 L100 68 M45 0 L48 100" stroke="var(--map-road)" stroke-width="6" />
-        <path d="M22 86 C35 60 60 45 80 18" stroke="var(--brand-600)" stroke-width="4" fill="none" stroke-linecap="round" />
-        <circle cx="22" cy="86" r="6" fill="var(--info-600)" stroke="#fff" stroke-width="2.5" />
-        <circle cx="80" cy="18" r="5" fill="var(--brand-600)" stroke="#fff" stroke-width="2" />
-      </svg>
+      <SiteMap
+        :sites="[site]"
+        :selected-id="site.id"
+        :route-path="walk.path.value"
+        :route-type="trip.routeTypeConfig"
+        :real-route="walk.isRealRoute.value"
+        :user="user"
+        :start="location.origin"
+        fit="route"
+        :interactive="false"
+        :show-labels="false"
+        :padding="{ top: 14, right: 14, bottom: 14, left: 14 }"
+        :box="{ x: [15, 85], y: [15, 85] }"
+      />
     </RouterLink>
 
     <section class="ar-nav__summary">
       <div>
-        <p class="ar-nav__eta">{{ trip.minutesTo(site) }} min</p>
+        <p class="ar-nav__eta">{{ walk.minutes.value }} min</p>
         <p class="t-small muted">{{ site.name }}</p>
       </div>
       <BaseButton @click="arrived = true">Simulate arrival</BaseButton>
@@ -101,6 +122,9 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
   top: 108px;
   left: 50%;
   z-index: 2;
+  width: max-content;
+  max-width: calc(100% - var(--gutter) * 2);
+  white-space: normal; /* real street instructions can be long */
   transform: translateX(-50%);
 }
 .ar-nav__arrows {
@@ -123,12 +147,15 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
   right: var(--gutter);
   bottom: 150px;
   z-index: 2;
-  width: 104px;
-  height: 104px;
+  width: 120px;
+  height: 120px;
   overflow: hidden;
   border: 3px solid var(--paper);
   border-radius: var(--r-lg);
   box-shadow: var(--e-2);
+}
+.ar-nav__minimap > * {
+  pointer-events: none; /* the whole thumbnail is a link to the full map */
 }
 .ar-nav__summary {
   position: absolute;

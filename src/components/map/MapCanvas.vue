@@ -1,61 +1,81 @@
 <script setup>
 /**
  * Illustrated fallback map (used when Google Maps isn't configured or fails):
- * numbered site pins, the walker's position and the planned route line.
- * Positions are percentages of the canvas, projected from real coordinates.
+ * numbered site pins, the walker / route start, and the route path — all
+ * projected from real coordinates into the `box` area of the illustration.
  */
 import { computed } from 'vue'
 import MapBackdrop from './MapBackdrop.vue'
+import { FALLBACK_MAP_BOX, SITE_BOUNDS } from '@/data/sites'
+import { boundsOf, projectToBox } from '@/lib/geo'
 
 const props = defineProps({
   sites: { type: Array, required: true },
   selectedId: { type: Number, default: null },
-  /** ROUTE_TYPES entry used to style the route line. */
-  routeType: { type: Object, required: true },
-  /** Walker position on the canvas (%), or null when outside the mapped area. */
-  userPosition: { type: Object, default: null },
-  /** Where the route line starts (%): the walker, or the city centre. */
-  originPosition: { type: Object, required: true },
+  routePath: { type: Array, default: () => [] },
+  /** CSS colour (token) for the route line. */
+  routeColor: { type: String, default: 'var(--brand-600)' },
+  realRoute: { type: Boolean, default: false },
+  user: { type: Object, default: null },
+  start: { type: Object, default: null },
+  /** 'all' = Hobart overview; 'route' = zoomed to the route. */
+  fit: { type: String, default: 'all' },
+  /** Percent area of the canvas that pins may occupy (avoid overlays). */
+  box: { type: Object, default: () => FALLBACK_MAP_BOX },
+  interactive: { type: Boolean, default: true },
 })
 const emit = defineEmits(['select'])
 
-const selected = computed(() => props.sites.find((s) => s.id === props.selectedId) ?? null)
+const bounds = computed(() =>
+  props.fit === 'route' && props.routePath.length > 1 ? boundsOf(props.routePath, 0.15) : SITE_BOUNDS,
+)
+const project = (p) => (p ? projectToBox(p, bounds.value, props.box) : null)
+
+const pins = computed(() => props.sites.map((site) => ({ site, pos: project(site.coordinates) })).filter((p) => p.pos))
+const userPos = computed(() => project(props.user))
+const startPos = computed(() => (props.user ? null : project(props.start)))
+const routePoints = computed(() =>
+  props.routePath
+    .map(project)
+    .filter(Boolean)
+    .map((p) => `${p.x},${p.y}`)
+    .join(' '),
+)
+
+// No-op camera controls so parents can call the same API as GoogleMap.
+defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
 </script>
 
 <template>
   <div class="map-canvas">
     <MapBackdrop />
 
-    <svg v-if="selected" class="map-canvas__route" aria-hidden="true">
-      <line
-        :x1="`${originPosition.x}%`"
-        :y1="`${originPosition.y}%`"
-        :x2="`${selected.mapPosition.x}%`"
-        :y2="`${selected.mapPosition.y}%`"
-        :stroke="routeType.color"
+    <svg v-if="routePoints" class="map-canvas__route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <polyline
+        :points="routePoints"
+        fill="none"
+        :stroke="routeColor"
         stroke-width="4"
         stroke-linecap="round"
-        :stroke-dasharray="routeType.dashed ? '2 8' : undefined"
+        stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
+        :stroke-dasharray="realRoute ? undefined : '2 8'"
       />
     </svg>
 
-    <span
-      v-if="userPosition"
-      class="map-canvas__user"
-      :style="{ left: `${userPosition.x}%`, top: `${userPosition.y}%` }"
-      role="img"
-      aria-label="Your location"
-    />
+    <span v-if="userPos" class="map-canvas__dot map-canvas__dot--user" :style="{ left: `${userPos.x}%`, top: `${userPos.y}%` }" role="img" aria-label="Your location" />
+    <span v-if="startPos" class="map-canvas__dot map-canvas__dot--start" :style="{ left: `${startPos.x}%`, top: `${startPos.y}%` }" role="img" aria-label="Route start" />
 
     <button
-      v-for="site in sites"
+      v-for="{ site, pos } in pins"
       :key="site.id"
       type="button"
       class="pin"
       :class="{ 'is-selected': site.id === selectedId }"
-      :style="{ left: `${site.mapPosition.x}%`, top: `${site.mapPosition.y}%` }"
+      :style="{ left: `${pos.x}%`, top: `${pos.y}%` }"
       :aria-label="site.name"
       :aria-pressed="site.id === selectedId"
+      :disabled="!interactive"
       @click="emit('select', site.id)"
     >
       <span class="pin__head"><b>{{ site.id }}</b></span>
@@ -78,15 +98,20 @@ const selected = computed(() => props.sites.find((s) => s.id === props.selectedI
   height: 100%;
   pointer-events: none;
 }
-.map-canvas__user {
+.map-canvas__dot {
   position: absolute;
   width: 18px;
   height: 18px;
   border-radius: 50%;
   border: 3px solid var(--paper);
-  background: var(--info-600);
   transform: translate(-50%, -50%);
+}
+.map-canvas__dot--user {
+  background: var(--info-600);
   box-shadow: 0 0 0 8px rgba(47, 111, 237, 0.18);
+}
+.map-canvas__dot--start {
+  background: var(--ink-900);
 }
 .pin {
   position: absolute;
@@ -94,6 +119,9 @@ const selected = computed(() => props.sites.find((s) => s.id === props.selectedI
   flex-direction: column;
   align-items: center;
   transform: translate(-50%, -100%);
+}
+.pin:disabled {
+  cursor: default;
 }
 .pin__head {
   width: 30px;

@@ -9,16 +9,14 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import GoogleMap from '@/components/map/GoogleMap.vue'
-import MapCanvas from '@/components/map/MapCanvas.vue'
+import SiteMap from '@/components/map/SiteMap.vue'
 import StopPicker from '@/components/map/StopPicker.vue'
 import SiteList from '@/components/map/SiteList.vue'
 import RouteTypePicker from '@/components/map/RouteTypePicker.vue'
-import { FALLBACK_MAP_BOX, SITE_BOUNDS, SITES } from '@/data/sites'
+import { SITES } from '@/data/sites'
 import { MAX_STOPS } from '@/data/navigation'
-import { projectToBox } from '@/lib/geo'
-import { formatKm } from '@/lib/format'
-import { isGoogleMapsConfigured } from '@/services/googleMaps'
+import { formatMeters } from '@/lib/format'
+import { useWalkingRoute } from '@/composables/useWalkingRoute'
 import { useTripStore } from '@/stores/trip'
 import { useUiStore } from '@/stores/ui'
 import { useLocationStore } from '@/stores/location'
@@ -27,25 +25,16 @@ const trip = useTripStore()
 const ui = useUiStore()
 const location = useLocationStore()
 
-// ---- which map renders ----
-const useGoogle = ref(isGoogleMapsConfigured())
-const googleMap = ref(null)
-function fallBackToIllustration(error) {
-  if (import.meta.env.DEV) console.warn('[MapView] Google Maps unavailable, using illustrated map:', error?.message)
-  useGoogle.value = false
-}
+const siteMap = ref(null)
 
 // ---- live distances ----
 const distances = computed(() => new Map(SITES.map((site) => [site.id, location.distanceTo(site)])))
 const nearest = computed(() => [...SITES].sort((a, b) => distances.value.get(a.id).km - distances.value.get(b.id).km)[0])
 const selected = computed(() => trip.destination)
-const selectedDistance = computed(() => selected.value && distances.value.get(selected.value.id))
 const userCoords = computed(() => (location.isInHobart ? location.coords : null))
 
-// Fallback map positions (percent of the illustration)
-const project = (point) => projectToBox(point, SITE_BOUNDS, FALLBACK_MAP_BOX)
-const userPosition = computed(() => (userCoords.value ? project(userCoords.value) : null))
-const originPosition = computed(() => project(location.origin) ?? project(SITES[0].coordinates))
+// Real walking route to the selected site (straight-line estimate as fallback)
+const walk = useWalkingRoute(selected)
 
 const routeType = computed({
   get: () => trip.routeType,
@@ -82,11 +71,11 @@ function locate() {
   }
   location.start()
   if (location.isInHobart) {
-    googleMap.value?.focusUser()
+    siteMap.value?.focusUser()
     ui.showToast('Showing your location')
   } else if (location.status === 'active') {
     ui.showToast("You're outside Hobart — showing the city centre", { duration: 2600 })
-    googleMap.value?.showAll()
+    siteMap.value?.recenter()
   } else {
     ui.showToast('Locating you', { spinner: true, duration: 1600 })
   }
@@ -116,25 +105,19 @@ function toggleOffline() {
 
 <template>
   <div class="map-view">
-    <div class="map-view__map" :style="useGoogle ? { bottom: `${Math.max(0, panelHeight - 8)}px` } : null">
-      <GoogleMap
-        v-if="useGoogle"
-        ref="googleMap"
+    <!-- Map sits above the bottom panel so Google's logo and attribution stay visible -->
+    <div class="map-view__map" :style="{ bottom: `${Math.max(0, panelHeight - 8)}px` }">
+      <SiteMap
+        ref="siteMap"
         :sites="SITES"
         :selected-id="trip.destinationId"
+        :route-path="selected ? walk.path.value : []"
         :route-type="trip.routeTypeConfig"
+        :real-route="walk.isRealRoute.value"
         :user="userCoords"
-        :origin="location.origin"
-        @select="trip.setDestination"
-        @error="fallBackToIllustration"
-      />
-      <MapCanvas
-        v-else
-        :sites="SITES"
-        :selected-id="trip.destinationId"
-        :route-type="trip.routeTypeConfig"
-        :user-position="userPosition"
-        :origin-position="originPosition"
+        :start="selected ? location.origin : null"
+        :fit="selected ? 'route' : 'all'"
+        :box="{ x: [10, 86], y: [14, 86] }"
         @select="trip.setDestination"
       />
     </div>
@@ -159,14 +142,15 @@ function toggleOffline() {
           <div class="selected__text">
             <h2 class="selected__name">{{ selected.name }}</h2>
             <p class="t-small muted">
-              {{ selected.area }} · {{ formatKm(selectedDistance.km) }} {{ location.originLabel }}
+              {{ selected.area }} · {{ formatMeters(walk.distanceMeters.value) }} {{ location.originLabel }}
+              <template v-if="walk.status.value === 'fallback'"> · straight-line estimate</template>
             </p>
           </div>
           <IconButton icon="close" label="Close" variant="sand" @click="trip.clearDestination" />
         </div>
 
         <p class="t-caption panel__label">Route type</p>
-        <RouteTypePicker v-model="routeType" :base-minutes="selectedDistance.minutes" />
+        <RouteTypePicker v-model="routeType" :base-minutes="walk.baseMinutes.value" />
 
         <ul v-if="trip.stops.length" class="stop-chips" aria-label="Stops on this route">
           <li v-for="stop in trip.stops" :key="stop.id">

@@ -1,10 +1,17 @@
 <script setup>
-import { computed } from 'vue'
+/** Paper copy of the route: Google map + real turn-by-turn steps + space for notes. */
+import { computed, onMounted } from 'vue'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
+import AppIcon from '@/components/base/AppIcon.vue'
+import SiteMap from '@/components/map/SiteMap.vue'
 import { getSiteById } from '@/data/sites'
+import { formatMeters } from '@/lib/format'
+import { maneuverIcon } from '@/lib/guidance'
+import { useWalkingRoute } from '@/composables/useWalkingRoute'
 import { useTripStore } from '@/stores/trip'
+import { useLocationStore } from '@/stores/location'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -13,7 +20,13 @@ const props = defineProps({
 const NOTE_LINES = 3
 
 const trip = useTripStore()
+const location = useLocationStore()
 const site = computed(() => getSiteById(props.id))
+const walk = useWalkingRoute(site)
+const user = computed(() => (location.isInHobart ? location.coords : null))
+const amenityStops = computed(() => trip.stops.filter((s) => !s.siteId))
+
+onMounted(() => location.start())
 const print = () => window.print()
 </script>
 
@@ -26,20 +39,48 @@ const print = () => window.print()
       <p class="t-body">Your route, stops and space for notes. Works offline, needs no battery.</p>
 
       <article class="paper">
-        <svg class="paper__map" viewBox="0 0 300 160" role="img" :aria-label="`Route to ${site.name}`">
-          <rect width="300" height="160" fill="var(--map-land)" />
-          <path d="M0 50 L300 45 M0 115 L300 108 M120 0 L126 160" stroke="var(--map-road)" stroke-width="9" />
-          <path d="M40 140 C80 105 160 85 250 22" stroke="var(--brand-600)" stroke-width="3.5" fill="none" stroke-dasharray="6 5" stroke-linecap="round" />
-          <circle cx="40" cy="140" r="7" fill="var(--info-600)" stroke="#fff" stroke-width="2" />
-          <circle cx="250" cy="22" r="7" fill="var(--brand-600)" stroke="#fff" stroke-width="2" />
-        </svg>
-        <ol class="paper__steps">
-          <li>Start — your location</li>
-          <li v-for="stop in trip.stops" :key="stop.id">{{ stop.label }}</li>
+        <div class="paper__map">
+          <SiteMap
+            :sites="[site, ...walk.stopSites.value]"
+            :selected-id="site.id"
+            :route-path="walk.path.value"
+            :route-type="trip.routeTypeConfig"
+            :real-route="walk.isRealRoute.value"
+            :user="user"
+            :start="location.origin"
+            fit="route"
+            :interactive="false"
+            :padding="{ top: 32, right: 32, bottom: 32, left: 32 }"
+            :box="{ x: [12, 88], y: [14, 86] }"
+          />
+        </div>
+
+        <p class="paper__summary">
+          <b>{{ site.name }}</b> · {{ trip.routeTypeConfig.label }} route · {{ walk.minutes.value }} min ·
+          {{ formatMeters(walk.distanceMeters.value) }} {{ location.originLabel }}
+        </p>
+
+        <ol v-if="walk.isRealRoute.value" class="paper__steps">
+          <li v-for="(step, i) in walk.route.value.steps" :key="i">
+            <AppIcon :name="maneuverIcon(step.maneuver)" :size="16" />
+            <span>{{ step.instruction }}</span>
+            <small>{{ formatMeters(step.distanceMeters) }}</small>
+          </li>
           <li>
-            <b>{{ site.name }}</b> · {{ trip.routeTypeConfig.label }} route, {{ trip.minutesTo(site) }} min
+            <AppIcon name="pin" :size="16" />
+            <span>Arrive at {{ site.name }}</span>
           </li>
         </ol>
+        <ol v-else class="paper__steps paper__steps--simple">
+          <li><span>Start — {{ user ? 'your location' : 'Franklin Square (city centre)' }}</span></li>
+          <li v-for="stop in walk.stopSites.value" :key="stop.id"><span>{{ stop.name }}</span></li>
+          <li><span><b>{{ site.name }}</b></span></li>
+        </ol>
+
+        <p v-if="amenityStops.length" class="paper__reminders">
+          Also on your list: {{ amenityStops.map((s) => s.label).join(', ') }}
+        </p>
+
         <p class="t-caption paper__notes-label">Notes</p>
         <div class="paper__lines" aria-hidden="true"><i v-for="n in NOTE_LINES" :key="n" /></div>
       </article>
@@ -64,14 +105,51 @@ const print = () => window.print()
   background: var(--paper);
 }
 .paper__map {
-  width: 100%;
+  position: relative;
+  height: 220px;
+  overflow: hidden;
   border-radius: var(--r-sm);
 }
-.paper__steps {
+.paper__summary {
   margin-top: var(--s-3);
-  padding-left: var(--s-5);
-  font: 500 14px/28px var(--font-body);
+  font: var(--t-small);
+  color: var(--ink-700);
+}
+.paper__summary b {
   color: var(--ink-900);
+}
+.paper__steps {
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.paper__steps li {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  align-items: start;
+  gap: var(--s-2);
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--sand);
+  font: 500 13px/18px var(--font-body);
+  color: var(--ink-900);
+}
+.paper__steps li :deep(svg) {
+  margin-top: 1px;
+  color: var(--ink-500);
+}
+.paper__steps small {
+  font: 600 12px var(--font-label);
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+.paper__steps--simple li {
+  grid-template-columns: 1fr;
+}
+.paper__reminders {
+  margin-top: var(--s-3);
+  font: var(--t-small);
+  color: var(--ink-500);
 }
 .paper__notes-label {
   margin-top: var(--s-4);

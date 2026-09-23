@@ -11,14 +11,17 @@ export const ROUTE_TYPES = [
 
 export const DEFAULT_ROUTE_TYPE = 'normal'
 
-/** Optional stops a walker can add to a route. */
+/**
+ * Optional stops a walker can add to a route. Stops with a `siteId` are routed
+ * through as real waypoints; amenity stops (toilets, coffee…) are reminders only.
+ */
 export const WAYPOINTS = [
   { id: 'toilets', label: 'Toilets', detourMinutes: 2, icon: 'toilet' },
   { id: 'coffee', label: 'Coffee', detourMinutes: 4, icon: 'coffee' },
   { id: 'library', label: 'Library', detourMinutes: 8, icon: 'book' },
-  { id: 'salamanca', label: 'Salamanca', detourMinutes: 7, icon: 'anchor' },
-  { id: 'st-georges', label: "St George's", detourMinutes: 3, icon: 'church' },
-  { id: 'narryna', label: 'Narryna', detourMinutes: 6, icon: 'house' },
+  { id: 'salamanca', label: 'Salamanca', detourMinutes: 7, icon: 'anchor', siteId: 3 },
+  { id: 'st-georges', label: "St George's", detourMinutes: 3, icon: 'church', siteId: 2 },
+  { id: 'narryna', label: 'Narryna', detourMinutes: 6, icon: 'house', siteId: 5 },
 ]
 
 export const MAX_STOPS = 4

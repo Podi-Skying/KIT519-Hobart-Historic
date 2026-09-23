@@ -15,6 +15,7 @@ export const ICONS = {
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
   navigate: '<path d="M12 2l7.5 19-7.5-4.5L4.5 21z"/>',
   turnLeft: '<path d="M9 5L4 10l5 5"/><path d="M4 10h9a6 6 0 016 6v4"/>',
+  turnRight: '<path d="M15 5l5 5-5 5"/><path d="M20 10h-9a6 6 0 00-6 6v4"/>',
   up: '<path d="M12 20V5M5 12l7-7 7 7"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   minus: '<path d="M5 12h14"/>',

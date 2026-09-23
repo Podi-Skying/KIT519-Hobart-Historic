@@ -53,14 +53,20 @@ npm test           # 單元測試（Vitest）
 
 Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用插畫版地圖**，其他功能不受影響。
 
-1. 到 [Google Cloud Console](https://console.cloud.google.com/) 建立專案，啟用 **Maps JavaScript API**（需綁定帳單，每月有免費額度）。
+1. 到 [Google Cloud Console](https://console.cloud.google.com/) 建立專案，啟用 **Maps JavaScript API** 與 **Routes API**（步行路線規劃；需綁定帳單，每月有免費額度）。
 2. 在 **Credentials** 建立 API key，並設定 **Application restrictions → Websites**：
    - `http://localhost:5173/*`
    - `https://podi-skying.github.io/*`
+   若有設定 **API restrictions**，需同時勾選 Maps JavaScript API 與 Routes API。
    （Maps JS 的 key 會出現在網頁原始碼中，這是正常設計；靠網域限制防止他人盜用。）
 3. 本機：複製 `.env.example` 成 `.env.local`，填入 `VITE_GOOGLE_MAPS_API_KEY`。`.env.local` 不會被 git 追蹤。
 4. 線上版：GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**，新增 `GOOGLE_MAPS_API_KEY`。下次部署時自動套用。
 5. （選用）在 **Map Management** 建立 Map ID 並套用米色地圖樣式，填入 `VITE_GOOGLE_MAPS_MAP_ID` / secret `GOOGLE_MAPS_MAP_ID`；未設定時使用 Google 預設樣式。
+
+**步行路線**：所有地圖畫面（Map、標準導航、AR 導航小地圖、可列印地圖）都用 Google Routes API（`travelMode: WALK`）規劃沿實際道路的路線，並依即時位置顯示下一個轉彎與距離。
+- 使用者加入的景點停靠點（Salamanca、St George's、Narryna）會成為真正的途經點；廁所、咖啡等只列為提醒。
+- Routes API 未啟用或請求失敗時，改以虛線直線顯示並標示「straight-line estimate」，頁面照常運作。
+- 同一路線會快取；使用者移動超過 50 m 才重新規劃，以節省 API 用量。
 
 **定位**：Map 頁會向瀏覽器請求位置權限。
 - 使用者在 Hobart 25 km 內 → 地圖顯示藍色定位點，距離與步行時間從使用者位置計算。
@@ -115,10 +121,13 @@ hobart-heritage/
 │   ├── lib/                   # 純函式（有單元測試）
 │   │   ├── sites.js           # filterSites / rankByLikes / nearestSite / walkMinutesFor
 │   │   ├── geo.js             # distanceKm / walkingMinutes / projectToBox（地理計算）
+│   │   ├── polyline.js        # Google encoded polyline 解碼
+│   │   ├── guidance.js        # 逐步導航：依位置判斷下一個轉彎
 │   │   ├── format.js          # formatClock / pluralize / formatKm
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
 │   ├── services/googleMaps.js # Google Maps API 載入器（讀取 VITE_ 環境變數）
+│   ├── services/routes.js     # Google Routes API 步行路線（含快取）
 │   ├── stores/                # Pinia stores（依領域拆分）
 │   │   ├── favorites.js       # 按讚
 │   │   ├── trip.js            # 目的地、路線類型、停靠點、地圖偏好
@@ -129,7 +138,8 @@ hobart-heritage/
 │   │   ├── useCarousel.js     # 吸附輪播 + 桌機拖曳
 │   │   ├── useSwipe.js        # 左右滑動
 │   │   ├── useKeydown.js      # 頁面鍵盤快捷鍵
-│   │   └── useGoBack.js       # 返回（沒有歷史紀錄時走 fallback）
+│   │   ├── useGoBack.js       # 返回（沒有歷史紀錄時走 fallback）
+│   │   └── useWalkingRoute.js # 目前位置 → 景點的步行路線（所有導航畫面共用）
 │   ├── assets/
 │   │   ├── icons.js           # 圖示庫（24px 線條）
 │   │   └── images/splash-bg.jpg
@@ -144,7 +154,7 @@ hobart-heritage/
 │   │   ├── splash/            # SplashScreen.vue、TapToStart.vue
 │   │   ├── home/              # SearchField、HeritageCarousel、SiteGridCard
 │   │   ├── site/              # GalleryRail
-│   │   ├── map/               # GoogleMap、MapCanvas（插畫備援）、MapBackdrop、StopPicker、SiteList、RouteTypePicker
+│   │   ├── map/               # SiteMap（統一入口）→ GoogleMap / MapCanvas（插畫備援）；StopPicker、SiteList、RouteTypePicker
 │   │   └── ar/                # ArBubble、ArStatusPill、ArHelpOverlay
 │   └── views/                 # 一個路由 = 一個 View（皆為 lazy-load）
 │       ├── HomeView.vue  SiteDetailView.vue  GalleryView.vue  AudioTourView.vue
