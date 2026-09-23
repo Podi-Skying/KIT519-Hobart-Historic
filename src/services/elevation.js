@@ -60,10 +60,11 @@ export function samplePath(path, spacingM = SAMPLE_SPACING_M, maxSamples = MAX_S
 
 /**
  * Climb and steepness of a series of (point, elevation) samples.
- * Grades are measured over stretches of at least `minRunM` to smooth DEM noise.
+ * Grades are measured over stretches of at least `minRunM`: the terrain model has
+ * ~90 m cells, so shorter windows turn a single cell edge into a fake cliff.
  * @returns {{climbMeters:number, descentMeters:number, maxGrade:number}}  maxGrade as a fraction (0.08 = 8 %)
  */
-export function elevationProfile(points, elevations, minRunM = 80) {
+export function elevationProfile(points, elevations, minRunM = 150) {
   let climb = 0
   let descent = 0
   let maxGrade = 0
