@@ -5,6 +5,7 @@
  * projected from real coordinates into the `box` area of the illustration.
  */
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import MapBackdrop from './MapBackdrop.vue'
 import { FALLBACK_MAP_BOX, SITE_BOUNDS } from '@/data/sites'
 import { boundsOf, projectToBox } from '@/lib/geo'
@@ -25,6 +26,7 @@ const props = defineProps({
   interactive: { type: Boolean, default: true },
 })
 const emit = defineEmits(['select'])
+const { t } = useI18n()
 
 const bounds = computed(() =>
   props.fit === 'route' && props.routePath.length > 1 ? boundsOf(props.routePath, 0.15) : SITE_BOUNDS,
@@ -63,8 +65,8 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
       />
     </svg>
 
-    <span v-if="userPos" class="map-canvas__dot map-canvas__dot--user" :style="{ left: `${userPos.x}%`, top: `${userPos.y}%` }" role="img" aria-label="Your location" />
-    <span v-if="startPos" class="map-canvas__dot map-canvas__dot--start" :style="{ left: `${startPos.x}%`, top: `${startPos.y}%` }" role="img" aria-label="Route start" />
+    <span v-if="userPos" class="map-canvas__dot map-canvas__dot--user" :style="{ left: `${userPos.x}%`, top: `${userPos.y}%` }" role="img" :aria-label="t('map.yourLocation')" />
+    <span v-if="startPos" class="map-canvas__dot map-canvas__dot--start" :style="{ left: `${startPos.x}%`, top: `${startPos.y}%` }" role="img" :aria-label="t('map.routeStart')" />
 
     <button
       v-for="{ site, pos } in pins"

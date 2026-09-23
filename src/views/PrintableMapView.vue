@@ -1,12 +1,13 @@
 <script setup>
 /** Paper copy of the route: Google map + real turn-by-turn steps + space for notes. */
 import { computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
-import { getSiteById } from '@/data/sites'
+import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
 import { maneuverIcon } from '@/lib/guidance'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
@@ -19,12 +20,14 @@ const props = defineProps({
 
 const NOTE_LINES = 3
 
+const { t } = useI18n()
+const { siteById } = useContent()
 const trip = useTripStore()
 const location = useLocationStore()
-const site = computed(() => getSiteById(props.id))
+const site = computed(() => siteById(props.id))
 const walk = useWalkingRoute(site)
 const user = computed(() => (location.isInHobart ? location.coords : null))
-const amenityStops = computed(() => trip.stops.filter((s) => !s.siteId))
+const amenityStops = computed(() => trip.stops.filter((s) => !s.siteId).map((s) => t(`waypoints.${s.id}`)))
 
 onMounted(() => location.start())
 const print = () => window.print()
@@ -34,9 +37,9 @@ const print = () => window.print()
   <AppPage>
     <PageHeader :fallback="{ name: 'navigate', params: { id } }" />
     <div class="content">
-      <p class="t-caption">Paper navigation</p>
-      <h1 class="t-display content__title">Printable walking map</h1>
-      <p class="t-body">Your route, stops and space for notes. Works offline, needs no battery.</p>
+      <p class="t-caption">{{ t('print.eyebrow') }}</p>
+      <h1 class="t-display content__title">{{ t('print.title') }}</h1>
+      <p class="t-body">{{ t('print.lead') }}</p>
 
       <article class="paper">
         <div class="paper__map">
@@ -56,8 +59,8 @@ const print = () => window.print()
         </div>
 
         <p class="paper__summary">
-          <b>{{ site.name }}</b> · {{ trip.routeTypeConfig.label }} route · {{ walk.minutes.value }} min ·
-          {{ formatMeters(walk.distanceMeters.value) }} {{ location.originLabel }}
+          <b>{{ site.name }}</b> · {{ t('navigation.routeLabel', { type: t(`routeTypes.${trip.routeType}.label`) }) }} ·
+          {{ t('common.minutes', { n: walk.minutes.value }) }} · {{ formatMeters(walk.distanceMeters.value) }} {{ t(location.originLabelKey) }}
         </p>
 
         <ol v-if="walk.isRealRoute.value" class="paper__steps">
@@ -68,24 +71,24 @@ const print = () => window.print()
           </li>
           <li>
             <AppIcon name="pin" :size="16" />
-            <span>Arrive at {{ site.name }}</span>
+            <span>{{ t('print.arriveAt', { name: site.name }) }}</span>
           </li>
         </ol>
         <ol v-else class="paper__steps paper__steps--simple">
-          <li><span>Start — {{ user ? 'your location' : 'Franklin Square (city centre)' }}</span></li>
+          <li><span>{{ user ? t('print.startYou') : t('print.startDefault') }}</span></li>
           <li v-for="stop in walk.stopSites.value" :key="stop.id"><span>{{ stop.name }}</span></li>
           <li><span><b>{{ site.name }}</b></span></li>
         </ol>
 
         <p v-if="amenityStops.length" class="paper__reminders">
-          Also on your list: {{ amenityStops.map((s) => s.label).join(', ') }}
+          {{ t('print.also', { list: amenityStops.join(', ') }) }}
         </p>
 
-        <p class="t-caption paper__notes-label">Notes</p>
+        <p class="t-caption paper__notes-label">{{ t('print.notes') }}</p>
         <div class="paper__lines" aria-hidden="true"><i v-for="n in NOTE_LINES" :key="n" /></div>
       </article>
 
-      <BaseButton block icon="print" class="no-print content__print" @click="print">Print or save as PDF</BaseButton>
+      <BaseButton block icon="print" class="no-print content__print" @click="print">{{ t('print.print') }}</BaseButton>
     </div>
   </AppPage>
 </template>

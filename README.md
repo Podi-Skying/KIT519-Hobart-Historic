@@ -4,11 +4,13 @@
 Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 
 - **Leading page** → 點 *Tap to start* 進入 Home
-- **Home**：Top 5 輪播、景點清單（搜尋＋分類篩選）、按讚
+- **5 種語言**：English／繁體中文／日本語／한국어／Tiếng Việt，介面、景點內容、語音導覽、Google 路線指示全部跟著切換
+- **Home**：Top 5 輪播、景點清單（可收合搜尋＋分類篩選）、按讚、語言切換
 - **景點詳情**：資訊、步行路線、語音導覽、歷年相簿
 - **Map**：Google Maps 顯示各景點實際座標與使用者即時定位；路線類型（一般／無障礙／陡坡）、最多 4 個停靠點
 - **導航**：標準地圖／AR 導航／可列印地圖
-- **AR**：模擬掃描辨識、可拖曳資訊泡泡、1844 年今昔對照
+- **語音導覽**：以裝置內建語音（Web Speech API，免費、免金鑰）朗讀所選語言的導覽稿
+- **AR**：依景點顯示相機畫面與資訊，可切換地標；有檔案照片的景點（Cascade、Penitentiary）提供今昔對照
 - **Weather**：步行天氣、最佳步行時段、一週預報
 
 ---
@@ -63,6 +65,13 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 4. 線上版：GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**，新增 `GOOGLE_MAPS_API_KEY`。下次部署時自動套用。
 5. （選用）在 **Map Management** 建立 Map ID 並套用米色地圖樣式，填入 `VITE_GOOGLE_MAPS_MAP_ID` / secret `GOOGLE_MAPS_MAP_ID`；未設定時使用 Google 預設樣式。
 
+**三種路線（Normal / Accessible / Steep）**：Google 的步行模式沒有「平緩」或「爬坡」選項，因此 `services/routeOptions.js` 會：
+1. 取得 Google 最快路線與替代路線；
+2. 另外強制經過低地的海濱／溪谷途經點（Franklin Wharf、Parliament House Gardens、Hobart Rivulet Park）與坡頂公園（Princes Park、Arthur Circus），只保留繞路 ≤ 60% 的候選；
+3. 用 **Open-Meteo Elevation API**（免費、免金鑰）量測每條候選的總爬升與最大坡度；
+4. Normal = 最快；Accessible = 坡度最緩、爬升最少（時間 ≤ 1.6 倍）；Steep = 爬升最多（時間 ≤ 1.9 倍）。
+步行時間依 Naismith 法則每爬升 10 m 加 1 分鐘。畫面會顯示每種路線的說明與實測「↑ 爬升 · 最大坡度 · 經由」。
+
 **步行路線**：所有地圖畫面（Map、標準導航、AR 導航小地圖、可列印地圖）都用 Google Routes API（`travelMode: WALK`）規劃沿實際道路的路線，並依即時位置顯示下一個轉彎與距離。
 - 使用者加入的景點停靠點（Salamanca、St George's、Narryna）會成為真正的途經點；廁所、咖啡等只列為提醒。
 - Routes API 未啟用或請求失敗時，改以虛線直線顯示並標示「straight-line estimate」，頁面照常運作。
@@ -70,8 +79,27 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 
 **定位**：Map 頁會向瀏覽器請求位置權限。
 - 使用者在 Hobart 25 km 內 → 地圖顯示藍色定位點，距離與步行時間從使用者位置計算。
-- 拒絕權限、無法定位或不在 Hobart → 距離改從市中心（Franklin Square）計算，並標示「from city centre」。
+- 拒絕權限、無法定位或不在 Hobart → 預設起點為 **Centenary Building（Grosvenor Crescent, Dynnyrne TAS 7005）**，並標示「from Centenary Building」。
 - 瀏覽器只在 HTTPS 或 localhost 提供定位；GitHub Pages 為 HTTPS，可正常使用。
+
+### 多語言（i18n）
+
+| 內容 | 位置 |
+| --- | --- |
+| 介面文字 | `src/i18n/messages/<locale>.js`（vue-i18n；`en.js` 為來源語言） |
+| 景點介紹、相簿說明、今昔對照、導覽稿 | 英文在 `src/data/`；翻譯在 `src/i18n/content/<locale>.js`，由 `src/i18n/content.js` 合併 |
+| 語言清單、語音標籤 | `src/i18n/index.js` 的 `LOCALES` |
+
+- 缺少的翻譯一律退回英文，不會出現空白。
+- 景點名稱為專有名詞，保留英文。
+- 單元測試會檢查每種語言的介面鍵值與英文**完全一致**、且 `{placeholder}` 沒有遺漏；新增文字時忘了翻譯，`npm test` 會直接失敗。
+- 語言選擇會記住（localStorage），並設定 `<html lang>`；Google 路線指示與地圖標籤也使用同一語言。
+
+**新增一種語言**：複製 `messages/en.js` 翻譯 → 新增 `content/<code>.js` → 在 `i18n/index.js` 的 `LOCALES` 與 `messages`、`i18n/content.js` 的 `CONTENT` 登記。
+
+### 語音導覽（免費）
+
+使用瀏覽器內建的 **Web Speech API**（`speechSynthesis`）：不需 API 金鑰、不收費、可離線。iOS／macOS、Android、Windows 與 Chrome 都內建英、中、日、韓、越語音；若裝置缺少某語言的語音，頁面會提示使用者到系統設定新增。逐句朗讀，進度條、±15 秒與拖曳都以句子為單位。
 
 ## 2. 技術架構
 
@@ -127,7 +155,11 @@ hobart-heritage/
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
 │   ├── services/googleMaps.js # Google Maps API 載入器（讀取 VITE_ 環境變數）
-│   ├── services/routes.js     # Google Routes API 步行路線（含快取）
+│   ├── services/routes.js     # Google Routes API 步行路線（替代路線、途經點、快取）
+│   ├── services/routeOptions.js # Normal / Accessible / Steep 路線挑選
+│   ├── services/elevation.js  # Open-Meteo 海拔：爬升與坡度
+│   ├── services/speech.js     # Web Speech API 朗讀與語音挑選
+│   ├── i18n/                  # 多語言：index.js、messages/、content/、content.js
 │   ├── stores/                # Pinia stores（依領域拆分）
 │   │   ├── favorites.js       # 按讚
 │   │   ├── trip.js            # 目的地、路線類型、停靠點、地圖偏好
@@ -153,6 +185,7 @@ hobart-heritage/
 │   │   │   └── PageHeader.vue   # 子頁標頭（返回鍵＋標題）
 │   │   ├── splash/            # SplashScreen.vue、TapToStart.vue
 │   │   ├── home/              # SearchField、HeritageCarousel、SiteGridCard
+│   │   ├── layout/…           # （另含 LanguageButton、LanguageSheet 語言切換）
 │   │   ├── site/              # GalleryRail
 │   │   ├── map/               # SiteMap（統一入口）→ GoogleMap / MapCanvas（插畫備援）；StopPicker、SiteList、RouteTypePicker
 │   │   └── ar/                # ArBubble、ArStatusPill、ArHelpOverlay
@@ -176,7 +209,7 @@ hobart-heritage/
 | `/map` | MapView | Map |
 | `/navigate/:id` | NavigationModesView | Map |
 | `/navigate/:id/map` · `/ar` · `/print` | 標準／AR／列印導航 | Map |
-| `/ar` · `/ar/compare` | ArCameraView · ArCompareView | AR |
+| `/ar/:id?` · `/ar/:id/compare` | ArCameraView（無 id = 最近的景點）· ArCompareView（僅限有檔案照片的景點） | AR |
 | `/weather` | WeatherView | Weather |
 
 不存在的景點 id 會被 `beforeEnter` 導回 Home；未知路徑一律導回 Home。
@@ -364,6 +397,9 @@ hobart-heritage/
 | **BottomSheet** | 米色、上圓角 24、把手 40×4 | 點背景或 Esc 關閉；`aria-modal` |
 | **Toast / 狀態膠囊** | 炭灰底、米色字、圓角 12 | 1.8 秒自動消失；進行中狀態附 spinner |
 | **Tab bar** | 白底、上邊框砂色 | 選中項：勃根地紅圖示＋文字＋頂部 3px 指示條 |
+| **搜尋（收合式）** | 清單標題右側 44px 🔍 按鈕 | 點擊後標題列變成搜尋框＋「取消」，自動聚焦；平常不占版面 |
+| **語言切換** | 地球圖示＋語言縮寫的膠囊按鈕 | 開啟底部面板，以各語言原文列出，選擇後立即套用並關閉 |
+| **底部面板確認鈕** | 44px 圓形 | 尚未選擇時為沙色 ✕（關閉）；有任何選擇時變為綠色 ✓（完成） |
 | **輪播（Carousel）** | 卡片 290px、吸附捲動；控制列 `‹ • • • • • ›` 置中於卡片**下方** | 箭頭 44×44；圓點可點擊（24×44 觸控區），選中圓點拉長為 18px 主色；首／末張時對應箭頭淡化停用 |
 | **篩選列（Filter bar）** | 搜尋框（常駐）＋分類 chips，米色底 | 放在**被篩選的清單正上方**；捲動時 sticky 在狀態列下方，黏住後出現分隔陰影 |
 | **Tap to start** | 核心 148px 米白發光圓＋兩圈固定光暈＋三層擴散脈衝 | 文字單行、勃根地紅、字距 0.22em |

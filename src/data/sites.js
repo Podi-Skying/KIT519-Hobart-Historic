@@ -18,18 +18,20 @@
  * @property {string} area
  * @property {string} builtYear
  * @property {{lat:number,lng:number}} coordinates  Real WGS84 position (OpenStreetMap)
- * @property {number} walkMinutes   Derived: walking time from the city centre
- * @property {number} distanceKm    Derived: straight-line km from the city centre
+ * @property {number} walkMinutes   Derived: estimated walking time from the default origin (Centenary Building)
+ * @property {number} distanceKm    Derived: straight-line km from the default origin
  * @property {boolean} accessible
  * @property {number} baseLikes     Seed like count before the user's own like
  * @property {string} image
  * @property {string} description
  * @property {{x:number,y:number}} mapPosition  Derived: position on the illustrated fallback map (%)
  * @property {GalleryPhoto[]} gallery
- * @property {Object} [timeTravel]  AR "then vs now" content
+ * @property {string} arImage       Simulated AR camera feed when the site is detected
+ * @property {string} arApproachImage  Simulated AR-navigation camera feed while walking to it
+ * @property {Object} [timeTravel]  AR "then vs now" content (sites with archival imagery)
  */
 
-import { HOBART_CENTRE } from './navigation'
+import { DEFAULT_ORIGIN } from './navigation'
 import { boundsOf, distanceKm, projectToBox, roundKm, walkingMinutes } from '@/lib/geo'
 
 const IMAGE_BASE = 'https://ginaintas-art.github.io/hobart-heritage-ar-prototype/images/landmarks/'
@@ -58,6 +60,8 @@ const CATALOGUE = [
     accessible: true,
     baseLikes: 248,
     image: landmarkImage('cascade-main.webp'),
+    arImage: landmarkImage('cascade-main.webp'),
+    arApproachImage: landmarkImage('cascade-gallery-1.webp'),
     description:
       "One of Australia's most significant convict heritage sites. This sandstone complex held female convicts and their children in the colonial era, and its preserved yards tell stories of resilience, labour and survival.",
     gallery: [
@@ -88,6 +92,8 @@ const CATALOGUE = [
     accessible: false,
     baseLikes: 196,
     image: landmarkImage('st-georges-main.webp'),
+    arImage: landmarkImage('st-georges-main.webp'),
+    arApproachImage: landmarkImage('st-georges-gallery-2.webp'),
     description:
       'A fine example of Georgian church architecture. Its sandstone façade and tower have overlooked Battery Point for almost two centuries, and it is still an active place of worship.',
     gallery: [
@@ -109,6 +115,8 @@ const CATALOGUE = [
     accessible: true,
     baseLikes: 181,
     image: landmarkImage('salamanca-main.webp'),
+    arImage: landmarkImage('salamanca-main.webp'),
+    arApproachImage: landmarkImage('salamanca-gallery-1.webp'),
     description:
       'Rows of sandstone warehouses that once stored whaling and trading goods. Today the precinct hosts markets, galleries and restaurants while keeping its colonial character.',
     gallery: [
@@ -130,6 +138,8 @@ const CATALOGUE = [
     accessible: false,
     baseLikes: 143,
     image: landmarkImage('penitentiary-main.webp'),
+    arImage: landmarkImage('penitentiary-main.webp'),
+    arApproachImage: landmarkImage('penitentiary-gallery-1.webp'),
     description:
       "A complex of sandstone buildings — chapel, cells and courts — linked by underground tunnels. One of Hobart's most atmospheric heritage experiences.",
     gallery: [
@@ -138,6 +148,15 @@ const CATALOGUE = [
       photo('penitentiary-gallery-3.webp', 'South courtyard', '2026', 'Inside the penitentiary site.'),
       photo('penitentiary-gallery-4.webp', 'Chapel tower', '2017', 'The tower and its historic clock.'),
     ],
+    timeTravel: {
+      pastYear: 'c.1900',
+      pastImage: landmarkImage('penitentiary-gallery-2.webp'),
+      presentImage: landmarkImage('penitentiary-main.webp'),
+      pastCaption:
+        'Around 1900 the chapel still stood beside a working gaol, its tower and clock rising over Campbell Street.',
+      presentCaption:
+        'Today the chapel, cells and courtrooms are a historic site, with tours through the tunnels below.',
+    },
   },
   {
     id: 5,
@@ -151,6 +170,8 @@ const CATALOGUE = [
     accessible: true,
     baseLikes: 126,
     image: landmarkImage('narryna-main.webp'),
+    arImage: landmarkImage('narryna-main.webp'),
+    arApproachImage: landmarkImage('narryna-gallery-3.webp'),
     description:
       "One of Australia's oldest and most complete colonial merchant houses, with a collection that gives an intimate picture of life in early Van Diemen's Land.",
     gallery: [
@@ -171,7 +192,7 @@ export const SITE_BOUNDS = boundsOf(CATALOGUE.map((s) => s.coordinates), 0.08)
 
 /** @type {HeritageSite[]} */
 export const SITES = CATALOGUE.map((site) => {
-  const km = distanceKm(HOBART_CENTRE, site.coordinates)
+  const km = distanceKm(DEFAULT_ORIGIN, site.coordinates)
   return {
     ...site,
     distanceKm: roundKm(km),
@@ -180,11 +201,7 @@ export const SITES = CATALOGUE.map((site) => {
   }
 })
 
-/** Site shown in the AR camera demo (the only one with time-travel content). */
-export const AR_DEMO_SITE_ID = 1
 
-/** Street view used as the simulated camera feed during AR navigation. */
-export const AR_NAVIGATION_IMAGE = landmarkImage('hobart-ar-navigation.webp')
 
 /**
  * @param {number|string} id

@@ -26,12 +26,22 @@ const model = defineModel({ type: String, required: true })
 
 <style scoped>
 .chips {
+  min-width: 0; /* never let long chip rows widen a grid/flex parent past the screen */
   display: flex;
   gap: var(--s-2);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-padding: 0 var(--gutter);
   scrollbar-width: none;
   margin: 0 calc(var(--gutter) * -1);
-  padding: 0 var(--gutter);
+  padding: 2px var(--gutter);
+  /* fade the right edge to hint that the row scrolls */
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+.chips::after {
+  content: '';
+  flex: 0 0 12px; /* trailing space so the last chip can scroll clear of the fade */
 }
 .chips::-webkit-scrollbar {
   display: none;

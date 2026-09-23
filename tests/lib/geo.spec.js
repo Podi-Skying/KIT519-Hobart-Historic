@@ -36,10 +36,12 @@ describe('projectToBox', () => {
 })
 
 describe('site data', () => {
-  it('every site has real coordinates in Hobart and a fallback map position', () => {
+  it('every site has real coordinates in Hobart, a fallback map position and AR images', () => {
     for (const site of SITES) {
       expect(distanceKm(HOBART_CENTRE, site.coordinates)).toBeLessThan(5)
       expect(site.mapPosition).not.toBeNull()
+      expect(site.arImage).toMatch(/^https:/)
+      expect(site.arApproachImage).toMatch(/^https:/)
     }
   })
   it('bounds contain every site', () => {

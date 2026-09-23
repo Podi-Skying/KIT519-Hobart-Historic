@@ -100,15 +100,21 @@ const routes = [
 
   // ---- AR tab ----
   {
-    path: '/ar',
+    // No id = the landmark nearest to the walker (simulated detection).
+    path: '/ar/:id(\\d+)?',
     name: 'ar',
     component: () => import('@/views/ArCameraView.vue'),
+    props: (route) => ({ id: route.params.id ? Number(route.params.id) : null }),
+    beforeEnter: (to) => (!to.params.id || getSiteById(to.params.id) ? true : { name: 'ar' }),
     meta: { tab: 'ar', status: overCamera },
   },
   {
-    path: '/ar/compare',
+    path: '/ar/:id(\\d+)/compare',
     name: 'ar-compare',
     component: () => import('@/views/ArCompareView.vue'),
+    props: siteProps,
+    // Only sites with archival imagery have a then-vs-now view.
+    beforeEnter: (to) => (getSiteById(to.params.id)?.timeTravel ? true : { name: 'ar', params: { id: to.params.id } }),
     meta: { tab: 'ar', status: overCamera },
   },
 

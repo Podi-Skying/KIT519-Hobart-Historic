@@ -1,5 +1,8 @@
 <script setup>
 /** Phone mock-up on desktop; full-bleed on real phones (≤ 430px wide). */
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -7,7 +10,7 @@
     <div class="device">
       <slot />
     </div>
-    <p class="stage__credit no-print">Hobart Historic Walking Trails · HCI Prototype</p>
+    <p class="stage__credit no-print">{{ t('common.credit') }}</p>
   </div>
 </template>
 

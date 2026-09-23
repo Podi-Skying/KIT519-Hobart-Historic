@@ -4,6 +4,7 @@
  * Controls sit *below* the slides (‹ • • • • • ›) so they read as belonging to the
  * carousel — the thumb reaches them easily and the header stays uncluttered.
  */
+import { useI18n } from 'vue-i18n'
 import SectionHeader from '@/components/base/SectionHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { useCarousel } from '@/composables/useCarousel'
@@ -14,6 +15,7 @@ const props = defineProps({
   sites: { type: Array, required: true },
 })
 
+const { t } = useI18n()
 const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
 </script>
 
@@ -29,7 +31,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
         class="rank-card"
         draggable="false"
         aria-roledescription="slide"
-        :aria-label="`${rank + 1} of ${sites.length}: ${site.name}`"
+        :aria-label="t('home.slide', { n: rank + 1, total: sites.length, name: site.name })"
       >
         <div class="rank-card__media">
           <img
@@ -47,9 +49,9 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
           </div>
         </div>
         <div class="rank-card__meta">
-          <span>{{ site.area }} • {{ site.walkMinutes }} min walk</span>
+          <span>{{ site.area }} • {{ t('common.minWalk', { n: site.walkMinutes }) }}</span>
           <span v-if="site.accessible" class="rank-card__accessible">
-            <AppIcon name="accessible" :size="14" /> Accessible
+            <AppIcon name="accessible" :size="14" /> {{ t('common.accessible') }}
           </span>
         </div>
       </RouterLink>
@@ -59,14 +61,14 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
       <button
         type="button"
         class="controls__arrow"
-        aria-label="Previous heritage site"
+        :aria-label="t('home.prevSite')"
         :disabled="index === 0"
         @click="goTo(index - 1)"
       >
         <AppIcon name="back" :size="18" :stroke-width="2.4" />
       </button>
 
-      <div class="controls__dots" role="tablist" aria-label="Choose a site">
+      <div class="controls__dots" role="tablist" :aria-label="t('home.chooseSite')">
         <button
           v-for="(site, i) in props.sites"
           :key="site.id"
@@ -75,7 +77,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
           class="controls__dot"
           :class="{ 'is-active': i === index }"
           :aria-selected="i === index"
-          :aria-label="`Show #${i + 1} ${site.name}`"
+          :aria-label="t('home.showSite', { n: i + 1, name: site.name })"
           @click="goTo(i)"
         >
           <i />
@@ -85,7 +87,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
       <button
         type="button"
         class="controls__arrow"
-        aria-label="Next heritage site"
+        :aria-label="t('home.nextSite')"
         :disabled="index === props.sites.length - 1"
         @click="goTo(index + 1)"
       >

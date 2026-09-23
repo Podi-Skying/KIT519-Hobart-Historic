@@ -1,10 +1,12 @@
 <script setup>
 /** Leading page — shown on every launch; any tap/Enter/Space starts the app. */
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import TapToStart from './TapToStart.vue'
 import splashImage from '@/assets/images/splash-bg.jpg'
 
 const emit = defineEmits(['start'])
+const { t } = useI18n()
 const root = ref(null)
 
 onMounted(() => root.value?.focus({ preventScroll: true }))
@@ -16,7 +18,7 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
     class="splash"
     role="button"
     tabindex="0"
-    aria-label="Hobart Heritage Guide — tap to start"
+    :aria-label="t('splash.aria')"
     @click="emit('start')"
     @keydown.enter.prevent="emit('start')"
     @keydown.space.prevent="emit('start')"
@@ -24,28 +26,28 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
     <img class="splash__photo" :src="splashImage" alt="" fetchpriority="high" />
     <div class="splash__veil" />
 
-    <p class="splash__location rise">Hobart, Tasmania</p>
+    <p class="splash__location rise">{{ t('splash.location') }}</p>
 
     <p class="splash__script rise-tilted" aria-hidden="true">
-      Small city,<span>big stories</span>
+      {{ t('splash.script1') }}<span>{{ t('splash.script2') }}</span>
       <svg width="96" height="10" viewBox="0 0 96 10">
         <path d="M2 8C30 2 62 1 94 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
     </p>
 
     <div class="splash__copy">
-      <p class="splash__eyebrow rise d1">Walk through history</p>
+      <p class="splash__eyebrow rise d1">{{ t('splash.eyebrow') }}</p>
       <h1 class="splash__title rise d2">
-        <span class="splash__title-main">Hobart</span>
-        <span class="splash__title-sub">Heritage Guide</span>
+        <span class="splash__title-main">{{ t('splash.titleMain') }}</span>
+        <span class="splash__title-sub">{{ t('splash.titleSub') }}</span>
       </h1>
       <span class="splash__rule rise d3" />
       <p class="splash__lead rise d3">
-        Discover historic places, follow walking routes, and reveal the past through augmented reality.
+        {{ t('splash.lead') }}
       </p>
     </div>
 
-    <TapToStart class="splash__cta rise-centered d4" />
+    <TapToStart class="splash__cta rise-centered d4" :label="t('splash.tap')" />
   </div>
 </template>
 

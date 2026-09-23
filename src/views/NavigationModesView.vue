@@ -1,19 +1,22 @@
 <script setup>
 import { computed, watchEffect } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
-import { getSiteById } from '@/data/sites'
 import { NAVIGATION_MODES } from '@/data/navigation'
+import { useContent } from '@/i18n/content'
 import { useTripStore } from '@/stores/trip'
 
 const props = defineProps({
   id: { type: Number, required: true },
 })
 
+const { t } = useI18n()
+const { siteById } = useContent()
 const trip = useTripStore()
-const site = computed(() => getSiteById(props.id))
+const site = computed(() => siteById(props.id))
 watchEffect(() => trip.setDestination(props.id))
 </script>
 
@@ -21,18 +24,18 @@ watchEffect(() => trip.setDestination(props.id))
   <AppPage>
     <PageHeader :fallback="{ name: 'map' }" />
     <div class="content">
-      <p class="t-caption">To {{ site.name }}</p>
-      <h1 class="t-display content__title">How would you like to navigate?</h1>
-      <p class="t-body">Pick what feels comfortable. You can switch any time.</p>
+      <p class="t-caption">{{ t('navModes.to', { name: site.name }) }}</p>
+      <h1 class="t-display content__title">{{ t('navModes.title') }}</h1>
+      <p class="t-body">{{ t('navModes.subtitle') }}</p>
 
       <ul class="modes">
         <li v-for="mode in NAVIGATION_MODES" :key="mode.route">
           <RouterLink :to="{ name: mode.route, params: { id } }" class="mode">
             <span class="mode__icon"><AppIcon :name="mode.icon" :size="24" /></span>
             <span class="mode__text">
-              <span class="mode__title">{{ mode.title }}</span>
-              <span class="mode__description">{{ mode.description }}</span>
-              <BaseBadge tone="success" size="sm">{{ mode.tag }}</BaseBadge>
+              <span class="mode__title">{{ t(`navModes.${mode.route}.title`) }}</span>
+              <span class="mode__description">{{ t(`navModes.${mode.route}.description`) }}</span>
+              <BaseBadge tone="success" size="sm">{{ t(`navModes.${mode.route}.tag`) }}</BaseBadge>
             </span>
             <AppIcon name="chevron" :size="20" class="mode__chevron" />
           </RouterLink>

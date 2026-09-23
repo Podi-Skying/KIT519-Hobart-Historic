@@ -5,12 +5,14 @@
  */
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
-import { getSiteById } from '@/data/sites'
-import { formatMeters, pluralize } from '@/lib/format'
+import WaypointSheet from '@/components/map/WaypointSheet.vue'
+import { useContent } from '@/i18n/content'
+import { formatMeters } from '@/lib/format'
 import { maneuverIcon, nextGuidance } from '@/lib/guidance'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
 import { useTripStore } from '@/stores/trip'
@@ -21,15 +23,32 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const { t } = useI18n()
+const { siteById } = useContent()
 const trip = useTripStore()
 const location = useLocationStore()
-const site = computed(() => getSiteById(props.id))
+const site = computed(() => siteById(props.id))
 const walk = useWalkingRoute(site)
 const map = ref(null)
+const stopsOpen = ref(false)
 
 const user = computed(() => (location.isInHobart ? location.coords : null))
 const guidance = computed(() => nextGuidance(walk.route.value, user.value))
 const mapSites = computed(() => [site.value, ...walk.stopSites.value])
+/** "Accessible route · ↑ 12 m" — route type plus its real climb when known. */
+const routeLine = computed(() => {
+  const parts = [t('navigation.routeLabel', { type: t(`routeTypes.${trip.routeType}.label`) })]
+  const climb = walk.selectedSummary.value.climbMeters
+  if (climb != null) parts.push(t('routeTypes.climb', { m: climb }))
+  if (trip.stops.length) parts.push(t('common.stops', trip.stops.length))
+  return parts.join(' · ')
+})
+/** Guidance text: Google's instruction, with our own wording for start/arrival. */
+const guidanceText = computed(() => {
+  if (guidance.value.kind === 'none') return t('navigation.headToDestination')
+  if (guidance.value.kind === 'arrive') return t('navigation.arrive')
+  return guidance.value.instruction // already localised by the Routes API
+})
 
 onMounted(() => location.start())
 
@@ -61,40 +80,47 @@ const endRoute = () => router.push({ name: 'map' })
       <span class="instruction__icon"><AppIcon :name="maneuverIcon(guidance.maneuver)" :size="24" /></span>
       <div class="instruction__text">
         <template v-if="walk.status.value === 'loading'">
-          <p class="instruction__title">Finding a walking route…</p>
+          <p class="instruction__title">{{ t('navigation.finding') }}</p>
         </template>
         <template v-else-if="walk.isRealRoute.value">
-          <p class="instruction__title">{{ guidance.meters ? `In ${formatMeters(guidance.meters)}` : 'Start' }}</p>
-          <p class="instruction__sub">{{ guidance.instruction }}</p>
+          <p class="instruction__title">
+            {{ guidance.meters ? t('navigation.inDistance', { distance: formatMeters(guidance.meters) }) : t('navigation.start') }}
+          </p>
+          <p class="instruction__sub">{{ guidanceText }}</p>
         </template>
         <template v-else>
-          <p class="instruction__title">Head to {{ site.shortName }}</p>
-          <p class="instruction__sub">Street directions unavailable — showing a straight-line guide</p>
+          <p class="instruction__title">{{ t('navigation.headTo', { name: site.shortName }) }}</p>
+          <p class="instruction__sub">{{ t('navigation.noDirections') }}</p>
         </template>
       </div>
     </div>
 
     <div class="zoom">
-      <IconButton variant="float" icon="plus" label="Zoom in" @click="map?.zoomIn()" />
-      <IconButton variant="float" icon="minus" label="Zoom out" @click="map?.zoomOut()" />
-      <IconButton variant="float" icon="locate" :label="user ? 'Follow my location' : 'Show whole route'" @click="recenter" />
+      <IconButton variant="float" icon="plus" :label="t('navigation.zoomIn')" @click="map?.zoomIn()" />
+      <IconButton variant="float" icon="minus" :label="t('navigation.zoomOut')" @click="map?.zoomOut()" />
+      <IconButton variant="float" icon="locate" :label="user ? t('navigation.follow') : t('navigation.showRoute')" @click="recenter" />
+      <RouterLink :to="{ name: 'navigate-ar', params: { id } }" class="zoom__ar" :aria-label="t('navigation.switchAr')">
+        <AppIcon name="ar" :size="20" /><span>AR</span>
+      </RouterLink>
     </div>
 
-    <section class="summary" aria-label="Route summary">
+    <section class="summary" :aria-label="t('navigation.summary')">
       <div class="summary__row">
         <div>
-          <p class="summary__eta">{{ walk.minutes.value }} min</p>
-          <p class="t-small muted">
-            {{ formatMeters(walk.distanceMeters.value) }} · {{ trip.routeTypeConfig.label }} route<template v-if="trip.stops.length"> · {{ pluralize(trip.stops.length, 'stop') }}</template>
-          </p>
+          <p class="summary__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
+          <p class="t-small muted">{{ formatMeters(walk.distanceMeters.value) }} · {{ routeLine }}</p>
         </div>
-        <BaseButton variant="secondary" size="sm" icon="ar" :to="{ name: 'navigate-ar', params: { id } }">AR view</BaseButton>
+        <BaseButton variant="secondary" size="sm" @click="endRoute">{{ t('navigation.end') }}</BaseButton>
       </div>
       <div class="summary__actions">
-        <BaseButton variant="secondary" @click="endRoute">End</BaseButton>
-        <BaseButton :to="{ name: 'navigate', params: { id } }">Change mode</BaseButton>
+        <BaseButton variant="secondary" icon="plus" :aria-haspopup="'dialog'" @click="stopsOpen = true">
+          {{ t('navigation.addStop') }}<span v-if="trip.stops.length" class="summary__count">{{ trip.stops.length }}</span>
+        </BaseButton>
+        <BaseButton :to="{ name: 'navigate', params: { id } }">{{ t('navigation.changeMode') }}</BaseButton>
       </div>
     </section>
+
+    <WaypointSheet v-if="stopsOpen" :destination-id="site.id" @close="stopsOpen = false" />
   </div>
 </template>
 
@@ -147,6 +173,29 @@ const endRoute = () => router.push({ name: 'map' })
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+.zoom__ar {
+  width: var(--hit);
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-radius: var(--r-md);
+  background: var(--ink-900);
+  color: var(--cream);
+  font: 700 10px var(--font-label);
+  box-shadow: var(--e-2);
+}
+.summary__count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--brand-600);
+  color: var(--paper);
+  font: 700 11px/20px var(--font-label);
 }
 .summary {
   position: absolute;

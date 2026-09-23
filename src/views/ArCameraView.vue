@@ -1,111 +1,147 @@
 <script setup>
 /**
- * AR camera (simulated): scans for ~1.6 s, "detects" the demo landmark and
- * shows draggable hotspots for info, audio and photos.
+ * AR camera (simulated): "scans" for ~1.6 s, then shows the landmark in view —
+ * the site from the URL, or the one nearest the walker — with draggable
+ * hotspots for info, audio and photos. Every image and text follows that site.
  */
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
+import BottomSheet from '@/components/base/BottomSheet.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import ArBubble from '@/components/ar/ArBubble.vue'
 import ArHelpOverlay from '@/components/ar/ArHelpOverlay.vue'
-import { AR_DEMO_SITE_ID, getSiteById } from '@/data/sites'
+import { localizeNarration, useContent } from '@/i18n/content'
 import { usePlayerStore } from '@/stores/player'
+import { useLocationStore } from '@/stores/location'
+
+const props = defineProps({
+  id: { type: Number, default: null },
+})
 
 const SCAN_DURATION_MS = 1600
+const DEFAULT_HOTSPOTS = {
+  info: { x: 74, y: 44 },
+  audio: { x: 28, y: 52 },
+  photos: { x: 64, y: 64 },
+}
 
 const router = useRouter()
+const { t, locale } = useI18n()
+const { sites, siteById } = useContent()
 const player = usePlayerStore()
-const site = getSiteById(AR_DEMO_SITE_ID)
+const location = useLocationStore()
+
+/** The landmark in view: from the URL, else the one closest to the walker. */
+const site = computed(() => {
+  if (props.id) return siteById(props.id)
+  return [...sites.value].sort((a, b) => location.distanceTo(a).km - location.distanceTo(b).km)[0]
+})
+const narration = computed(() => localizeNarration(site.value.id, locale.value))
 
 const detected = ref(false)
 const helpOpen = ref(false)
+const chooserOpen = ref(false)
 const openPanel = ref(null) // 'info' | 'audio' | 'photos' | null
+const positions = reactive(structuredClone(DEFAULT_HOTSPOTS))
 
-const hotspots = reactive([
-  { key: 'info', label: 'About', icon: 'info', position: { x: 74, y: 44 } },
-  { key: 'audio', label: 'Listen', icon: 'headphones', position: { x: 28, y: 52 } },
-  { key: 'photos', label: 'Photos', icon: 'image', position: { x: 64, y: 64 } },
+const hotspots = computed(() => [
+  { key: 'info', label: t('ar.about'), icon: 'info' },
+  { key: 'audio', label: t('ar.listen'), icon: isNarrating.value ? 'pause' : 'headphones' },
+  { key: 'photos', label: t('ar.photos'), icon: 'image' },
 ])
-
-const audioIcon = computed(() => (player.playing && player.siteId === site.id ? 'pause' : 'headphones'))
+const isNarrating = computed(() => player.playing && player.siteId === site.value.id)
 
 function togglePanel(key) {
   openPanel.value = openPanel.value === key ? null : key
 }
-
 function toggleNarration() {
-  player.load(site.id)
+  player.load(site.value.id)
   player.toggle()
 }
 
+// ---- simulated detection; re-scan whenever the landmark changes ----
 let scanTimer
-onMounted(() => {
+function scan() {
+  clearTimeout(scanTimer)
+  detected.value = false
+  openPanel.value = null
+  Object.assign(positions, structuredClone(DEFAULT_HOTSPOTS))
   scanTimer = setTimeout(() => (detected.value = true), SCAN_DURATION_MS)
-})
+}
+watch(() => site.value.id, scan, { immediate: true })
 onBeforeUnmount(() => clearTimeout(scanTimer))
+
+function chooseSite(id, dismiss) {
+  dismiss()
+  router.replace({ name: 'ar', params: { id } })
+}
 
 const exit = () => router.push({ name: 'home' })
 </script>
 
 <template>
   <div class="ar-camera">
-    <img class="ar-camera__feed" :src="site.image" alt="Simulated camera view" />
+    <Transition name="feed" mode="out-in">
+      <img :key="site.id" class="ar-camera__feed" :src="site.arImage" :alt="t('ar.cameraAlt', { name: site.name })" />
+    </Transition>
     <div class="ar-camera__veil" />
 
     <div class="reticle" aria-hidden="true"><i /><i /><i /><i /></div>
     <div v-if="!detected" class="scanline" aria-hidden="true" />
 
     <div class="ar-camera__top">
-      <BaseButton variant="secondary" size="sm" icon="back" @click="exit">Exit</BaseButton>
-      <IconButton variant="glass" icon="help" label="How AR mode works" @click="helpOpen = true" />
+      <BaseButton variant="secondary" size="sm" icon="back" @click="exit">{{ t('ar.exit') }}</BaseButton>
+      <IconButton variant="glass" icon="help" :label="t('ar.help')" @click="helpOpen = true" />
     </div>
 
     <ArStatusPill class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
-      {{ detected ? 'Landmark detected' : 'Scanning for landmarks' }}
+      {{ detected ? t('ar.detected') : t('ar.scanning') }}
     </ArStatusPill>
 
     <template v-if="detected">
-      <div class="landmark-label">
+      <button type="button" class="landmark-label" aria-haspopup="dialog" @click="chooserOpen = true">
         <b>{{ site.name }}</b>
-        <small>Built {{ site.builtYear }} · {{ site.area }} · drag bubbles to move</small>
-      </div>
+        <small>{{ t('common.built', { year: site.builtYear }) }} · {{ site.area }}</small>
+        <span class="landmark-label__switch">{{ t('ar.notThis') }} <AppIcon name="chevron" :size="12" :stroke-width="2.6" /></span>
+      </button>
       <ArBubble
         v-for="spot in hotspots"
         :key="spot.key"
-        :icon="spot.key === 'audio' ? audioIcon : spot.icon"
+        :icon="spot.icon"
         :label="spot.label"
-        :position="spot.position"
+        :position="positions[spot.key]"
         :active="openPanel === spot.key"
         @select="togglePanel(spot.key)"
-        @move="(p) => (spot.position = p)"
+        @move="(p) => (positions[spot.key] = p)"
       />
     </template>
 
     <Transition name="sheet">
-      <section v-if="openPanel" class="panel" :aria-label="openPanel">
-        <IconButton class="panel__close" icon="close" label="Close" variant="sand" @click="openPanel = null" />
+      <section v-if="openPanel" class="panel" :aria-label="hotspots.find((h) => h.key === openPanel)?.label">
+        <IconButton class="panel__close" icon="close" :label="t('common.close')" variant="sand" @click="openPanel = null" />
 
         <template v-if="openPanel === 'info'">
-          <p class="t-caption">{{ site.categoryLabel }} · Built {{ site.builtYear }}</p>
+          <p class="t-caption">{{ site.categoryLabel }} · {{ t('common.built', { year: site.builtYear }) }}</p>
           <h2 class="t-h1 panel__title">{{ site.name }}</h2>
           <p class="t-body">{{ site.description }}</p>
-          <BaseButton block class="panel__cta" :to="{ name: 'site', params: { id: site.id } }">Open full page</BaseButton>
+          <BaseButton block class="panel__cta" :to="{ name: 'site', params: { id: site.id } }">{{ t('ar.openFull') }}</BaseButton>
         </template>
 
         <template v-else-if="openPanel === 'audio'">
-          <p class="t-caption">Audio tour</p>
-          <h2 class="t-h1 panel__title">{{ player.narration.title }}</h2>
-          <p class="t-body">{{ player.narration.transcript[0] }}</p>
-          <BaseButton block class="panel__cta" :icon="player.playing ? 'pause' : 'play'" @click="toggleNarration">
-            {{ player.playing ? 'Pause' : 'Play' }} narration
+          <p class="t-caption">{{ t('ar.audioTour') }}</p>
+          <h2 class="t-h1 panel__title">{{ narration.title }}</h2>
+          <p class="t-body">{{ narration.transcript[0] }}</p>
+          <BaseButton block class="panel__cta" :icon="isNarrating ? 'pause' : 'play'" @click="toggleNarration">
+            {{ isNarrating ? t('ar.pauseNarration') : t('ar.playNarration') }}
           </BaseButton>
         </template>
 
         <template v-else>
-          <p class="t-caption">Photos</p>
+          <p class="t-caption">{{ t('ar.photos') }}</p>
           <h2 class="t-h1 panel__title">{{ site.name }}</h2>
           <div class="panel__thumbs">
             <RouterLink
@@ -121,11 +157,43 @@ const exit = () => router.push({ name: 'home' })
       </section>
     </Transition>
 
-    <BaseButton class="ar-camera__compare" block :to="{ name: 'ar-compare' }">
-      <AppIcon name="clock" :size="18" /> Compare today with {{ site.timeTravel.pastYear }}
-    </BaseButton>
+    <div class="ar-camera__bottom">
+      <BaseButton v-if="site.timeTravel" block :to="{ name: 'ar-compare', params: { id: site.id } }">
+        <AppIcon name="clock" :size="18" /> {{ t('ar.compare', { year: site.timeTravel.pastYear }) }}
+      </BaseButton>
+      <p v-else class="ar-camera__note">{{ t('ar.noCompare') }}</p>
+    </div>
 
     <ArHelpOverlay v-if="helpOpen" @close="helpOpen = false" />
+
+    <BottomSheet
+      v-if="chooserOpen"
+      :label="t('ar.chooseSite')"
+      :title="t('ar.chooseSite')"
+      :subtitle="t('ar.chooseSubtitle')"
+      @close="chooserOpen = false"
+    >
+      <template #default="{ dismiss }">
+        <ul class="chooser">
+          <li v-for="option in sites" :key="option.id">
+            <button
+              type="button"
+              class="chooser__item"
+              :class="{ 'is-selected': option.id === site.id }"
+              :aria-current="option.id === site.id"
+              @click="chooseSite(option.id, dismiss)"
+            >
+              <img :src="option.image" alt="" loading="lazy" />
+              <span>
+                <b>{{ option.name }}</b>
+                <small>{{ option.area }} · {{ t('common.minWalk', { n: location.distanceTo(option).minutes }) }}</small>
+              </span>
+              <AppIcon v-if="option.id === site.id" name="check" :size="18" :stroke-width="2.6" />
+            </button>
+          </li>
+        </ul>
+      </template>
+    </BottomSheet>
   </div>
 </template>
 
@@ -146,7 +214,7 @@ const exit = () => router.push({ name: 'home' })
 .ar-camera__veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--photo-veil-top), transparent 26%, transparent 72%, rgba(44, 36, 23, 0.5));
+  background: linear-gradient(to bottom, var(--photo-veil-top), transparent 26%, transparent 72%, rgba(44, 36, 23, 0.55));
   pointer-events: none;
 }
 .reticle {
@@ -193,9 +261,12 @@ const exit = () => router.push({ name: 'home' })
 }
 .landmark-label {
   position: absolute;
-  top: 170px;
+  top: 166px;
   left: 50%;
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: var(--s-2) var(--s-4);
   border-radius: var(--r-md);
   background: var(--glass);
@@ -208,12 +279,19 @@ const exit = () => router.push({ name: 'home' })
   animation: fade var(--dur-slow) var(--ease);
 }
 .landmark-label b {
-  display: block;
   font: 700 18px var(--font-heading);
 }
 .landmark-label small {
   font: 500 12px var(--font-body);
   opacity: 0.85;
+}
+.landmark-label__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 4px;
+  font: 600 11px var(--font-label);
+  color: var(--ar-400);
 }
 .panel {
   position: absolute;
@@ -253,12 +331,74 @@ const exit = () => router.push({ name: 'home' })
   object-fit: cover;
   border-radius: var(--r-sm);
 }
-.ar-camera__compare {
+.ar-camera__bottom {
   position: absolute;
   left: var(--gutter);
+  right: var(--gutter);
   bottom: 18px;
   z-index: 7;
-  width: calc(100% - var(--gutter) * 2);
+}
+.ar-camera__note {
+  padding: 12px var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--cream);
+  font: 500 13px var(--font-body);
+  text-align: center;
+}
+.chooser {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chooser__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3) var(--s-2) var(--s-2);
+  border: 1.5px solid var(--sand);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  text-align: left;
+  color: var(--brand-600);
+}
+.chooser__item.is-selected {
+  border-color: var(--brand-600);
+  background: var(--brand-50);
+}
+.chooser__item img {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: var(--r-sm);
+  object-fit: cover;
+}
+.chooser__item span {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chooser__item b {
+  font: 700 15px/20px var(--font-heading);
+  color: var(--ink-900);
+}
+.chooser__item small {
+  font: var(--t-small);
+  color: var(--ink-500);
+}
+.feed-enter-active,
+.feed-leave-active {
+  transition: opacity var(--dur) var(--ease);
+}
+.feed-enter-from,
+.feed-leave-to {
+  opacity: 0;
 }
 .sheet-enter-active,
 .sheet-leave-active {

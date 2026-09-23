@@ -7,6 +7,8 @@
  *
  * Without a key the app keeps working with the illustrated fallback map.
  */
+import { i18n, localeInfo } from '@/i18n'
+
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
 export const MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID || 'DEMO_MAP_ID'
 
@@ -50,7 +52,9 @@ export function loadGoogleMaps() {
       }
     }
 
-    const params = new URLSearchParams({ key: API_KEY, v: 'weekly', loading: 'async', callback })
+    // Map labels use the app language at load time (the Maps script can only load once per page).
+    const language = localeInfo(i18n.global.locale.value).speech[0]
+    const params = new URLSearchParams({ key: API_KEY, v: 'weekly', loading: 'async', callback, language })
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?${params}`
     script.async = true

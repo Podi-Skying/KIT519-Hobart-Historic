@@ -1,6 +1,7 @@
 <script setup>
 /** Heritage sites, closest first, with live distance and walking time. */
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { formatKm } from '@/lib/format'
 
@@ -10,6 +11,7 @@ const props = defineProps({
   distances: { type: Map, required: true },
 })
 const emit = defineEmits(['select'])
+const { t } = useI18n()
 
 const sorted = computed(() => [...props.sites].sort((a, b) => props.distances.get(a.id).km - props.distances.get(b.id).km))
 </script>
@@ -21,7 +23,7 @@ const sorted = computed(() => [...props.sites].sort((a, b) => props.distances.ge
         <span class="site-list__pin">{{ site.id }}</span>
         <span class="site-list__text">
           <b>{{ site.name }}</b>
-          <small>{{ site.area }} · {{ distances.get(site.id).minutes }} min walk</small>
+          <small>{{ site.area }} · {{ t('common.minWalk', { n: distances.get(site.id).minutes }) }}</small>
         </span>
         <span class="site-list__distance">{{ formatKm(distances.get(site.id).km) }}</span>
         <AppIcon name="chevron" :size="16" class="site-list__chevron" />

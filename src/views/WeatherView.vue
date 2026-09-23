@@ -1,39 +1,44 @@
 <script setup>
+/** Walking conditions. Numbers come from data/weather.js; all wording is localised. */
+import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import SectionHeader from '@/components/base/SectionHeader.vue'
 import { BEST_COMFORT_SCORE, WEATHER } from '@/data/weather'
 
-const { current, stats, bestWindow, hourlyComfort, forecast, advice } = WEATHER
+const { current, stats, bestWindow, hourlyComfort, forecast } = WEATHER
+const { t } = useI18n()
+/** UV is a word, not a number — localise it. */
+const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.value)
 </script>
 
 <template>
   <AppPage>
     <header class="header">
-      <p class="t-caption">{{ WEATHER.location }} · today</p>
-      <h1 class="t-h1">Walking conditions</h1>
+      <p class="t-caption">{{ t('weather.eyebrow', { place: WEATHER.location }) }}</p>
+      <h1 class="t-h1">{{ t('weather.title') }}</h1>
     </header>
 
-    <section class="now" aria-label="Current conditions">
-      <p class="now__summary">Now · {{ current.summary }}</p>
+    <section class="now" :aria-label="t('weather.now', { summary: t('weather.summary') })">
+      <p class="now__summary">{{ t('weather.now', { summary: t('weather.summary') }) }}</p>
       <p class="now__temp">{{ current.temperature }}°</p>
-      <p class="now__verdict">{{ current.verdict }} · feels like {{ current.feelsLike }}°</p>
+      <p class="now__verdict">{{ t('weather.verdict', { verdict: t('weather.goodForWalking'), n: current.feelsLike }) }}</p>
     </section>
 
     <ul class="stats">
-      <li v-for="stat in stats" :key="stat.label" class="stat">
+      <li v-for="stat in stats" :key="stat.icon" class="stat">
         <AppIcon :name="stat.icon" :size="18" />
-        <b>{{ stat.value }}</b>
-        {{ stat.label }}
+        <b>{{ statValue(stat) }}</b>
+        {{ t(`weather.stats.${stat.icon}`) }}
       </li>
     </ul>
 
-    <SectionHeader title="Best time to walk">
+    <SectionHeader :title="t('weather.bestTime')">
       <template #action><BaseBadge tone="success" size="sm">{{ bestWindow }}</BaseBadge></template>
     </SectionHeader>
     <figure class="comfort">
-      <figcaption class="t-small muted">Comfort score by hour</figcaption>
+      <figcaption class="t-small muted">{{ t('weather.comfort') }}</figcaption>
       <div class="comfort__bars">
         <div
           v-for="h in hourlyComfort"
@@ -49,10 +54,10 @@ const { current, stats, bestWindow, hourlyComfort, forecast, advice } = WEATHER
       </div>
     </figure>
 
-    <SectionHeader title="This week" />
+    <SectionHeader :title="t('weather.week')" />
     <ul class="forecast">
       <li v-for="(day, i) in forecast" :key="day.day" :class="{ 'is-today': i === 0 }">
-        {{ day.day }}
+        {{ t(`weather.days.${day.day.toLowerCase()}`) }}
         <span class="forecast__icon" aria-hidden="true">{{ day.icon }}</span>
         <b>{{ day.high }}°</b>
       </li>
@@ -60,7 +65,7 @@ const { current, stats, bestWindow, hourlyComfort, forecast, advice } = WEATHER
 
     <p class="advice">
       <AppIcon name="shoe" :size="22" />
-      <span>{{ advice }}</span>
+      <span>{{ t('weather.advice') }}</span>
     </p>
   </AppPage>
 </template>

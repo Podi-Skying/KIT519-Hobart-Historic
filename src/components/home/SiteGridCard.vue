@@ -4,6 +4,7 @@
  * Uses the "stretched link" pattern so the like button is not nested in the link.
  */
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { useFavoritesStore } from '@/stores/favorites'
 
@@ -11,6 +12,7 @@ const props = defineProps({
   site: { type: Object, required: true },
 })
 
+const { t } = useI18n()
 const favorites = useFavoritesStore()
 const liked = computed(() => favorites.isLiked(props.site.id))
 const likes = computed(() => favorites.likeCount(props.site))
@@ -25,7 +27,7 @@ const likes = computed(() => favorites.likeCount(props.site))
         class="grid-card__like"
         :class="{ 'is-liked': liked }"
         :aria-pressed="liked"
-        :aria-label="`${liked ? 'Unlike' : 'Like'} ${site.name}, ${likes} likes`"
+        :aria-label="t(liked ? 'home.unlike' : 'home.like', { name: site.name, n: likes })"
         @click="favorites.toggle(site.id)"
       >
         <AppIcon name="heart" :size="12" :filled="liked" :stroke-width="2.6" />
@@ -36,7 +38,7 @@ const likes = computed(() => favorites.likeCount(props.site))
       <h3 class="grid-card__name">
         <RouterLink :to="{ name: 'site', params: { id: site.id } }" class="grid-card__link">{{ site.name }}</RouterLink>
       </h3>
-      <p class="grid-card__meta">{{ site.area }} • {{ site.walkMinutes }} min walk</p>
+      <p class="grid-card__meta">{{ site.area }} • {{ t('common.minWalk', { n: site.walkMinutes }) }}</p>
     </div>
   </article>
 </template>

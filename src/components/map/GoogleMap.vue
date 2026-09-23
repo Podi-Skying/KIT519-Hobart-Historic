@@ -7,6 +7,7 @@
  * parent can fall back to the illustrated map.
  */
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { loadGoogleMaps, MAP_ID, onGoogleMapsAuthFailure } from '@/services/googleMaps'
 import { HOBART_CENTRE } from '@/data/navigation'
 
@@ -32,6 +33,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['select', 'error', 'ready'])
 
+const { t } = useI18n()
 const container = ref(null)
 const map = shallowRef(null)
 let api = null
@@ -133,8 +135,8 @@ function syncMarker(current, position, className, title) {
 
 function syncPeople() {
   if (!map.value) return
-  userMarker = syncMarker(userMarker, props.user, 'gm-user', 'Your location')
-  startMarker = syncMarker(startMarker, props.user ? null : props.start, 'gm-start', 'Route start')
+  userMarker = syncMarker(userMarker, props.user, 'gm-user', t('map.yourLocation'))
+  startMarker = syncMarker(startMarker, props.user ? null : props.start, 'gm-start', t('map.routeStart'))
 }
 
 // ---------- lifecycle ----------
@@ -210,7 +212,7 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
 </script>
 
 <template>
-  <div ref="container" class="google-map" role="application" aria-label="Map of Hobart heritage sites" />
+  <div ref="container" class="google-map" role="application" :aria-label="t('map.ariaMap')" />
 </template>
 
 <style scoped>

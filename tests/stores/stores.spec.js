@@ -55,27 +55,44 @@ describe('trip store', () => {
 })
 
 describe('player store', () => {
-  it('clamps seek and resets when loading another site', () => {
+  it('seeks by line, clamps to the end and resets when loading another site', () => {
     const player = usePlayerStore()
+    player.load(2)
     player.seek(9999)
     expect(player.position).toBe(player.duration)
+    expect(player.remaining).toBe(0)
     player.skip(-15)
-    expect(player.remaining).toBe(15)
+    expect(player.remaining).toBeGreaterThanOrEqual(15) // snaps back to the start of a line
     player.load(3)
     expect(player.position).toBe(0)
     expect(player.playing).toBe(false)
   })
 
-  it('advances one second per tick while playing', () => {
+  it('advances the clock while playing and stops when paused (no speech API in tests)', () => {
     vi.useFakeTimers()
     const player = usePlayerStore()
     player.load(2)
     player.play()
+    expect(player.voiceStatus).toBe('unsupported')
     vi.advanceTimersByTime(3000)
-    expect(player.position).toBe(3)
+    expect(player.position).toBeCloseTo(3, 0)
     player.pause()
+    const pausedAt = player.position
     vi.advanceTimersByTime(3000)
-    expect(player.position).toBe(3)
+    expect(player.position).toBe(pausedAt)
     vi.useRealTimers()
+  })
+
+  it('has a narration script for every site, in every language', async () => {
+    const { SITES } = await import('@/data/sites')
+    const { LOCALES } = await import('@/i18n')
+    const { localizeNarration } = await import('@/i18n/content')
+    for (const site of SITES) {
+      for (const { code } of LOCALES) {
+        const narration = localizeNarration(site.id, code)
+        expect(narration.title.length).toBeGreaterThan(0)
+        expect(narration.transcript.length).toBeGreaterThanOrEqual(3)
+      }
+    }
   })
 })

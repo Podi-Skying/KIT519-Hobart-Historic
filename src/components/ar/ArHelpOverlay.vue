@@ -1,20 +1,19 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import BaseButton from '@/components/base/BaseButton.vue'
 
 const emit = defineEmits(['close'])
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="help" @click.self="emit('close')">
     <section class="help__card" role="dialog" aria-modal="true" aria-labelledby="ar-help-title">
-      <h2 id="ar-help-title" class="t-h1">How AR mode works</h2>
+      <h2 id="ar-help-title" class="t-h1">{{ t('ar.helpTitle') }}</h2>
       <ol class="help__steps">
-        <li>Point your camera at a heritage building.</li>
-        <li>When it's detected, info bubbles appear.</li>
-        <li>Tap a bubble to read, listen or view photos. Drag to move it.</li>
-        <li>Use <b>Compare</b> to see the site as it was.</li>
+        <li v-for="n in 4" :key="n">{{ t(`ar.help${n}`) }}</li>
       </ol>
-      <BaseButton block @click="emit('close')">Got it</BaseButton>
+      <BaseButton block @click="emit('close')">{{ t('ar.gotIt') }}</BaseButton>
     </section>
   </div>
 </template>

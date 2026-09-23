@@ -1,5 +1,6 @@
 <script setup>
 /** Sub-page header: back button, optional eyebrow + title, trailing slot. */
+import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
 import { useGoBack } from '@/composables/useGoBack'
 
@@ -12,11 +13,12 @@ const props = defineProps({
 })
 
 const goBack = useGoBack(props.fallback)
+const { t } = useI18n()
 </script>
 
 <template>
   <header class="page-header">
-    <IconButton v-if="showBack" class="no-print" icon="back" label="Back" variant="sand" @click="goBack" />
+    <IconButton v-if="showBack" class="no-print" icon="back" :label="t('common.back')" variant="sand" @click="goBack" />
     <div class="page-header__text">
       <p v-if="eyebrow" class="t-caption">{{ eyebrow }}</p>
       <h1 v-if="title" class="page-header__title">{{ title }}</h1>

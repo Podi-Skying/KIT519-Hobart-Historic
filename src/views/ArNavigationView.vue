@@ -1,12 +1,13 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BottomSheet from '@/components/base/BottomSheet.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
-import { AR_NAVIGATION_IMAGE, getSiteById } from '@/data/sites'
+import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
 import { maneuverIcon, nextGuidance } from '@/lib/guidance'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
@@ -18,15 +19,19 @@ const props = defineProps({
   id: { type: Number, required: true },
 })
 
+const { t } = useI18n()
+const { siteById } = useContent()
 const trip = useTripStore()
 const location = useLocationStore()
-const site = computed(() => getSiteById(props.id))
+const site = computed(() => siteById(props.id))
 const walk = useWalkingRoute(site)
 const user = computed(() => (location.isInHobart ? location.coords : null))
 const guidance = computed(() => nextGuidance(walk.route.value, user.value))
 const instruction = computed(() => {
-  if (!walk.isRealRoute.value) return `Head to ${site.value.shortName}`
-  return guidance.value.meters ? `${formatMeters(guidance.value.meters)} · ${guidance.value.instruction}` : guidance.value.instruction
+  const g = guidance.value
+  if (!walk.isRealRoute.value || g.kind === 'none') return t('navigation.headTo', { name: site.value.shortName })
+  const text = g.kind === 'arrive' ? t('navigation.arrive') : g.instruction
+  return g.meters ? `${formatMeters(g.meters)} · ${text}` : text
 })
 onMounted(() => location.start())
 const arrived = ref(false)
@@ -35,12 +40,13 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 
 <template>
   <div class="ar-nav">
-    <img class="ar-nav__feed" :src="AR_NAVIGATION_IMAGE" alt="Street ahead, seen through the camera" fetchpriority="high" />
+    <!-- Simulated camera feed: the approach to this particular site -->
+    <img class="ar-nav__feed" :src="site.arApproachImage" :alt="t('arNav.feedAlt', { name: site.name })" fetchpriority="high" />
     <div class="ar-nav__veil" />
 
     <div class="ar-nav__top">
-      <IconButton variant="glass" icon="close" label="Close AR navigation" @click="close" />
-      <BaseButton variant="secondary" size="sm" icon="map" :to="{ name: 'navigate-map', params: { id } }">Map</BaseButton>
+      <IconButton variant="glass" icon="close" :label="t('arNav.close')" @click="close" />
+      <BaseButton variant="secondary" size="sm" icon="map" :to="{ name: 'navigate-map', params: { id } }">{{ t('arNav.map') }}</BaseButton>
     </div>
 
     <ArStatusPill :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
@@ -51,7 +57,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
       </svg>
     </div>
 
-    <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__minimap" aria-label="Open full map">
+    <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__minimap" :aria-label="t('arNav.openMap')">
       <SiteMap
         :sites="[site]"
         :selected-id="site.id"
@@ -70,19 +76,19 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 
     <section class="ar-nav__summary">
       <div>
-        <p class="ar-nav__eta">{{ walk.minutes.value }} min</p>
+        <p class="ar-nav__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
         <p class="t-small muted">{{ site.name }}</p>
       </div>
-      <BaseButton @click="arrived = true">Simulate arrival</BaseButton>
+      <BaseButton @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
     </section>
 
-    <BottomSheet v-if="arrived" label="Arrived" @close="arrived = false">
+    <BottomSheet v-if="arrived" :label="t('arNav.arrived')" @close="arrived = false">
       <div class="arrived">
         <span class="arrived__icon"><AppIcon name="check" :size="28" :stroke-width="2.6" /></span>
-        <h2 class="t-h1">You've arrived</h2>
-        <p class="t-body">{{ site.name }} is right in front of you.</p>
-        <BaseButton block icon="ar" :to="{ name: 'ar' }">Scan with AR</BaseButton>
-        <BaseButton block variant="secondary" :to="{ name: 'site', params: { id } }">View details</BaseButton>
+        <h2 class="t-h1">{{ t('arNav.arrived') }}</h2>
+        <p class="t-body">{{ t('arNav.inFront', { name: site.name }) }}</p>
+        <BaseButton block icon="ar" :to="{ name: 'ar', params: { id } }">{{ t('arNav.scan') }}</BaseButton>
+        <BaseButton block variant="secondary" :to="{ name: 'site', params: { id } }">{{ t('arNav.viewDetails') }}</BaseButton>
       </div>
     </BottomSheet>
   </div>

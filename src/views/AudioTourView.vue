@@ -1,10 +1,19 @@
 <script setup>
-import { watchEffect } from 'vue'
+/**
+ * Audio tour: the narration is read aloud by the device's text-to-speech voice
+ * in the app language (Web Speech API — free, no API key). Changing language
+ * switches both the script and the voice.
+ */
+import { computed, onBeforeUnmount, watch, watchEffect } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
+import LanguageButton from '@/components/layout/LanguageButton.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import { formatClock } from '@/lib/format'
+import { localeInfo } from '@/i18n'
+import { useContent } from '@/i18n/content'
 import { usePlayerStore } from '@/stores/player'
 
 const props = defineProps({
@@ -14,38 +23,46 @@ const props = defineProps({
 const SKIP_SECONDS = 15
 const WAVE_BARS = 22
 
+const { t, locale } = useI18n()
+const { siteById } = useContent()
 const player = usePlayerStore()
+const site = computed(() => siteById(props.id))
+const languageName = computed(() => localeInfo(locale.value).label)
+
 watchEffect(() => player.load(props.id))
+// New language → new script and voice: start again from the top.
+watch(locale, () => player.reset())
+// Don't keep talking after the listener leaves the page.
+onBeforeUnmount(() => player.pause())
 </script>
 
 <template>
   <AppPage>
-    <PageHeader title="Audio tour" :fallback="{ name: 'site', params: { id } }">
-      <BaseButton variant="secondary" size="sm" :aria-label="`Narration language: ${player.language}`" @click="player.cycleLanguage">
-        {{ player.language }}
-      </BaseButton>
+    <PageHeader :title="t('audio.title')" :fallback="{ name: 'site', params: { id } }">
+      <LanguageButton />
     </PageHeader>
 
     <div class="artwork">
-      <img :src="player.site.image" :alt="player.site.name" class="img-placeholder" />
+      <img :src="site.image" :alt="site.name" class="img-placeholder" />
       <div class="wave" :class="{ 'is-playing': player.playing }" aria-hidden="true">
         <i v-for="n in WAVE_BARS" :key="n" :style="{ animationDelay: `${(n % 7) * 0.11}s` }" />
       </div>
     </div>
 
     <section class="track">
-      <p class="t-caption">Chapter {{ player.narration.chapter }} of {{ player.narration.chapterCount }}</p>
+      <p class="t-caption">{{ t('audio.chapter', { n: player.narration.chapter, total: player.narration.chapterCount }) }}</p>
       <h1 class="t-h1 track__title">{{ player.narration.title }}</h1>
-      <p class="muted">{{ player.site.name }}</p>
+      <p class="muted">{{ site.name }} · {{ t('audio.narratedIn', { language: languageName }) }}</p>
 
       <input
         class="track__seek"
         type="range"
         min="0"
         :max="player.duration"
+        step="1"
         :value="player.position"
-        aria-label="Playback position"
-        @input="player.seek(Number($event.target.value))"
+        :aria-label="t('audio.position')"
+        @change="player.seek(Number($event.target.value))"
       />
       <div class="track__times">
         <span>{{ formatClock(player.position) }}</span>
@@ -53,19 +70,26 @@ watchEffect(() => player.load(props.id))
       </div>
 
       <div class="controls">
-        <button type="button" class="controls__skip" :aria-label="`Back ${SKIP_SECONDS} seconds`" @click="player.skip(-SKIP_SECONDS)">
+        <button type="button" class="controls__skip" :aria-label="t('audio.back', { n: SKIP_SECONDS })" @click="player.skip(-SKIP_SECONDS)">
           <AppIcon name="rewind" :size="26" />{{ SKIP_SECONDS }}
         </button>
-        <button type="button" class="controls__play" :aria-label="player.playing ? 'Pause' : 'Play'" @click="player.toggle">
+        <button type="button" class="controls__play" :aria-label="player.playing ? t('audio.pause') : t('audio.play')" @click="player.toggle">
           <AppIcon :name="player.playing ? 'pause' : 'play'" :size="28" />
         </button>
-        <button type="button" class="controls__skip" :aria-label="`Forward ${SKIP_SECONDS} seconds`" @click="player.skip(SKIP_SECONDS)">
+        <button type="button" class="controls__skip" :aria-label="t('audio.forward', { n: SKIP_SECONDS })" @click="player.skip(SKIP_SECONDS)">
           <AppIcon name="forward" :size="26" />{{ SKIP_SECONDS }}
         </button>
       </div>
 
+      <p v-if="player.voiceStatus === 'missing'" class="notice" role="status">
+        <AppIcon name="info" :size="16" />{{ t('audio.voiceMissing', { language: languageName }) }}
+      </p>
+      <p v-else-if="player.voiceStatus === 'unsupported'" class="notice" role="status">
+        <AppIcon name="info" :size="16" />{{ t('audio.unsupported') }}
+      </p>
+
       <BaseButton variant="secondary" block class="track__toggle" :aria-expanded="player.showTranscript" @click="player.toggleTranscript">
-        {{ player.showTranscript ? 'Hide transcript' : 'Read transcript' }}
+        {{ player.showTranscript ? t('audio.hideTranscript') : t('audio.readTranscript') }}
       </BaseButton>
 
       <ol v-if="player.showTranscript" class="transcript">
@@ -164,6 +188,21 @@ watchEffect(() => player.load(props.id))
   background: var(--brand-600);
   color: var(--paper);
   box-shadow: 0 10px 24px rgba(125, 48, 69, 0.3);
+}
+.notice {
+  display: flex;
+  gap: var(--s-2);
+  margin-top: var(--s-4);
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--accent-50);
+  color: var(--ink-700);
+  font: 400 13px/19px var(--font-body);
+}
+.notice :deep(svg) {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--accent-700);
 }
 .track__toggle {
   margin-top: var(--s-6);

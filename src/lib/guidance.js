@@ -45,13 +45,17 @@ export function maneuverIcon(maneuver = '') {
  *   the distance remaining to it.
  * @param {{steps: {instruction:string, maneuver:string, distanceMeters:number, path:{lat:number,lng:number}[], end:{lat:number,lng:number}}[]}} route
  * @param {{lat:number,lng:number}|null} position
- * @returns {{instruction:string, maneuver:string, meters:number, stepIndex:number, arrived:boolean}}
+ * `kind` lets the UI localise the non-Google wording: 'none' (no route), 'start',
+ * 'turn' (use Google's localised `instruction`) or 'arrive'.
+ * @returns {{kind:string, instruction:string, maneuver:string, meters:number, stepIndex:number, arrived:boolean}}
  */
 export function nextGuidance(route, position) {
   const steps = route?.steps ?? []
-  if (!steps.length) return { instruction: 'Head to your destination', maneuver: 'STRAIGHT', meters: 0, stepIndex: -1, arrived: false }
+  if (!steps.length) {
+    return { kind: 'none', instruction: 'Head to your destination', maneuver: 'STRAIGHT', meters: 0, stepIndex: -1, arrived: false }
+  }
 
-  const start = { ...steps[0], meters: steps[0].distanceMeters, stepIndex: 0, arrived: false }
+  const start = { ...steps[0], kind: 'start', meters: steps[0].distanceMeters, stepIndex: 0, arrived: false }
   if (!position) return pick(start)
 
   // Which step's geometry is the walker closest to? (ties go to the earlier step)
@@ -70,9 +74,9 @@ export function nextGuidance(route, position) {
   const toStepEnd = Math.round(metersBetween(position, steps[current].end))
   const upcoming = steps[current + 1]
   if (!upcoming) {
-    return { instruction: 'Arrive at your destination', maneuver: 'STRAIGHT', meters: toStepEnd, stepIndex: current, arrived: toStepEnd < 20 }
+    return { kind: 'arrive', instruction: 'Arrive at your destination', maneuver: 'STRAIGHT', meters: toStepEnd, stepIndex: current, arrived: toStepEnd < 20 }
   }
-  return { instruction: upcoming.instruction, maneuver: upcoming.maneuver, meters: toStepEnd, stepIndex: current, arrived: false }
+  return { kind: 'turn', instruction: upcoming.instruction, maneuver: upcoming.maneuver, meters: toStepEnd, stepIndex: current, arrived: false }
 }
 
-const pick = ({ instruction, maneuver, meters, stepIndex, arrived }) => ({ instruction, maneuver, meters, stepIndex, arrived })
+const pick = ({ kind, instruction, maneuver, meters, stepIndex, arrived }) => ({ kind, instruction, maneuver, meters, stepIndex, arrived })

@@ -1,10 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
-import { getSiteById } from '@/data/sites'
+import { useContent } from '@/i18n/content'
 import { useSwipe } from '@/composables/useSwipe'
 import { useKeydown } from '@/composables/useKeydown'
 
@@ -14,7 +15,9 @@ const props = defineProps({
 })
 
 const router = useRouter()
-const site = computed(() => getSiteById(props.id))
+const { t } = useI18n()
+const { siteById } = useContent()
+const site = computed(() => siteById(props.id))
 const count = computed(() => site.value.gallery.length)
 const current = computed(() => Math.min(props.index, count.value - 1))
 const photo = computed(() => site.value.gallery[current.value])
@@ -40,10 +43,10 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         <Transition name="photo" mode="out-in">
           <img :key="photo.image" :src="photo.image" :alt="photo.caption" class="img-placeholder" draggable="false" />
         </Transition>
-        <button type="button" class="viewer__nav viewer__nav--prev" aria-label="Previous photo" @click="step(-1)">
+        <button type="button" class="viewer__nav viewer__nav--prev" :aria-label="t('gallery.previous')" @click="step(-1)">
           <AppIcon name="back" :size="20" :stroke-width="2.4" />
         </button>
-        <button type="button" class="viewer__nav viewer__nav--next" aria-label="Next photo" @click="step(1)">
+        <button type="button" class="viewer__nav viewer__nav--next" :aria-label="t('gallery.next')" @click="step(1)">
           <AppIcon name="chevron" :size="20" :stroke-width="2.4" />
         </button>
       </div>
@@ -54,7 +57,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
       </figcaption>
     </figure>
 
-    <div class="thumbs" role="tablist" aria-label="Photos">
+    <div class="thumbs" role="tablist" :aria-label="t('gallery.photos')">
       <button
         v-for="(item, i) in site.gallery"
         :key="item.image"

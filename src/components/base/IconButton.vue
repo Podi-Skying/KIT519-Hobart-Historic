@@ -10,8 +10,9 @@ defineProps({
    * sand   quiet circle inside cream headers
    * glass  translucent charcoal over camera views
    * float  white rounded square floating on maps
+   * success  green confirm button (e.g. "Done" once something is selected)
    */
-  variant: { type: String, default: 'paper', validator: (v) => ['paper', 'sand', 'glass', 'float'].includes(v) },
+  variant: { type: String, default: 'paper', validator: (v) => ['paper', 'sand', 'glass', 'float', 'success'].includes(v) },
   iconSize: { type: [Number, String], default: 20 },
   /** Toggle state (sets aria-pressed + active styling). Leave null for plain buttons. */
   pressed: { type: Boolean, default: null },
@@ -62,6 +63,11 @@ defineProps({
   border-radius: var(--r-md);
   background: var(--paper);
   box-shadow: var(--e-2);
+}
+.icon-btn--success {
+  background: var(--success-600);
+  color: var(--paper);
+  box-shadow: 0 4px 12px rgba(74, 103, 65, 0.35);
 }
 .icon-btn.is-active {
   background: var(--ink-900);

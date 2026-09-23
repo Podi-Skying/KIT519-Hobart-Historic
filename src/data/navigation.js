@@ -26,14 +26,36 @@ export const WAYPOINTS = [
 
 export const MAX_STOPS = 4
 
-/**
- * Reference point for distances when the walker's real location is unknown,
- * denied, or outside Hobart: Franklin Square, the centre of the CBD.
- */
+/** Centre of the Hobart CBD (Franklin Square) — used to decide whether the walker is "in Hobart". */
 export const HOBART_CENTRE = { lat: -42.88338, lng: 147.3303 }
 
 /** Beyond this distance from the centre the walker is treated as "not in Hobart". */
 export const HOBART_RADIUS_KM = 25
+
+/**
+ * Default starting point when the walker's real location is unknown, denied, or
+ * outside Hobart: Centenary Building, Grosvenor Crescent, Dynnyrne TAS 7005
+ * (University of Tasmania, Sandy Bay campus). Coordinates from OpenStreetMap.
+ */
+export const DEFAULT_ORIGIN = { lat: -42.902744, lng: 147.327185 }
+
+/**
+ * Via-points used to find genuinely different walking routes (see services/routeOptions.js).
+ *  flat    low-lying waterfront / rivulet corridors → candidates for the Accessible route
+ *  scenic  hilltop parks with river views → candidates for the Steep route
+ * Coordinates from OpenStreetMap.
+ */
+export const ROUTE_VIA_POINTS = {
+  flat: [
+    { name: 'Franklin Wharf', coords: { lat: -42.88185, lng: 147.335545 } },
+    { name: 'Parliament House Gardens', coords: { lat: -42.885698, lng: 147.33122 } },
+    { name: 'Hobart Rivulet Park', coords: { lat: -42.89262, lng: 147.306592 } },
+  ],
+  scenic: [
+    { name: 'Princes Park', coords: { lat: -42.8876, lng: 147.337043 } },
+    { name: 'Arthur Circus', coords: { lat: -42.888997, lng: 147.335129 } },
+  ],
+}
 
 /** The three ways to follow a route (Navigate › choose mode). */
 export const NAVIGATION_MODES = [

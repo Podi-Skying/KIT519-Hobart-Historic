@@ -1,50 +1,64 @@
 <script setup>
-/** "Then vs now": blend the archival reconstruction over today's view. */
+/** "Then vs now" for one site: blend the archival view over today's. */
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
-import { AR_DEMO_SITE_ID, getSiteById } from '@/data/sites'
+import { useContent } from '@/i18n/content'
 import { useGoBack } from '@/composables/useGoBack'
+
+const props = defineProps({
+  id: { type: Number, required: true },
+})
 
 const PRESENT = 100
 const PAST = 0
 
-const site = getSiteById(AR_DEMO_SITE_ID)
-const { pastYear, pastImage, presentImage, pastCaption, presentCaption } = site.timeTravel
+const { t } = useI18n()
+const { siteById } = useContent()
+const site = computed(() => siteById(props.id))
+const past = computed(() => site.value.timeTravel)
 
 /** 0 = fully past, 100 = fully present */
 const blend = ref(PRESENT)
 const showingPast = computed(() => blend.value < 50)
-const goBack = useGoBack({ name: 'ar' })
+const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
 </script>
 
 <template>
   <div class="compare">
-    <img class="compare__layer" :src="presentImage" :alt="`${site.name} today`" />
+    <img class="compare__layer" :src="past.presentImage" :alt="t('compare.todayAlt', { name: site.name })" />
     <img
       class="compare__layer"
-      :src="pastImage"
-      :alt="`${site.name} in ${pastYear}`"
+      :src="past.pastImage"
+      :alt="t('compare.pastAlt', { name: site.name, year: past.pastYear })"
       :style="{ opacity: (100 - blend) / 100 }"
     />
     <div class="compare__veil" />
 
-    <IconButton class="compare__back" variant="glass" icon="back" label="Back" @click="goBack" />
+    <IconButton class="compare__back" variant="glass" icon="back" :label="t('common.back')" @click="goBack" />
 
-    <div class="segmented" role="radiogroup" aria-label="Period">
+    <div class="segmented" role="radiogroup" :aria-label="t('compare.period')">
       <button type="button" role="radio" :aria-checked="showingPast" :class="{ 'is-on': showingPast }" @click="blend = PAST">
-        {{ pastYear }}
+        {{ past.pastYear }}
       </button>
       <button type="button" role="radio" :aria-checked="!showingPast" :class="{ 'is-on': !showingPast }" @click="blend = PRESENT">
-        Today
+        {{ t('compare.today') }}
       </button>
     </div>
 
     <section class="caption-card">
-      <p class="t-caption">{{ showingPast ? pastYear : 'Today' }}</p>
-      <p class="caption-card__text" aria-live="polite">{{ showingPast ? pastCaption : presentCaption }}</p>
-      <input v-model.number="blend" class="caption-card__slider" type="range" min="0" max="100" :aria-label="`Blend between ${pastYear} and today`" />
+      <p class="t-caption">{{ site.name }} · {{ showingPast ? past.pastYear : t('compare.today') }}</p>
+      <p class="caption-card__text" aria-live="polite">{{ showingPast ? past.pastCaption : past.presentCaption }}</p>
+      <input
+        v-model.number="blend"
+        class="caption-card__slider"
+        type="range"
+        min="0"
+        max="100"
+        :aria-label="t('compare.blend', { year: past.pastYear })"
+      />
       <div class="caption-card__ends">
-        <span>{{ pastYear }}</span><span>Today</span>
+        <span>{{ past.pastYear }}</span><span>{{ t('compare.today') }}</span>
       </div>
     </section>
   </div>
@@ -94,6 +108,7 @@ const goBack = useGoBack({ name: 'ar' })
   border-radius: var(--r-pill);
   color: var(--cream);
   font: 600 13px var(--font-label);
+  white-space: nowrap;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .segmented button.is-on {

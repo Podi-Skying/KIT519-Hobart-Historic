@@ -1,19 +1,21 @@
 <script setup>
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 
 const TABS = [
-  { key: 'home', label: 'Home', icon: 'home', to: { name: 'home' } },
-  { key: 'map', label: 'Map', icon: 'map', to: { name: 'map' } },
-  { key: 'ar', label: 'AR', icon: 'ar', to: { name: 'ar' } },
-  { key: 'weather', label: 'Weather', icon: 'weather', to: { name: 'weather' } },
+  { key: 'home', icon: 'home', to: { name: 'home' } },
+  { key: 'map', icon: 'map', to: { name: 'map' } },
+  { key: 'ar', icon: 'ar', to: { name: 'ar' } },
+  { key: 'weather', icon: 'weather', to: { name: 'weather' } },
 ]
 
 const route = useRoute()
+const { t } = useI18n()
 </script>
 
 <template>
-  <nav class="tab-bar no-print" aria-label="Main">
+  <nav class="tab-bar no-print" :aria-label="t('tabs.main')">
     <RouterLink
       v-for="tab in TABS"
       :key="tab.key"
@@ -23,7 +25,7 @@ const route = useRoute()
       :aria-current="route.meta.tab === tab.key ? 'page' : undefined"
     >
       <AppIcon :name="tab.icon" :size="24" />
-      <span>{{ tab.label }}</span>
+      <span>{{ t(`tabs.${tab.key}`) }}</span>
     </RouterLink>
   </nav>
 </template>

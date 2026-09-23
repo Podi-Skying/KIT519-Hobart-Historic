@@ -6,6 +6,7 @@
  * sites are picked from the map or the "nearby" list.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -13,7 +14,7 @@ import SiteMap from '@/components/map/SiteMap.vue'
 import StopPicker from '@/components/map/StopPicker.vue'
 import SiteList from '@/components/map/SiteList.vue'
 import RouteTypePicker from '@/components/map/RouteTypePicker.vue'
-import { SITES } from '@/data/sites'
+import { useContent } from '@/i18n/content'
 import { MAX_STOPS } from '@/data/navigation'
 import { formatMeters } from '@/lib/format'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
@@ -21,6 +22,8 @@ import { useTripStore } from '@/stores/trip'
 import { useUiStore } from '@/stores/ui'
 import { useLocationStore } from '@/stores/location'
 
+const { t } = useI18n()
+const { sites: SITES } = useContent()
 const trip = useTripStore()
 const ui = useUiStore()
 const location = useLocationStore()
@@ -28,9 +31,10 @@ const location = useLocationStore()
 const siteMap = ref(null)
 
 // ---- live distances ----
-const distances = computed(() => new Map(SITES.map((site) => [site.id, location.distanceTo(site)])))
-const nearest = computed(() => [...SITES].sort((a, b) => distances.value.get(a.id).km - distances.value.get(b.id).km)[0])
-const selected = computed(() => trip.destination)
+const distances = computed(() => new Map(SITES.value.map((site) => [site.id, location.distanceTo(site)])))
+const nearest = computed(() => [...SITES.value].sort((a, b) => distances.value.get(a.id).km - distances.value.get(b.id).km)[0])
+const selected = computed(() => SITES.value.find((s) => s.id === trip.destinationId) ?? null)
+const originLabel = computed(() => t(location.originLabelKey))
 const userCoords = computed(() => (location.isInHobart ? location.coords : null))
 
 // Real walking route to the selected site (straight-line estimate as fallback)
@@ -57,49 +61,50 @@ onMounted(() => location.start())
 watch(
   () => location.status,
   (status, previous) => {
-    if (status === 'denied') ui.showToast('Location is off — distances are from the city centre', { duration: 2600 })
+    if (status === 'denied') ui.showToast(t('map.toast.denied'), { duration: 2600 })
     if (status === 'active' && previous === 'locating' && !location.isInHobart) {
-      ui.showToast("You're outside Hobart — distances are from the city centre", { duration: 2600 })
+      ui.showToast(t('map.toast.outside'), { duration: 2600 })
     }
   },
 )
 
 function locate() {
   if (location.status === 'denied') {
-    ui.showToast('Allow location access in your browser settings', { duration: 2600 })
+    ui.showToast(t('map.toast.allowLocation'), { duration: 2600 })
     return
   }
   location.start()
   if (location.isInHobart) {
     siteMap.value?.focusUser()
-    ui.showToast('Showing your location')
+    ui.showToast(t('map.toast.showingYou'))
   } else if (location.status === 'active') {
-    ui.showToast("You're outside Hobart — showing the city centre", { duration: 2600 })
+    ui.showToast(t('map.toast.outside'), { duration: 2600 })
     siteMap.value?.recenter()
   } else {
-    ui.showToast('Locating you', { spinner: true, duration: 1600 })
+    ui.showToast(t('map.toast.locating'), { spinner: true, duration: 1600 })
   }
 }
 
 // ---- stops & preferences ----
 function toggleStop(stop) {
   const result = trip.toggleStop(stop.id)
+  const name = t(`waypoints.${stop.id}`)
   const messages = {
-    added: `${stop.label} added to route`,
-    removed: `${stop.label} removed`,
-    full: `You can add up to ${MAX_STOPS} stops`,
+    added: t('map.toast.stopAdded', { name }),
+    removed: t('map.toast.stopRemoved', { name }),
+    full: t('map.toast.stopsFull', { n: MAX_STOPS }),
   }
   ui.showToast(messages[result])
 }
 
 function toggleVoice() {
   trip.toggleVoiceGuidance()
-  ui.showToast(trip.voiceGuidance ? 'Voice guidance on' : 'Voice guidance off')
+  ui.showToast(t(trip.voiceGuidance ? 'map.toast.voiceOn' : 'map.toast.voiceOff'))
 }
 
 function toggleOffline() {
   trip.toggleOfflineMap()
-  ui.showToast(trip.offlineMap ? 'Map saved for offline use' : 'Using live map')
+  ui.showToast(t(trip.offlineMap ? 'map.toast.offlineOn' : 'map.toast.offlineOff'))
 }
 </script>
 
@@ -123,12 +128,12 @@ function toggleOffline() {
     </div>
 
     <div class="map-view__controls">
-      <IconButton variant="float" :icon="trip.voiceGuidance ? 'volume' : 'mute'" label="Voice guidance" :pressed="trip.voiceGuidance" @click="toggleVoice" />
-      <IconButton variant="float" :icon="trip.offlineMap ? 'download' : 'wifi'" label="Save map offline" :pressed="trip.offlineMap" @click="toggleOffline" />
+      <IconButton variant="float" :icon="trip.voiceGuidance ? 'volume' : 'mute'" :label="t('map.voice')" :pressed="trip.voiceGuidance" @click="toggleVoice" />
+      <IconButton variant="float" :icon="trip.offlineMap ? 'download' : 'wifi'" :label="t('map.offline')" :pressed="trip.offlineMap" @click="toggleOffline" />
       <IconButton
         variant="float"
         icon="locate"
-        label="Show my location"
+        :label="t('map.locate')"
         :active="location.isInHobart"
         @click="locate"
       />
@@ -136,58 +141,58 @@ function toggleOffline() {
 
     <div ref="panel" class="panel">
       <!-- Selected destination -->
-      <section v-if="selected" class="panel__selected" aria-label="Selected destination">
+      <section v-if="selected" class="panel__selected" :aria-label="t('map.selected')">
         <div class="selected">
           <img :src="selected.image" :alt="selected.name" class="selected__thumb img-placeholder" />
           <div class="selected__text">
             <h2 class="selected__name">{{ selected.name }}</h2>
             <p class="t-small muted">
-              {{ selected.area }} · {{ formatMeters(walk.distanceMeters.value) }} {{ location.originLabel }}
-              <template v-if="walk.status.value === 'fallback'"> · straight-line estimate</template>
+              {{ selected.area }} · {{ formatMeters(walk.distanceMeters.value) }} {{ originLabel }}
+              <template v-if="walk.status.value === 'fallback'"> · {{ t('map.estimate') }}</template>
             </p>
           </div>
-          <IconButton icon="close" label="Close" variant="sand" @click="trip.clearDestination" />
+          <IconButton icon="close" :label="t('common.close')" variant="sand" @click="trip.clearDestination" />
         </div>
 
-        <p class="t-caption panel__label">Route type</p>
-        <RouteTypePicker v-model="routeType" :base-minutes="walk.baseMinutes.value" />
+        <p class="t-caption panel__label">{{ t('map.routeType') }}</p>
+        <RouteTypePicker v-model="routeType" :summaries="walk.summaries.value" :loading="walk.status.value === 'loading'" />
 
-        <ul v-if="trip.stops.length" class="stop-chips" aria-label="Stops on this route">
+        <ul v-if="trip.stops.length" class="stop-chips" :aria-label="t('map.stopsOnRoute')">
           <li v-for="stop in trip.stops" :key="stop.id">
             <AppIcon :name="stop.icon" :size="14" />
-            {{ stop.label }}
-            <button type="button" :aria-label="`Remove ${stop.label}`" @click="trip.toggleStop(stop.id)">
+            {{ t(`waypoints.${stop.id}`) }}
+            <button type="button" :aria-label="t('map.remove', { name: t(`waypoints.${stop.id}`) })" @click="trip.toggleStop(stop.id)">
               <AppIcon name="close" :size="12" :stroke-width="2.6" />
             </button>
           </li>
         </ul>
 
         <div class="panel__actions">
-          <BaseButton variant="secondary" :to="{ name: 'site', params: { id: selected.id } }">Details</BaseButton>
-          <BaseButton icon="navigate" :to="{ name: 'navigate', params: { id: selected.id } }">Go</BaseButton>
+          <BaseButton variant="secondary" :to="{ name: 'site', params: { id: selected.id } }">{{ t('common.details') }}</BaseButton>
+          <BaseButton icon="navigate" :to="{ name: 'navigate', params: { id: selected.id } }">{{ t('common.go') }}</BaseButton>
         </div>
       </section>
 
       <!-- Browse -->
-      <section v-else class="panel__browse" aria-label="Plan a walk">
+      <section v-else class="panel__browse" :aria-label="t('map.planWalk')">
         <span class="panel__grip" aria-hidden="true" />
         <button type="button" class="nearest" @click="trip.setDestination(nearest.id)">
           <span class="nearest__icon"><AppIcon name="pin" :size="20" /></span>
           <span class="nearest__text">
-            <span class="t-caption">Nearest heritage site</span>
+            <span class="t-caption">{{ t('map.nearest') }}</span>
             <b>{{ nearest.name }}</b>
-            <small>{{ distances.get(nearest.id).minutes }} min walk {{ location.originLabel }}</small>
+            <small>{{ t('common.minWalk', { n: distances.get(nearest.id).minutes }) }} · {{ originLabel }}</small>
           </span>
           <AppIcon name="chevron" :size="18" class="nearest__chevron" />
         </button>
 
         <p class="t-caption panel__label panel__label--inset">
-          Add a stop<template v-if="trip.stopIds.length"> · {{ trip.stopIds.length }}/{{ MAX_STOPS }}</template>
+          {{ t('map.addStop') }}<template v-if="trip.stopIds.length"> · {{ trip.stopIds.length }}/{{ MAX_STOPS }}</template>
         </p>
         <StopPicker :selected-ids="trip.stopIds" @toggle="toggleStop" />
 
         <p class="t-caption panel__label panel__label--inset">
-          All heritage sites · {{ location.originLabel }}
+          {{ t('map.allSitesFrom', { origin: originLabel }) }}
         </p>
         <SiteList :sites="SITES" :distances="distances" @select="trip.setDestination" />
       </section>

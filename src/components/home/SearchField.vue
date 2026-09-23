@@ -2,8 +2,10 @@
 import { onMounted, ref } from 'vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 
-defineProps({
-  placeholder: { type: String, default: 'Search heritage sites' },
+const props = defineProps({
+  placeholder: { type: String, required: true },
+  clearLabel: { type: String, required: true },
+  /** Focus as soon as the field appears (e.g. after tapping a search icon). */
   autofocus: { type: Boolean, default: false },
 })
 const model = defineModel({ type: String, default: '' })
@@ -15,8 +17,10 @@ function clear() {
 }
 
 onMounted(() => {
-  if (input.value?.dataset.autofocus === 'true') input.value.focus()
+  if (props.autofocus) input.value?.focus({ preventScroll: true })
 })
+
+defineExpose({ focus: () => input.value?.focus() })
 </script>
 
 <template>
@@ -28,11 +32,10 @@ onMounted(() => {
       type="search"
       :placeholder="placeholder"
       :aria-label="placeholder"
-      :data-autofocus="autofocus"
       autocomplete="off"
       enterkeyhint="search"
     />
-    <button v-if="model" type="button" class="search__clear" aria-label="Clear search" @click="clear">
+    <button v-if="model" type="button" class="search__clear" :aria-label="clearLabel" @click="clear">
       <AppIcon name="close" :size="16" />
     </button>
   </label>

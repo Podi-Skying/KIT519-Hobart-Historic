@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { HOBART_CENTRE, HOBART_RADIUS_KM } from '@/data/navigation'
+import { DEFAULT_ORIGIN, HOBART_CENTRE, HOBART_RADIUS_KM } from '@/data/navigation'
 import { distanceKm, roundKm, walkingMinutes } from '@/lib/geo'
 
 let watchId = null
@@ -7,7 +7,8 @@ let watchId = null
 /**
  * The walker's real position (browser Geolocation API).
  * Distances are measured from the walker when they are in Hobart; otherwise
- * (not yet located, permission denied, or elsewhere in the world) from the city centre.
+ * (not yet located, permission denied, or elsewhere in the world) from the
+ * default origin — Centenary Building, Dynnyrne (see data/navigation.js).
  *
  * status: idle → locating → active | denied | unavailable
  */
@@ -24,10 +25,11 @@ export const useLocationStore = defineStore('location', {
     isInHobart: (state) => Boolean(state.coords) && distanceKm(state.coords, HOBART_CENTRE) <= HOBART_RADIUS_KM,
     /** Point distances are measured from. */
     origin() {
-      return this.isInHobart ? this.coords : HOBART_CENTRE
+      return this.isInHobart ? this.coords : DEFAULT_ORIGIN
     },
-    originLabel() {
-      return this.isInHobart ? 'from you' : 'from city centre'
+    /** i18n key describing where distances are measured from. */
+    originLabelKey() {
+      return this.isInHobart ? 'location.fromYou' : 'location.fromDefault'
     },
     /** @returns {(site: {coordinates:{lat:number,lng:number}}) => {km:number, minutes:number}} */
     distanceTo() {

@@ -1,5 +1,6 @@
 <script setup>
 /** Row of round quick-add buttons for optional stops (toilets, coffee…). */
+import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { WAYPOINTS } from '@/data/navigation'
 
@@ -7,10 +8,11 @@ defineProps({
   selectedIds: { type: Array, required: true },
 })
 const emit = defineEmits(['toggle'])
+const { t } = useI18n()
 </script>
 
 <template>
-  <div class="stops" role="group" aria-label="Add a stop">
+  <div class="stops" role="group" :aria-label="t('map.addStop')">
     <button
       v-for="stop in WAYPOINTS"
       :key="stop.id"
@@ -23,7 +25,7 @@ const emit = defineEmits(['toggle'])
       <span class="stop__icon">
         <AppIcon :name="selectedIds.includes(stop.id) ? 'check' : stop.icon" :size="22" />
       </span>
-      {{ stop.label }}
+      {{ t(`waypoints.${stop.id}`) }}
     </button>
   </div>
 </template>

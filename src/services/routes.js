@@ -13,10 +13,12 @@
  * @typedef {Object} WalkingRoute
  * @property {number} distanceMeters
  * @property {number} durationSeconds
+ * @property {string} encoded   Google encoded polyline (used to de-duplicate candidates)
  * @property {LatLng[]} path
  * @property {RouteStep[]} steps
  */
 import { decodePolyline } from '@/lib/polyline'
+import { i18n, localeInfo } from '@/i18n'
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
 const ENDPOINT = 'https://routes.googleapis.com/directions/v2:computeRoutes'
@@ -37,16 +39,28 @@ const cache = new Map()
 const round = (n) => n.toFixed(4) // ~10 m — small GPS jitter reuses the cached route
 const cacheKey = (points) => points.map((p) => `${round(p.lat)},${round(p.lng)}`).join('|')
 
-const waypoint = ({ lat, lng }) => ({ location: { latLng: { latitude: lat, longitude: lng } } })
+const waypoint = ({ lat, lng }, via = false) => ({
+  location: { latLng: { latitude: lat, longitude: lng } },
+  ...(via ? { via: true } : {}),
+})
 
 /**
- * @param {{origin: LatLng, destination: LatLng, intermediates?: LatLng[]}} request
- * @returns {Promise<WalkingRoute>}
+ * Walking routes from the Routes API.
+ * @param {Object} request
+ * @param {LatLng} request.origin
+ * @param {LatLng} request.destination
+ * @param {LatLng[]} [request.intermediates]  stops the walker visits
+ * @param {LatLng[]} [request.via]            pass-through points that only shape the route
+ * @param {boolean} [request.alternatives]    ask for alternative routes (ignored with waypoints — API limitation)
+ * @returns {Promise<WalkingRoute[]>} best route first
  */
-export async function fetchWalkingRoute({ origin, destination, intermediates = [] }) {
+export async function fetchWalkingRoutes({ origin, destination, intermediates = [], via = [], alternatives = false }) {
   if (!isRoutingConfigured()) throw new Error('Routing is not configured')
+  const waypoints = [...intermediates.map((p) => waypoint(p)), ...via.map((p) => waypoint(p, true))]
+  const wantAlternatives = alternatives && waypoints.length === 0
 
-  const key = cacheKey([origin, ...intermediates, destination])
+  const language = routesLanguage()
+  const key = `${cacheKey([origin, ...intermediates, ...via, destination])}|v${via.length}|a${wantAlternatives ? 1 : 0}|${language}`
   if (cache.has(key)) return cache.get(key)
 
   const request = (async () => {
@@ -60,23 +74,31 @@ export async function fetchWalkingRoute({ origin, destination, intermediates = [
       body: JSON.stringify({
         origin: waypoint(origin),
         destination: waypoint(destination),
-        intermediates: intermediates.map(waypoint),
+        intermediates: waypoints,
         travelMode: 'WALK',
-        languageCode: 'en-AU',
+        computeAlternativeRoutes: wantAlternatives,
+        languageCode: language,
         units: 'METRIC',
       }),
     })
     const data = await response.json().catch(() => ({}))
     if (!response.ok) throw new Error(data.error?.message ?? `Routes API ${response.status}`)
-    const route = data.routes?.[0]
-    if (!route) throw new Error('No walking route found')
-    return parseRoute(route)
+    if (!data.routes?.length) throw new Error('No walking route found')
+    return data.routes.map(parseRoute)
   })()
 
   cache.set(key, request)
   request.catch(() => cache.delete(key)) // don't cache failures
   return request
 }
+
+/** Single best walking route (convenience wrapper). */
+export async function fetchWalkingRoute(request) {
+  return (await fetchWalkingRoutes(request))[0]
+}
+
+/** Turn-by-turn instructions follow the app language, as a region-specific tag Google supports (e.g. zh-TW). */
+const routesLanguage = () => localeInfo(i18n.global.locale.value).speech[0]
 
 /** Convert a Routes API route object into the app's WalkingRoute shape. */
 export function parseRoute(route) {
@@ -96,6 +118,7 @@ export function parseRoute(route) {
   return {
     distanceMeters: route.distanceMeters ?? 0,
     durationSeconds: Number.parseInt(route.duration ?? '0', 10),
+    encoded: route.polyline?.encodedPolyline ?? '',
     path: decodePolyline(route.polyline?.encodedPolyline ?? ''),
     steps,
   }
