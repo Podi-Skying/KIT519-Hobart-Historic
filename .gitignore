@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.tools/
+.DS_Store
+*.log
+.vite/
+coverage/
+# v1 single-file prototype, kept locally for reference only
+archive/

@@ -1,0 +1,48 @@
+/** Walking-route presets. `factor` scales a site's normal walking time. */
+export const ROUTE_TYPES = [
+  { key: 'normal', label: 'Normal', factor: 1, color: 'var(--brand-600)', dashed: true },
+  { key: 'accessible', label: 'Accessible', factor: 1.75, color: 'var(--success-600)', dashed: false },
+  { key: 'steep', label: 'Steep', factor: 0.65, color: 'var(--accent-500)', dashed: true },
+]
+
+export const DEFAULT_ROUTE_TYPE = 'normal'
+
+/** Optional stops a walker can add to a route. */
+export const WAYPOINTS = [
+  { id: 'toilets', label: 'Toilets', detourMinutes: 2, icon: 'toilet' },
+  { id: 'coffee', label: 'Coffee', detourMinutes: 4, icon: 'coffee' },
+  { id: 'library', label: 'Library', detourMinutes: 8, icon: 'book' },
+  { id: 'salamanca', label: 'Salamanca', detourMinutes: 7, icon: 'anchor' },
+  { id: 'st-georges', label: "St George's", detourMinutes: 3, icon: 'church' },
+  { id: 'narryna', label: 'Narryna', detourMinutes: 6, icon: 'house' },
+]
+
+export const MAX_STOPS = 4
+
+/** Walker's simulated position on the map canvas (percent). */
+export const USER_POSITION = { x: 54, y: 36 }
+
+/** The three ways to follow a route (Navigate › choose mode). */
+export const NAVIGATION_MODES = [
+  {
+    route: 'navigate-map',
+    title: 'Standard map',
+    description: 'Top-down route with turn-by-turn directions.',
+    tag: 'Battery-friendly',
+    icon: 'map',
+  },
+  {
+    route: 'navigate-ar',
+    title: 'AR navigation',
+    description: 'Arrows over the live camera view of the street.',
+    tag: 'Immersive',
+    icon: 'ar',
+  },
+  {
+    route: 'navigate-print',
+    title: 'Printable map',
+    description: 'Route, stops and space for notes on paper.',
+    tag: 'Works offline',
+    icon: 'print',
+  },
+]

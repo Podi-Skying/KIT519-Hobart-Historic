@@ -1,0 +1,131 @@
+/* ==========================================================================
+   Base — reset, typography utilities, shared transitions, print.
+   Component-specific styles live in each .vue file (scoped).
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: #1f1a12;
+  color: var(--ink-700);
+  font: var(--t-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Playfair Display defaults to old-style figures (descending 4, 9…). Numbers in this
+   app are data — times, °C, counts — so they always sit on the baseline.
+   `!important` is deliberate: every component sets type with the `font:` shorthand,
+   which resets numeric variants, and this rule must win over all of them. */
+*,
+*::before,
+*::after {
+  font-variant-numeric: lining-nums !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ol,
+ul {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--r-sm);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- Typography utilities (map 1:1 to tokens) ---- */
+.t-hero { font: var(--t-hero); color: var(--ink-900); }
+.t-display { font: var(--t-display); color: var(--ink-900); }
+.t-h1 { font: var(--t-h1); color: var(--ink-900); }
+.t-h2 { font: var(--t-h2); color: var(--ink-900); }
+.t-h3 { font: var(--t-h3); color: var(--ink-900); }
+.t-body { font: var(--t-body); color: var(--ink-700); }
+.t-small { font: var(--t-small); }
+.t-label { font: var(--t-label); }
+.t-caption {
+  font: var(--t-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+.muted { color: var(--ink-500); }
+
+/* ---- Shared image placeholder while loading ---- */
+.img-placeholder {
+  background: linear-gradient(135deg, var(--sand), var(--parchment));
+}
+
+/* ---- Route transition ---- */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+/* ---- Print: only the page content ---- */
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

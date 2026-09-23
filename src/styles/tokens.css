@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Hobart Heritage — design tokens
+   Single source of truth for colour, type, spacing, radius, elevation, motion.
+   Components reference these variables only; never hard-code hex values.
+   See README.md › Design system for usage rules.
+   ========================================================================== */
+:root {
+  /* ---- Primary · Heritage Burgundy — the ONLY action / selection colour ---- */
+  --brand-700: #5e2233; /* pressed */
+  --brand-600: #7d3045; /* default · 8.8:1 on paper, 7.7:1 on cream */
+  --brand-100: #ead2d9; /* selected border tint */
+  --brand-50: #f5e8ec; /* selected fill tint */
+
+  /* ---- Secondary · Sandstone Charcoal — text & dark surfaces ---- */
+  --ink-900: #2c2417; /* headings · 13.4:1 on cream */
+  --ink-700: #4a3f30; /* body text · 9.0:1 on cream */
+  --ink-500: #6e6352; /* secondary text · 5.1:1 on cream */
+  --ink-300: #b9ae9c; /* disabled, dividers on dark */
+
+  /* ---- Neutrals · paper & sandstone ---- */
+  --paper: #ffffff; /* cards, sheets, tab bar */
+  --cream: #f5efe6; /* page background (60 % of every screen) */
+  --parchment: #faf6f0; /* subtle inset surfaces */
+  --sand: #e8dcc8; /* borders, outlines, quiet buttons */
+  --sand-dark: #d4c4a8; /* inactive indicators */
+
+  /* ---- Accent · Sunset Amber — highlights only, never body text ---- */
+  --accent-700: #8f5217; /* amber text on cream (5.4:1) */
+  --accent-500: #d98a3d; /* fills, icons, ribbons */
+  --accent-100: #f6dfc4;
+  --accent-50: #fbf0e3;
+
+  /* ---- Functional — exactly one meaning each ---- */
+  --success-600: #4a6741; /* accessible route, good conditions, arrived */
+  --success-50: #e8efe6;
+  --info-600: #2f6fed; /* "you are here" */
+  --ar-400: #38bdf8; /* digital AR layer — camera views only */
+
+  /* ---- Overlays ---- */
+  --scrim: rgba(44, 36, 23, 0.55); /* modal backdrop */
+  --glass: rgba(44, 36, 23, 0.6); /* controls over photos / camera */
+  --photo-veil-top: rgba(44, 36, 23, 0.55);
+  --photo-veil-bottom: rgba(44, 36, 23, 0.78);
+
+  /* ---- Map (warm, low-contrast so pins stand out) ---- */
+  --map-land: #ede8e0;
+  --map-block: #e0d8ca;
+  --map-road: #ffffff;
+  --map-park: #dde5d2;
+  --map-water: #cfdce2;
+  --map-label: #968b78;
+
+  /* ---- Typography — four roles ---- */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: Inter, system-ui, -apple-system, sans-serif;
+  --font-label: Montserrat, Inter, system-ui, sans-serif;
+  --font-script: Caveat, 'Segoe Script', cursive;
+
+  --t-hero: 700 52px/1.02 var(--font-heading);
+  --t-display: 700 30px/36px var(--font-heading);
+  --t-h1: 700 24px/30px var(--font-heading);
+  --t-h2: 700 19px/25px var(--font-heading);
+  --t-h3: 700 15px/21px var(--font-label);
+  --t-body: 400 15px/23px var(--font-body);
+  --t-small: 500 13px/18px var(--font-body);
+  --t-label: 600 13px/16px var(--font-label);
+  --t-caption: 700 11px/14px var(--font-label); /* uppercase, +0.08em */
+
+  /* ---- Spacing — 4 pt grid ---- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --gutter: 20px;
+  --safe-top: 44px; /* status bar height */
+
+  /* ---- Radius ---- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+  --r-pill: 999px;
+
+  /* ---- Elevation (warm-tinted shadows) ---- */
+  --e-1: 0 1px 2px rgba(44, 36, 23, 0.06), 0 2px 8px rgba(44, 36, 23, 0.06);
+  --e-2: 0 8px 24px rgba(44, 36, 23, 0.14);
+  --e-3: 0 -6px 24px rgba(44, 36, 23, 0.1);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur: 220ms;
+  --dur-slow: 400ms;
+
+  /* ---- Accessibility ---- */
+  --hit: 44px; /* minimum touch target */
+  --focus-ring: 0 0 0 3px rgba(125, 48, 69, 0.35);
+}
