@@ -2,7 +2,7 @@
  * Three genuinely different walking routes for one trip:
  *   normal      Google's fastest walking route
  *   accessible  the candidate with the gentlest slopes / least climbing
- *   steep       the candidate with the most climbing (hill-top parks, river views)
+ *   steep       the hardest remaining candidate — most slope and climbing (hill-top parks, views)
  *
  * Google's WALK mode has no "flat" or "hilly" option, so candidates come from
  * (a) Google's own alternatives and (b) routes forced through low-lying
