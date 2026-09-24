@@ -16,7 +16,7 @@ const props = defineProps({
 const model = defineModel({ type: String, required: true })
 const { t } = useI18n()
 
-const ICONS = { normal: 'navigate', accessible: 'accessible', steep: 'up' }
+const ICONS = { normal: 'navigate', accessible: 'accessible', steep: 'mountain' }
 const selected = computed(() => props.summaries[model.value])
 const stats = computed(() => {
   const s = selected.value
