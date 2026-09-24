@@ -1,0 +1,13 @@
+{
+  "name": "hobart-heritage-evaluation-tools",
+  "private": true,
+  "type": "module",
+  "description": "Evidence capture for the KIT519 A3 evaluation: phone-size screenshots + axe-core WCAG scans. Kept apart from the app's own dependencies.",
+  "scripts": {
+    "capture": "node capture.mjs"
+  },
+  "dependencies": {
+    "axe-core": "^4.10.0",
+    "puppeteer-core": "^23.0.0"
+  }
+}

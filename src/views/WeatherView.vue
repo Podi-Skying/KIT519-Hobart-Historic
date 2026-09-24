@@ -1,16 +1,31 @@
 <script setup>
-/** Walking conditions. Numbers come from data/weather.js; all wording is localised. */
+/**
+ * Walking conditions. Numbers come from data/weather.js; all wording is localised.
+ * The advice card leads straight into planning (Accessible route preselected), so the
+ * page isn't a dead end.
+ */
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
+import BaseButton from '@/components/base/BaseButton.vue'
 import SectionHeader from '@/components/base/SectionHeader.vue'
 import { BEST_COMFORT_SCORE, WEATHER } from '@/data/weather'
+import { useTripStore } from '@/stores/trip'
 
 const { current, stats, bestWindow, hourlyComfort, forecast } = WEATHER
 const { t } = useI18n()
+const router = useRouter()
+const trip = useTripStore()
 /** UV is a word, not a number — localise it. */
 const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.value)
+
+/** The route picker shows "Accessible" already selected as soon as a place is chosen. */
+function planAccessibleWalk() {
+  trip.setRouteType('accessible')
+  router.push({ name: 'map' })
+}
 </script>
 
 <template>
@@ -39,7 +54,11 @@ const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.val
     </SectionHeader>
     <figure class="comfort">
       <figcaption class="t-small muted">{{ t('weather.comfort') }}</figcaption>
-      <div class="comfort__bars">
+      <!-- Bars are visual only; screen readers get the same numbers as a list -->
+      <ol class="sr-only">
+        <li v-for="h in hourlyComfort" :key="h.hour">{{ t('weather.hourScore', { hour: h.hour, score: h.score }) }}</li>
+      </ol>
+      <div class="comfort__bars" aria-hidden="true">
         <div
           v-for="h in hourlyComfort"
           :key="h.hour"
@@ -55,18 +74,23 @@ const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.val
     </figure>
 
     <SectionHeader :title="t('weather.week')" />
-    <ul class="forecast">
+    <!-- Scrolls sideways, so it takes keyboard focus (WCAG 2.1.1) -->
+    <ul class="forecast" tabindex="0" :aria-label="t('weather.week')">
       <li v-for="(day, i) in forecast" :key="day.day" :class="{ 'is-today': i === 0 }">
         {{ t(`weather.days.${day.day.toLowerCase()}`) }}
         <span class="forecast__icon" aria-hidden="true">{{ day.icon }}</span>
+        <span class="sr-only">{{ t(`weather.conditions.${day.condition}`) }}</span>
         <b>{{ day.high }}°</b>
       </li>
     </ul>
 
-    <p class="advice">
-      <AppIcon name="shoe" :size="22" />
-      <span>{{ t('weather.advice') }}</span>
-    </p>
+    <div class="advice">
+      <p class="advice__text">
+        <AppIcon name="shoe" :size="22" />
+        <span>{{ t('weather.advice') }}</span>
+      </p>
+      <BaseButton block icon="accessible" @click="planAccessibleWalk">{{ t('weather.planAccessible') }}</BaseButton>
+    </div>
   </AppPage>
 </template>
 
@@ -198,8 +222,6 @@ const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.val
   color: var(--ink-900);
 }
 .advice {
-  display: flex;
-  gap: var(--s-3);
   margin: var(--s-5) var(--gutter) var(--s-6);
   padding: var(--s-4);
   border-radius: var(--r-md);
@@ -207,7 +229,12 @@ const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.val
   color: var(--ink-900);
   font: 500 14px/21px var(--font-body);
 }
-.advice :deep(svg) {
+.advice__text {
+  display: flex;
+  gap: var(--s-3);
+  margin-bottom: var(--s-4);
+}
+.advice__text :deep(svg) {
   margin-top: 2px;
   color: var(--success-600);
 }

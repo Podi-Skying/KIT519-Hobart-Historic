@@ -28,14 +28,15 @@ export const WEATHER = {
     { hour: '4', score: 45 },
     { hour: '5', score: 30 },
   ],
+  /** `icon` is decorative; `condition` is the spoken/text version (weather.conditions.*). */
   forecast: [
-    { day: 'Now', icon: '⛅', high: 14 },
-    { day: 'Mon', icon: '☀️', high: 16 },
-    { day: 'Tue', icon: '🌧️', high: 11 },
-    { day: 'Wed', icon: '⛅', high: 13 },
-    { day: 'Thu', icon: '☀️', high: 17 },
-    { day: 'Fri', icon: '💨', high: 12 },
-    { day: 'Sat', icon: '☀️', high: 18 },
+    { day: 'Now', icon: '⛅', condition: 'partlyCloudy', high: 14 },
+    { day: 'Mon', icon: '☀️', condition: 'sunny', high: 16 },
+    { day: 'Tue', icon: '🌧️', condition: 'rain', high: 11 },
+    { day: 'Wed', icon: '⛅', condition: 'partlyCloudy', high: 13 },
+    { day: 'Thu', icon: '☀️', condition: 'sunny', high: 17 },
+    { day: 'Fri', icon: '💨', condition: 'windy', high: 12 },
+    { day: 'Sat', icon: '☀️', condition: 'sunny', high: 18 },
   ],
   advice:
     'Battery Point streets are steep and cobbled — choose the Accessible route with a wheelchair or pram. Bring a layer: wind off kunanyi can drop the temperature quickly.',

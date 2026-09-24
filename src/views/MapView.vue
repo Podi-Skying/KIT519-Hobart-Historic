@@ -168,7 +168,7 @@ function toggleOffline() {
       :style="selected ? null : sheetDrag.style.value"
     >
       <!-- Selected destination -->
-      <section v-if="selected" class="panel__selected" :aria-label="t('map.selected')">
+      <section v-if="selected" class="panel__selected text-zoom" :aria-label="t('map.selected')">
         <div class="selected">
           <img :src="selected.image" :alt="selected.name" class="selected__thumb img-placeholder" />
           <div class="selected__text">
@@ -203,7 +203,7 @@ function toggleOffline() {
       <!-- Browse -->
       <section
         v-else-if="browseOpen"
-        class="panel__browse"
+        class="panel__browse text-zoom"
         :class="{ 'is-reopened': reopened }"
         :aria-label="t('map.planWalk')"
         v-on="sheetDrag.handlers"
@@ -227,7 +227,7 @@ function toggleOffline() {
       </section>
 
       <!-- Tucked away: just the grip, as a tab -->
-      <button v-else type="button" class="peek" aria-expanded="false" v-on="peekHandlers" @click="openBrowse">
+      <button v-else type="button" class="peek text-zoom" aria-expanded="false" v-on="peekHandlers" @click="openBrowse">
         <span class="panel__grip" aria-hidden="true" />
         {{ t('map.planWalk') }}
       </button>
@@ -410,7 +410,7 @@ function toggleOffline() {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--sand);
+  background: var(--sand-fill);
 }
 @keyframes slide-up {
   from {

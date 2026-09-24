@@ -1,12 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
-import BottomSheet from '@/components/base/BottomSheet.vue'
-import AppIcon from '@/components/base/AppIcon.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
+import ArrivalSheet from '@/components/map/ArrivalSheet.vue'
 import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
 import { maneuverIcon, nextGuidance } from '@/lib/guidance'
@@ -35,6 +34,8 @@ const instruction = computed(() => {
 })
 onMounted(() => location.start())
 const arrived = ref(false)
+// Reaching the destination opens the arrival sheet by itself (location-triggered content).
+watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))
 const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 </script>
 
@@ -74,7 +75,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
       />
     </RouterLink>
 
-    <section class="ar-nav__summary">
+    <section class="ar-nav__summary text-zoom">
       <div>
         <p class="ar-nav__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
         <p class="t-small muted">{{ site.name }}</p>
@@ -82,15 +83,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
       <BaseButton @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
     </section>
 
-    <BottomSheet v-if="arrived" :label="t('arNav.arrived')" @close="arrived = false">
-      <div class="arrived">
-        <span class="arrived__icon"><AppIcon name="check" :size="28" :stroke-width="2.6" /></span>
-        <h2 class="t-h1">{{ t('arNav.arrived') }}</h2>
-        <p class="t-body">{{ t('arNav.inFront', { name: site.name }) }}</p>
-        <BaseButton block icon="ar" :to="{ name: 'ar', params: { id } }">{{ t('arNav.scan') }}</BaseButton>
-        <BaseButton block variant="secondary" :to="{ name: 'site', params: { id } }">{{ t('arNav.viewDetails') }}</BaseButton>
-      </div>
-    </BottomSheet>
+    <ArrivalSheet v-if="arrived" :site="site" primary="ar" @close="arrived = false" />
   </div>
 </template>
 
@@ -181,26 +174,6 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 .ar-nav__eta {
   font: 700 26px var(--font-heading);
   color: var(--success-600);
-}
-.arrived {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-3);
-  text-align: center;
-}
-.arrived__icon {
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--success-50);
-  color: var(--success-600);
-}
-.arrived p {
-  margin-bottom: var(--s-2);
 }
 @keyframes bob {
   50% {

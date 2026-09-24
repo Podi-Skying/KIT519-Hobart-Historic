@@ -15,7 +15,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <nav class="tab-bar no-print" :aria-label="t('tabs.main')">
+  <nav class="tab-bar no-print text-zoom" :aria-label="t('tabs.main')">
     <RouterLink
       v-for="tab in TABS"
       :key="tab.key"

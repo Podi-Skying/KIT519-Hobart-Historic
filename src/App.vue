@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import DeviceFrame from '@/components/layout/DeviceFrame.vue'
 import StatusBar from '@/components/layout/StatusBar.vue'
@@ -7,9 +7,17 @@ import TabBar from '@/components/layout/TabBar.vue'
 import AppToast from '@/components/layout/AppToast.vue'
 import SplashScreen from '@/components/splash/SplashScreen.vue'
 import { useUiStore } from '@/stores/ui'
+import { usePrefsStore } from '@/stores/prefs'
 
 const route = useRoute()
 const ui = useUiStore()
+const prefs = usePrefsStore()
+
+// Display preferences switch tokens on <html> (tokens.css › Larger text / High contrast).
+watchEffect(() => {
+  document.documentElement.dataset.text = prefs.largeText ? 'large' : 'default'
+  document.documentElement.dataset.contrast = prefs.highContrast ? 'high' : 'default'
+})
 
 /** Leading page shows on every launch, above whichever route was opened. */
 const showSplash = ref(true)

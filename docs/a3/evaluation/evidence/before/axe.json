@@ -1,0 +1,212 @@
+{
+  "base": "https://podi-skying.github.io/KIT519-Hobart-Historic/",
+  "date": "2026-09-24T00:15:54.059Z",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "results": [
+    {
+      "step": "splash",
+      "screenshot": "01-splash.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "home",
+      "screenshot": "02-home.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "home-list",
+      "screenshot": "03-home-list.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "language-sheet",
+      "screenshot": "04-language-sheet.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": [
+        {
+          "id": "listitem",
+          "impact": "serious",
+          "help": "<li> elements must be contained in a <ul> or <ol>",
+          "wcag": [
+            "wcag2a",
+            "wcag131"
+          ],
+          "nodes": 5,
+          "targets": [
+            "li:nth-child(1)",
+            "li:nth-child(2)",
+            "li:nth-child(3)",
+            "li:nth-child(4)",
+            "li:nth-child(5)"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "site-detail",
+      "screenshot": "05-site-detail.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "wcag": [
+            "wcag2aa",
+            "wcag143"
+          ],
+          "nodes": 1,
+          "targets": [
+            "span[data-v-b7da3568=\"\"]:nth-child(1)"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "site-detail-gallery",
+      "screenshot": "06-site-detail-gallery.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1",
+      "violations": []
+    },
+    {
+      "step": "audio-tour",
+      "screenshot": "07-audio-tour.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1/audio",
+      "violations": []
+    },
+    {
+      "step": "gallery",
+      "screenshot": "08-gallery.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1/gallery/0",
+      "violations": []
+    },
+    {
+      "step": "map-browse",
+      "screenshot": "09-map-browse.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": []
+    },
+    {
+      "step": "map-selected",
+      "screenshot": "10-map-selected.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": []
+    },
+    {
+      "step": "navigate-modes",
+      "screenshot": "11-navigate-modes.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1",
+      "violations": []
+    },
+    {
+      "step": "navigate-standard",
+      "screenshot": "12-navigate-standard.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/map",
+      "violations": []
+    },
+    {
+      "step": "navigate-ar",
+      "screenshot": "13-navigate-ar.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/ar",
+      "violations": [
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "help": "All touch targets must be 24px large, or leave sufficient space",
+          "wcag": [
+            "wcag22aa",
+            "wcag258"
+          ],
+          "nodes": 2,
+          "targets": [
+            "button[aria-label=\"Map Data\"]",
+            "a[aria-label=\"Terms (opens in new tab)\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "navigate-ar-arrived",
+      "screenshot": "14-navigate-ar-arrived.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/ar",
+      "violations": []
+    },
+    {
+      "step": "navigate-print",
+      "screenshot": "15-navigate-print.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/print",
+      "violations": []
+    },
+    {
+      "step": "navigate-print-steps",
+      "screenshot": "16-navigate-print-steps.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/print",
+      "violations": []
+    },
+    {
+      "step": "ar-camera",
+      "screenshot": "17-ar-camera.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/ar/1",
+      "violations": []
+    },
+    {
+      "step": "ar-compare",
+      "screenshot": "18-ar-compare.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/ar/1/compare",
+      "violations": []
+    },
+    {
+      "step": "weather",
+      "screenshot": "19-weather.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/weather",
+      "violations": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "help": "Scrollable region must have keyboard access",
+          "wcag": [
+            "wcag2a",
+            "wcag211",
+            "wcag213"
+          ],
+          "nodes": 2,
+          "targets": [
+            "main",
+            ".forecast"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "weather-bottom",
+      "screenshot": "20-weather-bottom.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/weather",
+      "violations": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "help": "Scrollable region must have keyboard access",
+          "wcag": [
+            "wcag2a",
+            "wcag211",
+            "wcag213"
+          ],
+          "nodes": 2,
+          "targets": [
+            "main",
+            ".forecast"
+          ]
+        }
+      ]
+    }
+  ]
+}

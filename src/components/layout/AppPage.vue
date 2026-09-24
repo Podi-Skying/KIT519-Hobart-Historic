@@ -36,7 +36,7 @@ defineExpose({ scroller })
 <template>
   <main
     ref="scroller"
-    class="page"
+    class="page text-zoom"
     :class="[`page--${background}`, { 'page--safe-top': safeTop }]"
     @scroll.passive="sync"
   >
@@ -62,7 +62,8 @@ defineExpose({ scroller })
   background: var(--paper);
 }
 .page--safe-top {
-  padding-top: var(--safe-top);
+  /* the status bar itself isn't zoomed, so keep its gap the same */
+  padding-top: calc(var(--safe-top) / var(--text-zoom));
 }
 @media print {
   .page {

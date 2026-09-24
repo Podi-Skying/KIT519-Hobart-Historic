@@ -1,5 +1,8 @@
 <script setup>
-/** Paper copy of the route: Google map + real turn-by-turn steps + space for notes. */
+/**
+ * Paper copy of the route: Google map + real turn-by-turn steps, key facts for every
+ * heritage stop (a hand-out for groups and classes) and space for notes.
+ */
 import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
@@ -28,6 +31,8 @@ const site = computed(() => siteById(props.id))
 const walk = useWalkingRoute(site)
 const user = computed(() => (location.isInHobart ? location.coords : null))
 const amenityStops = computed(() => trip.stops.filter((s) => !s.siteId).map((s) => t(`waypoints.${s.id}`)))
+/** Heritage stops in walking order, then the destination — localised content. */
+const heritageStops = computed(() => [...walk.stopSites.value, site.value].map((s) => siteById(s.id)))
 
 onMounted(() => location.start())
 const print = () => window.print()
@@ -83,6 +88,19 @@ const print = () => window.print()
         <p v-if="amenityStops.length" class="paper__reminders">
           {{ t('print.also', { list: amenityStops.join(', ') }) }}
         </p>
+
+        <section class="facts">
+          <p class="t-caption">{{ t('print.atEachStop') }}</p>
+          <article v-for="stop in heritageStops" :key="stop.id" class="fact">
+            <h2 class="fact__name"><span class="fact__pin" :class="{ 'is-destination': stop.id === site.id }" aria-hidden="true">{{ stop.id }}</span>{{ stop.name }}</h2>
+            <p class="fact__meta">
+              {{ stop.categoryLabel }} · {{ stop.area }} · {{ t('common.built', { year: stop.builtYear }) }}<template
+                v-if="stop.accessible"
+              > · {{ t('common.accessible') }}</template>
+            </p>
+            <p class="fact__text">{{ stop.description }}</p>
+          </article>
+        </section>
 
         <p class="t-caption paper__notes-label">{{ t('print.notes') }}</p>
         <div class="paper__lines" aria-hidden="true"><i v-for="n in NOTE_LINES" :key="n" /></div>
@@ -153,6 +171,46 @@ const print = () => window.print()
   margin-top: var(--s-3);
   font: var(--t-small);
   color: var(--ink-500);
+}
+.facts {
+  margin-top: var(--s-4);
+}
+.fact {
+  padding: var(--s-3) 0;
+  border-bottom: 1px dashed var(--sand);
+  break-inside: avoid;
+}
+.fact__name {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: 700 15px/20px var(--font-heading);
+  color: var(--ink-900);
+}
+/* Same numbered pin as on the map above */
+.fact__pin {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ink-900);
+  color: var(--paper);
+  font: 700 11px var(--font-label);
+}
+.fact__pin.is-destination {
+  background: var(--brand-600);
+}
+.fact__meta {
+  margin: 4px 0 6px;
+  font: 600 11px/16px var(--font-label);
+  color: var(--ink-500);
+}
+.fact__text {
+  font: 400 13px/19px var(--font-body);
+  color: var(--ink-700);
 }
 .paper__notes-label {
   margin-top: var(--s-4);

@@ -22,9 +22,17 @@ export default {
   },
   tabs: { home: 'Home', map: 'Map', ar: 'AR', weather: 'Weather', main: 'Main' },
   language: {
-    button: 'Language: {language}',
+    button: 'Language & display: {language}',
     title: 'Language',
-    subtitle: 'App text and audio narration',
+    sheetTitle: 'Language & display',
+    subtitle: 'App text, narration and reading comfort',
+  },
+  display: {
+    title: 'Display',
+    largeText: 'Larger text',
+    largeTextHint: 'Pages, panels and the tab bar get bigger',
+    highContrast: 'High contrast',
+    highContrastHint: 'Darker text and stronger outlines',
   },
   splash: {
     location: 'Hobart, Tasmania',
@@ -108,7 +116,6 @@ export default {
     planWalk: 'Plan a walk',
     nearest: 'Nearest heritage site',
     addStop: 'Add a stop',
-    allSitesFrom: 'All heritage sites · {origin}',
     selected: 'Selected destination',
     routeType: 'Route type',
     stopsOnRoute: 'Stops on this route',
@@ -204,6 +211,7 @@ export default {
     arrived: 'You’ve arrived',
     inFront: '{name} is right in front of you.',
     scan: 'Scan with AR',
+    listen: 'Listen to the audio tour',
     viewDetails: 'View details',
   },
   print: {
@@ -215,6 +223,7 @@ export default {
     startDefault: 'Start — Centenary Building',
     also: 'Also on your list: {list}',
     notes: 'Notes',
+    atEachStop: 'At each stop',
     print: 'Print or save as PDF',
   },
   weather: {
@@ -228,6 +237,9 @@ export default {
     uvLow: 'Low',
     bestTime: 'Best time to walk',
     comfort: 'Comfort score by hour',
+    hourScore: '{hour}: comfort {score} out of 100',
+    planAccessible: 'Plan an accessible walk',
+    conditions: { sunny: 'Sunny', partlyCloudy: 'Partly cloudy', rain: 'Rain', windy: 'Windy' },
     week: 'This week',
     days: { now: 'Now', mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' },
     advice:

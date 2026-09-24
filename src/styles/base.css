@@ -96,6 +96,10 @@ a {
 }
 .muted { color: var(--ink-500); }
 
+/* Surfaces that grow with the "Larger text" preference (not maps or camera views,
+   whose pointer maths assume an unscaled box). */
+.text-zoom { zoom: var(--text-zoom); }
+
 /* ---- Shared image placeholder while loading ---- */
 .img-placeholder {
   background: linear-gradient(135deg, var(--sand), var(--parchment));

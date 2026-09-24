@@ -72,7 +72,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   border-color: var(--sand-dark);
 }
 .btn--quiet {
-  background: var(--sand);
+  background: var(--sand-fill);
   color: var(--ink-900);
 }
 </style>

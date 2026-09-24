@@ -19,9 +19,17 @@ export default {
   },
   tabs: { home: 'ホーム', map: 'マップ', ar: 'AR', weather: '天気', main: 'メイン' },
   language: {
-    button: '言語：{language}',
+    button: '言語と表示：{language}',
     title: '言語',
-    subtitle: 'アプリの表示と音声ガイド',
+    sheetTitle: '言語と表示',
+    subtitle: 'アプリの表示、音声ガイド、読みやすさ',
+  },
+  display: {
+    title: '表示',
+    largeText: '文字を大きく',
+    largeTextHint: 'ページ、パネル、タブバーが大きくなります',
+    highContrast: 'ハイコントラスト',
+    highContrastHint: '文字を濃く、枠線をはっきり',
   },
   splash: {
     location: 'タスマニア · ホバート',
@@ -105,7 +113,6 @@ export default {
     planWalk: '散策を計画',
     nearest: '最寄りの歴史遺産',
     addStop: '立ち寄り先を追加',
-    allSitesFrom: 'すべての名所 · {origin}',
     selected: '選択中の目的地',
     routeType: 'ルートの種類',
     stopsOnRoute: 'このルートの立ち寄り先',
@@ -201,6 +208,7 @@ export default {
     arrived: '到着しました',
     inFront: '目の前が{name}です。',
     scan: 'AR でスキャン',
+    listen: '音声ガイドを聴く',
     viewDetails: '詳細を見る',
   },
   print: {
@@ -212,6 +220,7 @@ export default {
     startDefault: '出発：Centenary Building',
     also: 'リストにあるもの：{list}',
     notes: 'メモ',
+    atEachStop: '各スポットの見どころ',
     print: '印刷または PDF で保存',
   },
   weather: {
@@ -225,6 +234,9 @@ export default {
     uvLow: '弱い',
     bestTime: '散策におすすめの時間',
     comfort: '時間ごとの快適度',
+    hourScore: '{hour}時：快適度 {score}/100',
+    planAccessible: 'バリアフリーの散策を計画',
+    conditions: { sunny: '晴れ', partlyCloudy: '晴れ時々くもり', rain: '雨', windy: '強風' },
     week: '今週',
     days: { now: '現在', mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土', sun: '日' },
     advice:

@@ -5,13 +5,14 @@ Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 
 - **Leading page** → 點 *Tap to start* 進入 Home
 - **5 種語言**：English／繁體中文／日本語／한국어／Tiếng Việt，介面、景點內容、語音導覽、Google 路線指示全部跟著切換
+- **顯示設定**：「語言與顯示」面板可開啟放大文字、高對比（年長者／低視力）
 - **Home**：Top 5 輪播、景點清單（可收合搜尋＋分類篩選）、按讚、語言切換
 - **景點詳情**：資訊、步行路線、語音導覽、歷年相簿
 - **Map**：Google Maps 顯示各景點實際座標與使用者即時定位；路線類型（一般／無障礙／陡坡）、最多 4 個停靠點
-- **導航**：標準地圖／AR 導航／可列印地圖
+- **導航**：標準地圖／AR 導航／可列印地圖（含各站重點，可當團體講義）；抵達時自動跳出面板，一鍵收聽語音導覽或用 AR 掃描
 - **語音導覽**：以裝置內建語音（Web Speech API，免費、免金鑰）朗讀所選語言的導覽稿
 - **AR**：依景點顯示相機畫面與資訊，可切換地標；有檔案照片的景點（Cascade、Penitentiary）提供今昔對照
-- **Weather**：步行天氣、最佳步行時段、一週預報
+- **Weather**：步行天氣、最佳步行時段、一週預報；一鍵「規劃無障礙步行」
 
 ---
 
@@ -187,7 +188,7 @@ hobart-heritage/
 │   │   ├── home/              # SearchField、HeritageCarousel、SiteGridCard
 │   │   ├── layout/…           # （另含 LanguageButton、LanguageSheet 語言切換）
 │   │   ├── site/              # GalleryRail
-│   │   ├── map/               # SiteMap（統一入口）→ GoogleMap / MapCanvas（插畫備援）；StopPicker、SiteList、RouteTypePicker
+│   │   ├── map/               # SiteMap（統一入口）→ GoogleMap / MapCanvas（插畫備援）；StopPicker、RouteTypePicker、WaypointSheet、ArrivalSheet（抵達面板）
 │   │   └── ar/                # ArBubble、ArStatusPill、ArHelpOverlay
 │   └── views/                 # 一個路由 = 一個 View（皆為 lazy-load）
 │       ├── HomeView.vue  SiteDetailView.vue  GalleryView.vue  AudioTourView.vue
@@ -398,7 +399,8 @@ hobart-heritage/
 | **Toast / 狀態膠囊** | 炭灰底、米色字、圓角 12 | 1.8 秒自動消失；進行中狀態附 spinner |
 | **Tab bar** | 白底、上邊框砂色 | 選中項：勃根地紅圖示＋文字＋頂部 3px 指示條 |
 | **搜尋（收合式）** | 清單標題右側 44px 🔍 按鈕 | 點擊後標題列變成搜尋框＋「取消」，自動聚焦；平常不占版面 |
-| **語言切換** | 地球圖示＋語言縮寫的膠囊按鈕 | 開啟底部面板，以各語言原文列出，選擇後立即套用並關閉 |
+| **語言與顯示** | 地球圖示＋語言縮寫＋「Aa」的膠囊按鈕 | 開啟底部面板：上方「顯示」兩個開關（放大文字、高對比，`role="switch"`，不會關閉面板）；下方語言以各語言原文列出，選擇後立即套用並關閉 |
+| **抵達面板** | `ArrivalSheet`，標準與 AR 導航共用 | 到達 20 m 內自動開啟（原型可按「Simulate arrival」）；主要動作依情境：地圖導航→收聽語音，AR 導航→AR 掃描；語音不自動播放（WCAG 1.4.2） |
 | **底部面板確認鈕** | 44px 圓形 | 尚未選擇時為沙色 ✕（關閉）；有任何選擇時變為綠色 ✓（完成） |
 | **輪播（Carousel）** | 卡片 290px、吸附捲動；控制列 `‹ • • • • • ›` 置中於卡片**下方** | 箭頭 44×44；圓點可點擊（24×44 觸控區），選中圓點拉長為 18px 主色；首／末張時對應箭頭淡化停用 |
 | **篩選列（Filter bar）** | 搜尋框（常駐）＋分類 chips，米色底 | 放在**被篩選的清單正上方**；捲動時 sticky 在狀態列下方，黏住後出現分隔陰影 |
@@ -419,6 +421,9 @@ hobart-heritage/
 - [x] 鍵盤：Tab 聚焦環（`--focus-ring`）、Enter/Space 啟動、Esc 關閉面板、相簿支援 ← →
 - [x] 動態訊息（Toast、掃描狀態、搜尋結果）使用 `aria-live`
 - [x] 支援 `prefers-reduced-motion`
+- [x] 放大文字：`.text-zoom` 表面（頁面、面板、Tab bar）放大 1.2 倍；地圖與相機畫面不縮放，避免座標偏移
+- [x] 高對比：`:root[data-contrast=high]` 覆寫 token，次要文字與外框加深（外框 ≥ 3:1，WCAG 1.4.11）
+- [x] 橫向捲動區可用鍵盤聚焦；圖表與 emoji 天氣圖示另有文字替代
 - [x] 照片皆有 `alt`；純裝飾圖片 `alt=""`
 
 ### 5.9 文案語氣

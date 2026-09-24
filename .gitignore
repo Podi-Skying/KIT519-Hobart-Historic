@@ -11,3 +11,6 @@ archive/
 # Local secrets (API keys)
 .env.local
 .env.*.local
+
+# A3 evaluation: signed consent forms, raw notes, recordings — never commit (public repo)
+docs/a3/evaluation/private/

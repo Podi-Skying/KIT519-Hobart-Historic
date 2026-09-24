@@ -3,11 +3,27 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useFavoritesStore } from '@/stores/favorites'
 import { useTripStore } from '@/stores/trip'
 import { usePlayerStore } from '@/stores/player'
+import { usePrefsStore } from '@/stores/prefs'
 import { getSiteById } from '@/data/sites'
 import { MAX_STOPS, WAYPOINTS } from '@/data/navigation'
 
 beforeEach(() => {
   setActivePinia(createPinia())
+})
+
+describe('prefs store', () => {
+  it('starts with default display settings and toggles each one independently', () => {
+    const prefs = usePrefsStore()
+    expect(prefs.largeText).toBe(false)
+    expect(prefs.highContrast).toBe(false)
+    prefs.toggleLargeText()
+    expect(prefs.largeText).toBe(true)
+    expect(prefs.highContrast).toBe(false)
+    prefs.toggleHighContrast()
+    prefs.toggleLargeText()
+    expect(prefs.largeText).toBe(false)
+    expect(prefs.highContrast).toBe(true)
+  })
 })
 
 describe('favorites store', () => {

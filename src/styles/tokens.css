@@ -21,7 +21,8 @@
   --paper: #ffffff; /* cards, sheets, tab bar */
   --cream: #f5efe6; /* page background (60 % of every screen) */
   --parchment: #faf6f0; /* subtle inset surfaces */
-  --sand: #e8dcc8; /* borders, outlines, quiet buttons */
+  --sand: #e8dcc8; /* borders, outlines */
+  --sand-fill: #e8dcc8; /* quiet buttons — stays light in high contrast */
   --sand-dark: #d4c4a8; /* inactive indicators */
 
   /* ---- Accent · Sunset Amber — highlights only, never body text ---- */
@@ -98,4 +99,29 @@
   /* ---- Accessibility ---- */
   --hit: 44px; /* minimum touch target */
   --focus-ring: 0 0 0 3px rgba(125, 48, 69, 0.35);
+  --text-zoom: 1; /* scale of `.text-zoom` surfaces, see Larger text below */
+}
+
+/* ==========================================================================
+   Display preferences (Language & display sheet → stores/prefs.js → <html data-*>)
+   ========================================================================== */
+
+/* Larger text: page content, sheets and the tab bar scale up; maps and camera views don't. */
+:root[data-text='large'] {
+  --text-zoom: 1.2;
+}
+
+/* High contrast: secondary text as dark as body text, outlines ≥ 3:1 (WCAG 1.4.11),
+   heavier veils behind text on photos. */
+:root[data-contrast='high'] {
+  --ink-700: #2c2417;
+  --ink-500: #3f3528;
+  --ink-300: #7a6e5c;
+  --sand: #8c7b5e;
+  --sand-dark: #6e6352;
+  --brand-100: #7d3045;
+  --glass: rgba(28, 22, 14, 0.82);
+  --photo-veil-top: rgba(28, 22, 14, 0.7);
+  --photo-veil-bottom: rgba(28, 22, 14, 0.88);
+  --focus-ring: 0 0 0 3px #2c2417;
 }

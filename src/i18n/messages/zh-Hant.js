@@ -19,9 +19,17 @@ export default {
   },
   tabs: { home: '首頁', map: '地圖', ar: 'AR', weather: '天氣', main: '主選單' },
   language: {
-    button: '語言：{language}',
+    button: '語言與顯示：{language}',
     title: '語言',
-    subtitle: 'App 文字與語音導覽',
+    sheetTitle: '語言與顯示',
+    subtitle: 'App 文字、語音導覽與閱讀舒適度',
+  },
+  display: {
+    title: '顯示',
+    largeText: '放大文字',
+    largeTextHint: '頁面、面板與分頁列都會變大',
+    highContrast: '高對比',
+    highContrastHint: '文字更深、外框更明顯',
   },
   splash: {
     location: '塔斯馬尼亞 · 荷伯特',
@@ -105,7 +113,6 @@ export default {
     planWalk: '規劃步行',
     nearest: '最近的文化遺產',
     addStop: '加入停靠點',
-    allSitesFrom: '所有景點 · {origin}',
     selected: '已選擇的目的地',
     routeType: '路線類型',
     stopsOnRoute: '這條路線的停靠點',
@@ -201,6 +208,7 @@ export default {
     arrived: '你已抵達',
     inFront: '{name} 就在你面前。',
     scan: '用 AR 掃描',
+    listen: '收聽語音導覽',
     viewDetails: '查看詳細資訊',
   },
   print: {
@@ -212,6 +220,7 @@ export default {
     startDefault: '起點：Centenary Building',
     also: '也別忘了：{list}',
     notes: '筆記',
+    atEachStop: '各站重點',
     print: '列印或另存為 PDF',
   },
   weather: {
@@ -225,6 +234,9 @@ export default {
     uvLow: '低',
     bestTime: '最佳步行時段',
     comfort: '每小時舒適度',
+    hourScore: '{hour} 點：舒適度 {score}/100',
+    planAccessible: '規劃無障礙步行',
+    conditions: { sunny: '晴', partlyCloudy: '晴時多雲', rain: '雨', windy: '強風' },
     week: '本週',
     days: { now: '現在', mon: '週一', tue: '週二', wed: '週三', thu: '週四', fri: '週五', sat: '週六', sun: '週日' },
     advice:

@@ -51,7 +51,7 @@ defineProps({
   box-shadow: var(--e-1);
 }
 .icon-btn--sand {
-  background: var(--sand);
+  background: var(--sand-fill);
 }
 .icon-btn--glass {
   background: var(--glass);

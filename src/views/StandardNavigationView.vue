@@ -3,7 +3,7 @@
  * Turn-by-turn navigation on Google Maps: the real walking route (Routes API),
  * the next manoeuvre from the walker's live position, zoom / recentre controls.
  */
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -11,6 +11,7 @@ import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import WaypointSheet from '@/components/map/WaypointSheet.vue'
+import ArrivalSheet from '@/components/map/ArrivalSheet.vue'
 import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
 import { maneuverIcon, nextGuidance } from '@/lib/guidance'
@@ -31,6 +32,7 @@ const site = computed(() => siteById(props.id))
 const walk = useWalkingRoute(site)
 const map = ref(null)
 const stopsOpen = ref(false)
+const arrived = ref(false)
 
 const user = computed(() => (location.isInHobart ? location.coords : null))
 const guidance = computed(() => nextGuidance(walk.route.value, user.value))
@@ -51,6 +53,8 @@ const guidanceText = computed(() => {
 })
 
 onMounted(() => location.start())
+// Same as AR navigation: reaching the destination opens the arrival sheet.
+watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))
 
 function recenter() {
   if (user.value) map.value?.focusUser()
@@ -104,13 +108,16 @@ const endRoute = () => router.push({ name: 'map' })
       </RouterLink>
     </div>
 
-    <section class="summary" :aria-label="t('navigation.summary')">
+    <section class="summary text-zoom" :aria-label="t('navigation.summary')">
       <div class="summary__row">
         <div>
           <p class="summary__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
           <p class="t-small muted">{{ formatMeters(walk.distanceMeters.value) }} · {{ routeLine }}</p>
         </div>
-        <BaseButton variant="secondary" size="sm" @click="endRoute">{{ t('navigation.end') }}</BaseButton>
+        <div class="summary__buttons">
+          <BaseButton variant="quiet" size="sm" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
+          <BaseButton variant="secondary" size="sm" @click="endRoute">{{ t('navigation.end') }}</BaseButton>
+        </div>
       </div>
       <div class="summary__actions">
         <BaseButton variant="secondary" icon="plus" :aria-haspopup="'dialog'" @click="stopsOpen = true">
@@ -121,6 +128,7 @@ const endRoute = () => router.push({ name: 'map' })
     </section>
 
     <WaypointSheet v-if="stopsOpen" :destination-id="site.id" @close="stopsOpen = false" />
+    <ArrivalSheet v-if="arrived" :site="site" @close="arrived = false" />
   </div>
 </template>
 
@@ -213,6 +221,10 @@ const endRoute = () => router.push({ name: 'map' })
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--s-4);
+}
+.summary__buttons {
+  display: flex;
+  gap: var(--s-2);
 }
 .summary__eta {
   font: 700 26px var(--font-heading);

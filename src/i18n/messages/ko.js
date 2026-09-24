@@ -19,9 +19,17 @@ export default {
   },
   tabs: { home: '홈', map: '지도', ar: 'AR', weather: '날씨', main: '메인' },
   language: {
-    button: '언어: {language}',
+    button: '언어 및 표시: {language}',
     title: '언어',
-    subtitle: '앱 문구와 음성 해설',
+    sheetTitle: '언어 및 표시',
+    subtitle: '앱 문구, 음성 해설, 읽기 편의',
+  },
+  display: {
+    title: '표시',
+    largeText: '글자 크게',
+    largeTextHint: '페이지, 패널, 탭 바가 커집니다',
+    highContrast: '고대비',
+    highContrastHint: '더 진한 글자와 뚜렷한 테두리',
   },
   splash: {
     location: '태즈메이니아 · 호바트',
@@ -105,7 +113,6 @@ export default {
     planWalk: '산책 계획',
     nearest: '가장 가까운 문화유산',
     addStop: '경유지 추가',
-    allSitesFrom: '모든 명소 · {origin}',
     selected: '선택한 목적지',
     routeType: '경로 유형',
     stopsOnRoute: '이 경로의 경유지',
@@ -201,6 +208,7 @@ export default {
     arrived: '도착했습니다',
     inFront: '바로 앞이 {name}입니다.',
     scan: 'AR로 스캔',
+    listen: '오디오 가이드 듣기',
     viewDetails: '상세 정보 보기',
   },
   print: {
@@ -212,6 +220,7 @@ export default {
     startDefault: '출발: Centenary Building',
     also: '목록에 있는 곳: {list}',
     notes: '메모',
+    atEachStop: '장소별 핵심 정보',
     print: '인쇄 또는 PDF로 저장',
   },
   weather: {
@@ -225,6 +234,9 @@ export default {
     uvLow: '낮음',
     bestTime: '산책하기 좋은 시간',
     comfort: '시간대별 쾌적도',
+    hourScore: '{hour}시: 쾌적도 {score}/100',
+    planAccessible: '무장애 산책 계획하기',
+    conditions: { sunny: '맑음', partlyCloudy: '구름 조금', rain: '비', windy: '강풍' },
     week: '이번 주',
     days: { now: '지금', mon: '월', tue: '화', wed: '수', thu: '목', fri: '금', sat: '토', sun: '일' },
     advice:

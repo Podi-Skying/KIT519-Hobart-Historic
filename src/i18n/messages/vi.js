@@ -19,9 +19,17 @@ export default {
   },
   tabs: { home: 'Trang chủ', map: 'Bản đồ', ar: 'AR', weather: 'Thời tiết', main: 'Chính' },
   language: {
-    button: 'Ngôn ngữ: {language}',
+    button: 'Ngôn ngữ & hiển thị: {language}',
     title: 'Ngôn ngữ',
-    subtitle: 'Nội dung ứng dụng và thuyết minh',
+    sheetTitle: 'Ngôn ngữ & hiển thị',
+    subtitle: 'Chữ trong ứng dụng, thuyết minh và độ dễ đọc',
+  },
+  display: {
+    title: 'Hiển thị',
+    largeText: 'Chữ lớn hơn',
+    largeTextHint: 'Trang, bảng và thanh tab to hơn',
+    highContrast: 'Tương phản cao',
+    highContrastHint: 'Chữ đậm hơn, viền rõ hơn',
   },
   splash: {
     location: 'Hobart, Tasmania',
@@ -105,7 +113,6 @@ export default {
     planWalk: 'Lên kế hoạch đi bộ',
     nearest: 'Di sản gần nhất',
     addStop: 'Thêm điểm dừng',
-    allSitesFrom: 'Tất cả di sản · {origin}',
     selected: 'Điểm đến đã chọn',
     routeType: 'Loại lộ trình',
     stopsOnRoute: 'Điểm dừng trên lộ trình',
@@ -201,6 +208,7 @@ export default {
     arrived: 'Bạn đã đến nơi',
     inFront: '{name} ở ngay trước mặt bạn.',
     scan: 'Quét bằng AR',
+    listen: 'Nghe thuyết minh',
     viewDetails: 'Xem chi tiết',
   },
   print: {
@@ -212,6 +220,7 @@ export default {
     startDefault: 'Xuất phát — Centenary Building',
     also: 'Trong danh sách của bạn: {list}',
     notes: 'Ghi chú',
+    atEachStop: 'Thông tin từng điểm dừng',
     print: 'In hoặc lưu PDF',
   },
   weather: {
@@ -225,6 +234,9 @@ export default {
     uvLow: 'Thấp',
     bestTime: 'Thời điểm đi bộ lý tưởng',
     comfort: 'Mức dễ chịu theo giờ',
+    hourScore: '{hour} giờ: độ dễ chịu {score}/100',
+    planAccessible: 'Lên lộ trình đi bộ dễ đi',
+    conditions: { sunny: 'Nắng', partlyCloudy: 'Có mây rải rác', rain: 'Mưa', windy: 'Gió mạnh' },
     week: 'Tuần này',
     days: { now: 'Bây giờ', mon: 'T2', tue: 'T3', wed: 'T4', thu: 'T5', fri: 'T6', sat: 'T7', sun: 'CN' },
     advice:

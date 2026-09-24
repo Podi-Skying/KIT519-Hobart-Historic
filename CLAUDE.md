@@ -104,6 +104,10 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 - **Keep the global `lining-nums` rule.** `base.css` sets `* { font-variant-numeric: lining-nums !important }` because Playfair defaults to old-style figures and every `font:` shorthand resets numeric variants.
 - **Colours:** burgundy `--brand-600` is the only action colour, and `--ar-400` appears only over camera views.
 - **Touch targets** are at least 44px, and `IconButton` requires a `label`.
+- **Display preferences:** `stores/prefs.js` sets `data-text` and `data-contrast` on `<html>`.
+  - High contrast overrides tokens in `tokens.css`, so colours must come from tokens.
+  - Put quiet button fills on `--sand-fill`, not `--sand`, which darkens to an outline colour in high contrast.
+  - Larger text scales anything with the `.text-zoom` class. Add it to new text surfaces, but never to a map or camera view: their pointer maths assume an unscaled box.
 
 ## Tests
 

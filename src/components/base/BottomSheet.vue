@@ -87,7 +87,7 @@ const showClose = () => props.closable ?? Boolean(props.title)
     >
       <!-- Drag handle area: grip + header -->
       <div
-        class="sheet__handle"
+        class="sheet__handle text-zoom"
         @pointerdown="onPointerDown"
         @pointermove="onPointerMove"
         @pointerup="onPointerUp"
@@ -111,7 +111,7 @@ const showClose = () => props.closable ?? Boolean(props.title)
           </Transition>
         </header>
       </div>
-      <div class="sheet__body">
+      <div class="sheet__body text-zoom">
         <slot :dismiss="dismiss" />
       </div>
     </section>
