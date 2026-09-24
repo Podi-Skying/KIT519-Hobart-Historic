@@ -52,21 +52,22 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 8% 0 calc(8% + 0.22em); /* optically centre the tracked text */
+  padding: 0 18% 0 calc(18% + 0.22em); /* keeps the label on the bright centre; optically centred */
   border-radius: 50%;
-  border: 1px solid rgba(255, 250, 243, 0.7);
   text-align: center;
   line-height: 1.5;
-  /* frosted, so the photo shows through; the blur keeps the label ≥ 4.5:1 on any background */
+  /* frosted, so the photo shows through; the blur keeps the label ≥ 4.5:1 on any background.
+     No border: the fill and the blur both fade out towards the rim, so the edge melts into the photo. */
   background: radial-gradient(
-    circle,
-    rgba(255, 253, 249, 0.78) 0 45%,
-    rgba(245, 239, 230, 0.6) 72%,
-    rgba(232, 220, 200, 0.42) 100%
+    circle closest-side,
+    rgba(255, 253, 249, 0.82) 0 58%,
+    rgba(245, 239, 230, 0.5) 80%,
+    rgba(245, 239, 230, 0) 100%
   );
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  box-shadow: 0 0 28px 4px rgba(245, 225, 196, 0.3);
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 72%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 72%, transparent 100%);
   color: var(--brand-600);
   font: 700 clamp(10px, calc(var(--tap) * 0.08), 12px) var(--font-label);
   letter-spacing: 0.22em;
