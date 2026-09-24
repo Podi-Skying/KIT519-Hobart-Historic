@@ -7,6 +7,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MapBackdrop from './MapBackdrop.vue'
+import AppIcon from '@/components/base/AppIcon.vue'
 import { FALLBACK_MAP_BOX, SITE_BOUNDS } from '@/data/sites'
 import { boundsOf, projectToBox } from '@/lib/geo'
 
@@ -17,6 +18,8 @@ const props = defineProps({
   /** CSS colour (token) for the route line. */
   routeColor: { type: String, default: 'var(--brand-600)' },
   realRoute: { type: Boolean, default: false },
+  /** Amenity stops on the route: { id, icon, label, position }. */
+  amenities: { type: Array, default: () => [] },
   user: { type: Object, default: null },
   start: { type: Object, default: null },
   /** 'all' = Hobart overview; 'route' = zoomed to the route. */
@@ -34,6 +37,9 @@ const bounds = computed(() =>
 const project = (p) => (p ? projectToBox(p, bounds.value, props.box) : null)
 
 const pins = computed(() => props.sites.map((site) => ({ site, pos: project(site.coordinates) })).filter((p) => p.pos))
+const amenityPins = computed(() =>
+  props.amenities.map((amenity) => ({ amenity, pos: project(amenity.position) })).filter((p) => p.pos),
+)
 const userPos = computed(() => project(props.user))
 const startPos = computed(() => (props.user ? null : project(props.start)))
 const routePoints = computed(() =>
@@ -64,6 +70,18 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
         :stroke-dasharray="realRoute ? undefined : '2 8'"
       />
     </svg>
+
+    <span
+      v-for="{ amenity, pos } in amenityPins"
+      :key="amenity.id"
+      class="map-canvas__amenity"
+      :style="{ left: `${pos.x}%`, top: `${pos.y}%` }"
+      role="img"
+      :aria-label="amenity.label"
+      :title="amenity.label"
+    >
+      <AppIcon :name="amenity.icon" :size="16" />
+    </span>
 
     <span v-if="userPos" class="map-canvas__dot map-canvas__dot--user" :style="{ left: `${userPos.x}%`, top: `${userPos.y}%` }" role="img" :aria-label="t('map.yourLocation')" />
     <span v-if="startPos" class="map-canvas__dot map-canvas__dot--start" :style="{ left: `${startPos.x}%`, top: `${startPos.y}%` }" role="img" :aria-label="t('map.routeStart')" />
@@ -106,6 +124,20 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   height: 18px;
   border-radius: 50%;
   border: 3px solid var(--paper);
+  transform: translate(-50%, -50%);
+}
+.map-canvas__amenity {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--ink-900);
+  background: var(--paper);
+  color: var(--ink-900);
+  box-shadow: var(--e-1);
   transform: translate(-50%, -50%);
 }
 .map-canvas__dot--user {

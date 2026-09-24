@@ -141,6 +141,7 @@ function toggleOffline() {
         :route-path="selected ? walk.path.value : []"
         :route-type="trip.routeTypeConfig"
         :real-route="walk.isRealRoute.value"
+        :amenities="selected ? walk.amenityMarkers.value : []"
         :user="userCoords"
         :start="selected ? location.origin : null"
         :fit="selected ? 'route' : 'all'"

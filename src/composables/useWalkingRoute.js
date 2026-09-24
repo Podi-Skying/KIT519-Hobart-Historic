@@ -4,7 +4,7 @@ import { planRouteOptions, routeMinutes } from '@/services/routeOptions'
 import { isRoutingConfigured } from '@/services/routes'
 import { getSiteById } from '@/data/sites'
 import { ROUTE_TYPES } from '@/data/navigation'
-import { distanceKm, walkingMinutes } from '@/lib/geo'
+import { distanceKm, placeAlongPath, walkingMinutes } from '@/lib/geo'
 import { walkMinutesFor } from '@/lib/sites'
 import { useLocationStore } from '@/stores/location'
 import { useTripStore } from '@/stores/trip'
@@ -26,7 +26,7 @@ const REROUTE_METERS = 50
 export function useWalkingRoute(siteSource) {
   const location = useLocationStore()
   const trip = useTripStore()
-  const { locale } = useI18n()
+  const { locale, t } = useI18n()
 
   const options = ref(null)
   const status = ref('idle')
@@ -126,6 +126,17 @@ export function useWalkingRoute(siteSource) {
     return [origin.value, ...stopSites.value.map((s) => s.coordinates), site.value.coordinates]
   })
 
+  /**
+   * Amenity stops (toilets, coffee…) drawn on the route. The prototype has no amenity
+   * data, so each is placed at a stable pseudo-random point along the path.
+   */
+  const amenityMarkers = computed(() =>
+    placeAlongPath(
+      path.value,
+      trip.stops.filter((s) => !s.siteId),
+    ).map(({ stop, position }) => ({ id: stop.id, icon: stop.icon, label: t(`waypoints.${stop.id}`), position })),
+  )
+
   return {
     options,
     route,
@@ -137,6 +148,7 @@ export function useWalkingRoute(siteSource) {
     distanceMeters: computed(() => summaries.value[trip.routeType].distanceMeters),
     selectedSummary: computed(() => summaries.value[trip.routeType]),
     stopSites,
+    amenityMarkers,
     isRealRoute: computed(() => status.value === 'ready' && Boolean(route.value)),
     reload: () => load(true),
   }

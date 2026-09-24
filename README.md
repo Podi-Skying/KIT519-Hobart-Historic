@@ -76,7 +76,7 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 步行時間依 Naismith 法則每爬升 10 m 加 1 分鐘。畫面會顯示每種路線的說明與實測「↑ 爬升 · 最大坡度 · 經由」。
 
 **步行路線**：所有地圖畫面（Map、標準導航、AR 導航小地圖、可列印地圖）都用 Google Routes API（`travelMode: WALK`）規劃沿實際道路的路線，並依即時位置顯示下一個轉彎與距離。
-- 使用者加入的景點停靠點（Salamanca、St George's、Narryna）會成為真正的途經點；廁所、咖啡等只列為提醒。
+- 使用者加入的景點停靠點（Salamanca、St George's、Narryna）會成為真正的途經點；廁所、咖啡、圖書館等不改變路線，但會以圖示標在路線上（原型沒有設施資料，位置沿路線穩定地隨機產生，見 `lib/geo.js` `placeAlongPath`）。
 - Routes API 未啟用或請求失敗時，改以虛線直線顯示並標示「straight-line estimate」，頁面照常運作。
 - 同一路線會快取；使用者移動超過 50 m 才重新規劃，以節省 API 用量。
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundsOf, distanceKm, projectToBox, walkingMinutes } from '@/lib/geo'
+import { boundsOf, distanceKm, placeAlongPath, pointAlongPath, projectToBox, walkingMinutes } from '@/lib/geo'
 import { HOBART_CENTRE } from '@/data/navigation'
 import { SITES, getSiteById } from '@/data/sites'
 
@@ -50,5 +50,49 @@ describe('site data', () => {
       expect(c.lat).toBeGreaterThanOrEqual(b.south)
       expect(c.lng).toBeLessThanOrEqual(b.east)
     }
+  })
+})
+
+describe('pointAlongPath', () => {
+  const path = [
+    { lat: 0, lng: 0 },
+    { lat: 0, lng: 1 },
+    { lat: 0, lng: 3 },
+  ]
+
+  it('interpolates by distance, not by vertex count', () => {
+    expect(pointAlongPath(path, 0)).toEqual({ lat: 0, lng: 0 })
+    expect(pointAlongPath(path, 0.5).lng).toBeCloseTo(1.5, 6)
+    expect(pointAlongPath(path, 1).lng).toBeCloseTo(3, 6)
+  })
+
+  it('clamps the fraction and handles short paths', () => {
+    expect(pointAlongPath(path, 2).lng).toBeCloseTo(3, 6)
+    expect(pointAlongPath([], 0.5)).toBeNull()
+    expect(pointAlongPath([path[1]], 0.5)).toEqual(path[1])
+  })
+})
+
+describe('placeAlongPath', () => {
+  const path = [
+    { lat: 0, lng: 0 },
+    { lat: 0, lng: 1 },
+  ]
+  const stops = [{ id: 'toilets' }, { id: 'coffee' }, { id: 'library' }]
+
+  it('puts every stop on the route, in order, without overlapping', () => {
+    const placed = placeAlongPath(path, stops)
+    const lngs = placed.map((p) => p.position.lng)
+    expect(placed.map((p) => p.stop.id)).toEqual(['toilets', 'coffee', 'library'])
+    placed.forEach((p) => expect(p.position.lat).toBe(0))
+    expect(lngs[0]).toBeGreaterThan(0.1)
+    expect(lngs[1]).toBeGreaterThan(lngs[0])
+    expect(lngs[2]).toBeGreaterThan(lngs[1])
+    expect(lngs[2]).toBeLessThan(0.9)
+  })
+
+  it('is stable across calls and empty without a route', () => {
+    expect(placeAlongPath(path, stops)).toEqual(placeAlongPath(path, stops))
+    expect(placeAlongPath([path[0]], stops)).toEqual([])
   })
 })

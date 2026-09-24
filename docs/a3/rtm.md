@@ -39,7 +39,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | **FR8** | Users can start navigation from a site page | Must | P1 · W1 W2 | Site detail › Start walking route → /navigate/:id | usability T2 | — | Implemented |
 | **FR9** | Users can read the audio transcript and choose the narration language | Must | P1 · W4 | Audio tour › Read transcript, Language & display sheet | tests/stores/stores.spec.js (narration in every language), usability T3 | — | Implemented |
 | **FR10** | Users can choose and switch navigation mode (standard map / AR / printable) | Must | P1 P2 P3 · W3 W7 W10 | Navigate /navigate/:id, Map ⇄ AR buttons | usability T3 T7 | — | Implemented |
-| **FR11** | Users can add up to 4 stops (heritage sites as real waypoints, amenities as reminders) | Must | P2 P3 · W6 W9 | Map › Add a stop, Standard nav › Add stop | tests/stores/stores.spec.js (caps stops, removes on second toggle), usability T6 T8 | — | Implemented |
+| **FR11** | Users can add up to 4 stops (heritage sites as real waypoints, amenities marked on the route at simulated positions) | Must | P2 P3 · W6 W9 | Map › Add a stop, Standard nav › Add stop | tests/stores/stores.spec.js (caps stops, removes on second toggle), tests/lib/geo.spec.js (placeAlongPath), usability T6 T8 | — | Implemented |
 | **FR12** | Users can print the route with steps, stops, per-stop key facts and space for notes | Must | P2 P3 · W7 W10 | Printable map /navigate/:id/print | usability T7 T9 | Round 1 R1-4: facts at each stop for group hand-outs | Implemented |
 | **FR13** | Users can recognise a landmark in AR and compare it with its past (time-travel) | Should | P1 P3 · W4 W11 | AR camera /ar/:id, Compare /ar/:id/compare | usability T4 | Detection is simulated (prototype limitation) | Implemented (simulated detection) |
 | **FR14** | Users can enlarge text and switch to high contrast | Must | P2 · W5 | Language & display sheet (🌐 EN · Aa) | tests/stores/stores.spec.js (prefs store), axe scan 22–25, usability T5 | Round 1 R1-1 (gap found in RTM review: A1 NFR1 never implemented) | Implemented in Round 1 |
@@ -68,7 +68,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | **FR8** | A2 FR8 · smooth transition from information to wayfinding | views/SiteDetailView.vue, stores/trip.js (setDestination) |
 | **FR9** | A2 FR9 · non-native English speakers | views/AudioTourView.vue, components/layout/LanguageSheet.vue, i18n/index.js (LOCALES speech tags) |
 | **FR10** | A2 FR10 · A2 pilot finding F1 (AR felt forced) | views/NavigationModesView.vue, views/StandardNavigationView.vue, views/ArNavigationView.vue |
-| **FR11** | A2 FR11 · A2 pilot finding F2 (route felt fixed) | components/map/StopPicker.vue, components/map/WaypointSheet.vue, stores/trip.js (toggleStop), data/navigation.js (WAYPOINTS, MAX_STOPS) |
+| **FR11** | A2 FR11 · A2 pilot finding F2 (route felt fixed) | components/map/StopPicker.vue, components/map/WaypointSheet.vue, stores/trip.js (toggleStop), data/navigation.js (WAYPOINTS, MAX_STOPS), lib/geo.js (placeAlongPath) |
 | **FR12** | A2 FR12 · A2 pilot finding F3 · schools & walking groups | views/PrintableMapView.vue |
 | **FR13** | A1 FR4 (historic photos as AR overlays) · heritage officers: interpretation | views/ArCameraView.vue, views/ArCompareView.vue, components/ar/* |
 | **FR14** | A1 NFR1 (adjustable font size / high contrast) · older adults with low vision | stores/prefs.js, components/layout/LanguageSheet.vue, styles/tokens.css (data-contrast), styles/base.css (.text-zoom) |

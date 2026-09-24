@@ -73,6 +73,7 @@ const endRoute = () => router.push({ name: 'map' })
       :route-path="walk.path.value"
       :route-type="trip.routeTypeConfig"
       :real-route="walk.isRealRoute.value"
+      :amenities="walk.amenityMarkers.value"
       :user="user"
       :start="location.origin"
       fit="route"

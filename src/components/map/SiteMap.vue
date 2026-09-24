@@ -17,6 +17,8 @@ defineProps({
   /** ROUTE_TYPES entry: `hex` for Google, `color` (token) for the illustration. */
   routeType: { type: Object, required: true },
   realRoute: { type: Boolean, default: false },
+  /** Amenity stops on the route: { id, icon, label, position }. */
+  amenities: { type: Array, default: () => [] },
   user: { type: Object, default: null },
   start: { type: Object, default: null },
   fit: { type: String, default: 'all' },
@@ -55,6 +57,7 @@ defineExpose({
     :route-path="routePath"
     :route-color="routeType.hex"
     :real-route="realRoute"
+    :amenities="amenities"
     :user="user"
     :start="start"
     :fit="fit"
@@ -72,6 +75,7 @@ defineExpose({
     :route-path="routePath"
     :route-color="routeType.color"
     :real-route="realRoute"
+    :amenities="amenities"
     :user="user"
     :start="start"
     :fit="fit"

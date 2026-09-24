@@ -10,6 +10,7 @@ import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { loadGoogleMaps, MAP_ID, onGoogleMapsAuthFailure } from '@/services/googleMaps'
 import { HOBART_CENTRE } from '@/data/navigation'
+import { ICONS } from '@/assets/icons'
 
 const props = defineProps({
   sites: { type: Array, required: true },
@@ -20,6 +21,8 @@ const props = defineProps({
   routeColor: { type: String, default: '#7D3045' },
   /** true = follows real streets (solid line); false = straight-line estimate (dashed). */
   realRoute: { type: Boolean, default: false },
+  /** Amenity stops on the route: { id, icon, label, position }. */
+  amenities: { type: Array, default: () => [] },
   /** Live walker position (blue dot), or null. */
   user: { type: Object, default: null },
   /** Route start marker, shown when there is no live walker position. */
@@ -41,6 +44,7 @@ let userMarker = null
 let startMarker = null
 let routeLine = null
 const pins = new Map() // siteId → { marker, element }
+let amenityPins = []
 let offAuthFailure = () => {}
 
 // ---------- marker DOM ----------
@@ -59,6 +63,13 @@ function pinElement(site) {
     label.textContent = site.shortName
     el.append(label)
   }
+  return el
+}
+/** Round icon badge for an amenity stop (icon markup is from the trusted static registry). */
+function amenityElement(amenity) {
+  const el = document.createElement('div')
+  el.className = 'gm-amenity'
+  el.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[amenity.icon] ?? ''}</svg>`
   return el
 }
 const dotElement = (className) => {
@@ -121,6 +132,22 @@ function syncRoute() {
   })
 }
 
+function syncAmenities() {
+  amenityPins.forEach((marker) => (marker.map = null))
+  amenityPins = []
+  if (!map.value) return
+  amenityPins = props.amenities.map(
+    (amenity) =>
+      new api.AdvancedMarkerElement({
+        map: map.value,
+        position: amenity.position,
+        content: amenityElement(amenity),
+        title: amenity.label,
+        zIndex: 5,
+      }),
+  )
+}
+
 function syncMarker(current, position, className, title) {
   if (!position) {
     if (current) current.map = null
@@ -176,6 +203,7 @@ onMounted(async () => {
   syncPeople()
   syncSelection()
   syncRoute()
+  syncAmenities()
   recenter()
   emit('ready')
 })
@@ -188,6 +216,7 @@ watch(
     recenter()
   },
 )
+watch(() => props.amenities, syncAmenities)
 watch(() => [props.user?.lat, props.user?.lng, props.start?.lat, props.start?.lng], syncPeople)
 
 /** Run a teardown step without letting a Google-side failure (e.g. after an auth error) block unmounting. */
@@ -205,6 +234,7 @@ onBeforeUnmount(() => {
   safely(() => userMarker && (userMarker.map = null))
   safely(() => startMarker && (startMarker.map = null))
   pins.forEach(({ marker }) => safely(() => (marker.map = null)))
+  amenityPins.forEach((marker) => safely(() => (marker.map = null)))
   pins.clear()
 })
 
@@ -273,6 +303,19 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
 .gm-pin:hover .gm-pin__label {
   opacity: 1;
   transform: none;
+}
+.gm-amenity {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--ink-900);
+  background: var(--paper);
+  color: var(--ink-900);
+  box-shadow: var(--e-1);
+  transform: translateY(50%); /* centre the badge on the route point */
 }
 .gm-user,
 .gm-start {

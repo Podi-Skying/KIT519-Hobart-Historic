@@ -53,3 +53,47 @@ export function projectToBox(point, bounds, box) {
     y: box.y[0] + ty * (box.y[1] - box.y[0]),
   }
 }
+
+/**
+ * The point `fraction` (0–1) of the way along a path, measured by distance.
+ * @param {LatLng[]} path
+ */
+export function pointAlongPath(path, fraction) {
+  if (!path.length) return null
+  if (path.length === 1) return path[0]
+  const legs = path.slice(1).map((p, i) => distanceKm(path[i], p))
+  let remaining = legs.reduce((sum, km) => sum + km, 0) * Math.min(1, Math.max(0, fraction))
+  for (let i = 0; i < legs.length; i++) {
+    if (remaining <= legs[i] || i === legs.length - 1) {
+      const t = legs[i] ? Math.min(1, remaining / legs[i]) : 0
+      const [a, b] = [path[i], path[i + 1]]
+      return { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t }
+    }
+    remaining -= legs[i]
+  }
+  return path[path.length - 1]
+}
+
+/** Stable 0–1 pseudo-random number from a string (same input → same value). */
+function seeded(text) {
+  let h = 2166136261
+  for (const ch of text) h = Math.imul(h ^ ch.charCodeAt(0), 16777619)
+  return (h >>> 0) / 4294967295
+}
+
+/**
+ * Prototype placement for amenity stops (toilets, coffee…), which have no real
+ * location: spread them evenly along the route with a small seeded jitter, so each
+ * one sits on the line, keeps its spot between renders and never stacks on another.
+ * @param {LatLng[]} path
+ * @param {{id: string}[]} stops
+ * @returns {{stop: object, position: LatLng}[]}
+ */
+export function placeAlongPath(path, stops) {
+  if (path.length < 2) return []
+  return stops.map((stop, i) => {
+    const slot = (i + 1) / (stops.length + 1)
+    const jitter = (seeded(stop.id) - 0.5) * (0.5 / (stops.length + 1))
+    return { stop, position: pointAlongPath(path, slot + jitter) }
+  })
+}
