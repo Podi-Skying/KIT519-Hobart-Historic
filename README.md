@@ -11,7 +11,7 @@ Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 - **Map**：Google Maps 顯示各景點實際座標與使用者即時定位；路線類型（一般／無障礙／陡坡）、最多 4 個停靠點
 - **導航**：標準地圖／AR 導航／可列印地圖（含各站重點，可當團體講義）；抵達時自動跳出面板，一鍵收聽語音導覽或用 AR 掃描
 - **語音導覽**：以裝置內建語音（Web Speech API，免費、免金鑰）朗讀所選語言的導覽稿
-- **AR**：依景點顯示相機畫面與資訊，可切換地標；有檔案照片的景點（Cascade、Penitentiary）提供今昔對照
+- **AR**：依景點顯示相機畫面與資訊，可切換地標；每個景點都有「穿越時光」時間軸：該景點所有照片（今日、相簿、檔案照片）由新到舊排列，全螢幕淡入淡出切換，附年份、說明與縮圖時間軸（`lib/sites.js` `siteTimeline`）
 - **Weather**：步行天氣（含目前天氣圖示）、最佳步行時段、一週預報；一鍵「規劃無障礙步行」。原型以模擬資料每 10 秒切換一次目前天氣，頁面與 tab bar 的天氣圖示會跟著淡入淡出（`stores/weather.js`）
 
 > **KIT519 Assignment 3 設計與評估文件**：[`docs/a3/`](docs/a3/README.md)（personas、user journeys、task flows、site map、RTM、UML、評估計畫與工具、證據與發現）
@@ -212,7 +212,7 @@ hobart-heritage/
 | `/map` | MapView | Map |
 | `/navigate/:id` | NavigationModesView | Map |
 | `/navigate/:id/map` · `/ar` · `/print` | 標準／AR／列印導航 | Map |
-| `/ar/:id?` · `/ar/:id/compare` | ArCameraView（無 id = 最近的景點）· ArCompareView（僅限有檔案照片的景點） | AR |
+| `/ar/:id?` · `/ar/:id/compare` | ArCameraView（無 id = 最近的景點）· ArCompareView（所有景點的照片時間軸） | AR |
 | `/weather` | WeatherView | Weather |
 
 不存在的景點 id 會被 `beforeEnter` 導回 Home；未知路徑一律導回 Home。
@@ -431,7 +431,7 @@ hobart-heritage/
 ### 5.9 文案語氣
 
 - 英文介面、句首大寫（Sentence case）：「Start walking route」而非「START WALKING ROUTE」；全大寫只用於 caption。
-- 動詞開頭、具體：「Add a stop」「Compare today with 1844」。
+- 動詞開頭、具體：「Add a stop」「Travel through time · 6 photos」。
 - 在地尊重：地名優先並列原住民名稱（nipaluna / Hobart、kunanyi / Mount Wellington）。
 
 ---

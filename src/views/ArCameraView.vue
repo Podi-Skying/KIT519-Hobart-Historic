@@ -15,6 +15,7 @@ import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import ArBubble from '@/components/ar/ArBubble.vue'
 import ArHelpOverlay from '@/components/ar/ArHelpOverlay.vue'
 import { localizeNarration, useContent } from '@/i18n/content'
+import { siteTimeline } from '@/lib/sites'
 import { usePlayerStore } from '@/stores/player'
 import { useLocationStore } from '@/stores/location'
 
@@ -40,6 +41,8 @@ const site = computed(() => {
   if (props.id) return siteById(props.id)
   return [...sites.value].sort((a, b) => location.distanceTo(a).km - location.distanceTo(b).km)[0]
 })
+/** Photos in the site's through-time viewer. */
+const photoCount = computed(() => siteTimeline(site.value).length)
 const narration = computed(() => localizeNarration(site.value.id, locale.value))
 
 const detected = ref(false)
@@ -158,10 +161,9 @@ const exit = () => router.push({ name: 'home' })
     </Transition>
 
     <div class="ar-camera__bottom">
-      <BaseButton v-if="site.timeTravel" block :to="{ name: 'ar-compare', params: { id: site.id } }">
-        <AppIcon name="clock" :size="18" /> {{ t('ar.compare', { year: site.timeTravel.pastYear }) }}
+      <BaseButton block :to="{ name: 'ar-compare', params: { id: site.id } }">
+        <AppIcon name="clock" :size="18" /> {{ t('ar.compare', { n: photoCount }) }}
       </BaseButton>
-      <p v-else class="ar-camera__note">{{ t('ar.noCompare') }}</p>
     </div>
 
     <ArHelpOverlay v-if="helpOpen" @close="helpOpen = false" />
@@ -337,16 +339,6 @@ const exit = () => router.push({ name: 'home' })
   right: var(--gutter);
   bottom: 18px;
   z-index: 7;
-}
-.ar-camera__note {
-  padding: 12px var(--s-4);
-  border-radius: var(--r-md);
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--cream);
-  font: 500 13px var(--font-body);
-  text-align: center;
 }
 .chooser {
   display: grid;

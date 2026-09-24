@@ -7,7 +7,7 @@ What changed since the A2 site map:
 - **Tabs:** Home, Map, AR and Weather are all top-level tabs, reachable in one tap from every
   screen except full-screen navigation.
 - **Screens and overlays:** A3 adds the Splash, the Language & display sheet, the navigation
-  mode choice (with route type), the printable map, the arrival sheet and past/present compare.
+  mode choice (with route type), the printable map, the arrival sheet and the through-time photo timeline.
 - **Offline:** offline is a toggle on the Map, not a page.
 
 ```mermaid
@@ -38,7 +38,7 @@ flowchart LR
 
   subgraph TAB_AR [AR tab]
     ARCAM[AR camera /ar/:id?<br/>landmark bubbles: About · Listen · Photos]
-    COMPARE[Compare /ar/:id/compare<br/>past ↔ today slider]
+    COMPARE[Through time /ar/:id/compare<br/>photo timeline, newest → oldest]
     ARCAM --> COMPARE
   end
 
@@ -81,7 +81,7 @@ flowchart LR
 | 9 | AR navigation | `/navigate/:id/ar` | Map | hidden | P1 |
 | 10 | Printable map | `/navigate/:id/print` | Map | ✓ | P2 P3 |
 | 11 | AR camera | `/ar/:id?` (no id = nearest) | AR | ✓ | P1 P3 |
-| 12 | Past / present compare | `/ar/:id/compare` (archive sites only) | AR | ✓ | P1 P3 |
+| 12 | Through time (photo timeline) | `/ar/:id/compare` (every site) | AR | ✓ | P1 P3 |
 | 13 | Weather | `/weather` | Weather | ✓ | all |
 | O1 | Language & display | sheet (Home, Audio tour) | — | — | P1 P2 |
 | O2 | Add a stop | sheet (Standard map) · inline picker (Map) | — | — | P2 P3 |

@@ -113,8 +113,8 @@ const routes = [
     name: 'ar-compare',
     component: () => import('@/views/ArCompareView.vue'),
     props: siteProps,
-    // Only sites with archival imagery have a then-vs-now view.
-    beforeEnter: (to) => (getSiteById(to.params.id)?.timeTravel ? true : { name: 'ar', params: { id: to.params.id } }),
+    // Every site has a photo timeline (gallery + any archival views).
+    beforeEnter: (to) => (getSiteById(to.params.id) ? true : { name: 'ar' }),
     meta: { tab: 'ar', status: overCamera },
   },
 
