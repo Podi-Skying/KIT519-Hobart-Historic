@@ -38,7 +38,7 @@ flowchart LR
 
   subgraph TAB_AR [AR tab]
     ARCAM[AR camera /ar/:id?<br/>landmark bubbles: About · Listen · Photos]
-    COMPARE[Through time /ar/:id/compare<br/>photo timeline, newest → oldest]
+    COMPARE[Through time /ar/:id/compare<br/>one slider blends all photos, newest → oldest]
     ARCAM --> COMPARE
   end
 

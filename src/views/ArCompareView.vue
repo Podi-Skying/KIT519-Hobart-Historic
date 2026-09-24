@@ -1,15 +1,14 @@
 <script setup>
 /**
  * "Through time" for one site: every photo of it (today's view, the gallery, archival
- * views), newest first. The photo fills the screen and cross-fades between eras; the
- * card below names the year and tells that photo's story, and a thumbnail timeline
- * jumps anywhere. Older/newer buttons, swiping the photo and arrow keys on the
- * timeline all move one step, so no gesture is the only way (WCAG 2.5.7).
+ * views), newest first. One slider blends continuously from photo to photo, the way
+ * the original past ↔ today slider did for two; the compact card names the nearest
+ * photo's year and story so the photo keeps most of the screen. Arrow keys on the
+ * slider (and swiping the photo) jump a whole photo.
  */
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
-import BaseBadge from '@/components/base/BaseBadge.vue'
 import { useContent } from '@/i18n/content'
 import { useGoBack } from '@/composables/useGoBack'
 import { siteTimeline } from '@/lib/sites'
@@ -18,6 +17,8 @@ const props = defineProps({
   id: { type: Number, required: true },
 })
 
+/** Slider units per photo. */
+const STEP = 100
 /** Horizontal travel (px) that counts as a swipe on the photo. */
 const SWIPE = 48
 
@@ -25,31 +26,34 @@ const { t } = useI18n()
 const { siteById } = useContent()
 const site = computed(() => siteById(props.id))
 const photos = computed(() => siteTimeline(site.value))
+const last = computed(() => photos.value.length - 1)
 
-const current = ref(0)
-/** The photo underneath while the new one fades in, so the cross-fade never dips to black. */
-const previous = ref(0)
-const photo = computed(() => photos.value[current.value])
+/** 0 = newest photo … last × STEP = oldest; values in between blend two neighbours. */
+const blend = ref(0)
+watch(() => props.id, () => (blend.value = 0))
+
+const position = computed(() => blend.value / STEP)
+const nearest = computed(() => Math.round(position.value))
+const photo = computed(() => photos.value[nearest.value])
 const yearLabel = (p) => (p.year && Number.isFinite(p.sortYear) ? p.year : t('compare.today'))
 
-function show(index) {
-  const next = Math.min(Math.max(index, 0), photos.value.length - 1)
-  if (next === current.value) return
-  previous.value = current.value
-  current.value = next
+/** The lower photo of the pair stays opaque; the next one fades in over it. */
+function opacityOf(i) {
+  const lower = Math.floor(position.value)
+  if (i === lower) return 1
+  if (i === lower + 1) return position.value - lower
+  return 0
 }
-const older = () => show(current.value + 1)
-const newer = () => show(current.value - 1)
 
-watch(
-  () => props.id,
-  () => {
-    current.value = 0
-    previous.value = 0
-  },
-)
+const goTo = (i) => (blend.value = Math.min(Math.max(i, 0), last.value) * STEP)
+function onKey(e) {
+  const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key]
+  if (step === undefined) return
+  e.preventDefault()
+  goTo(nearest.value + step)
+}
 
-// ---- swipe on the photo: left = older, right = newer ----
+// Swipe the photo: left = older, right = newer
 let swipeX = null
 const swipe = {
   pointerdown: (e) => (swipeX = e.clientX),
@@ -57,27 +61,10 @@ const swipe = {
     if (swipeX === null) return
     const dx = e.clientX - swipeX
     swipeX = null
-    if (dx < -SWIPE) older()
-    else if (dx > SWIPE) newer()
+    if (dx < -SWIPE) goTo(nearest.value + 1)
+    else if (dx > SWIPE) goTo(nearest.value - 1)
   },
   pointercancel: () => (swipeX = null),
-}
-
-// ---- timeline: keep the chosen thumbnail in view; arrow keys move (radiogroup pattern) ----
-const strip = ref(null)
-watch(current, async (i) => {
-  await nextTick()
-  const thumb = strip.value?.children[i]
-  thumb?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
-})
-async function onKey(e) {
-  const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key]
-  const jump = { Home: 0, End: photos.value.length - 1 }[e.key]
-  if (step === undefined && jump === undefined) return
-  e.preventDefault()
-  show(jump ?? current.value + step)
-  await nextTick()
-  strip.value?.children[current.value]?.focus()
 }
 
 const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
@@ -85,17 +72,16 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
 
 <template>
   <div class="compare">
-    <!-- Photos: the current one fades in over the previous one -->
     <div class="compare__stage" v-on="swipe">
       <img
         v-for="(p, i) in photos"
         :key="p.image"
         class="compare__layer"
-        :class="{ 'is-current': i === current, 'is-previous': i === previous && i !== current }"
+        :class="{ 'is-animated': blend % STEP === 0 }"
         :src="p.image"
-        :alt="i === current ? t('compare.photoAlt', { name: site.name, year: yearLabel(p) }) : ''"
-        :aria-hidden="i === current ? undefined : 'true'"
-        :loading="i < 2 ? 'eager' : 'lazy'"
+        :alt="i === nearest ? t('compare.photoAlt', { name: site.name, year: yearLabel(p) }) : ''"
+        :aria-hidden="i === nearest ? undefined : 'true'"
+        :style="{ opacity: opacityOf(i) }"
       />
     </div>
     <div class="compare__veil" />
@@ -106,63 +92,32 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
         <span>{{ t('compare.title') }}</span>
         <b>{{ site.shortName }}</b>
       </p>
-      <span class="compare__count" aria-live="polite">{{ t('compare.counter', { n: current + 1, total: photos.length }) }}</span>
+      <span class="compare__count">{{ t('compare.counter', { n: nearest + 1, total: photos.length }) }}</span>
     </header>
 
-    <IconButton
-      class="compare__step compare__step--newer"
-      variant="glass"
-      icon="back"
-      :label="t('compare.newer')"
-      :disabled="current === 0"
-      @click="newer"
-    />
-    <IconButton
-      class="compare__step compare__step--older"
-      variant="glass"
-      icon="chevron"
-      :label="t('compare.older')"
-      :disabled="current === photos.length - 1"
-      @click="older"
-    />
-
     <section class="caption-card text-zoom">
-      <div class="caption-card__head">
-        <Transition name="year" mode="out-in">
-          <p :key="current" class="caption-card__year">{{ yearLabel(photo) }}</p>
-        </Transition>
-        <BaseBadge v-if="photo.archival" tone="accent" icon="clock" size="sm">{{ t('compare.archival') }}</BaseBadge>
-      </div>
-      <p class="caption-card__title">{{ photo.title }}</p>
-      <p class="caption-card__text">{{ photo.text }}</p>
-
-      <p class="caption-card__order" aria-hidden="true">
-        <span>{{ t('compare.newest') }}</span>
-        <span class="caption-card__rail" />
-        <span>{{ t('compare.oldest') }}</span>
+      <p class="caption-card__head">
+        <b>{{ yearLabel(photo) }}</b>
+        <span v-if="photo.archival" class="caption-card__tag">{{ t('compare.archival') }}</span>
+        · {{ photo.title }}
       </p>
-      <div
-        ref="strip"
-        class="timeline"
-        role="radiogroup"
+      <p class="caption-card__text" aria-live="polite">{{ photo.text }}</p>
+      <input
+        v-model.number="blend"
+        class="caption-card__slider"
+        type="range"
+        min="0"
+        :max="last * STEP"
         :aria-label="t('compare.timeline', { name: site.name })"
+        :aria-valuetext="`${yearLabel(photo)} · ${photo.title}`"
         @keydown="onKey"
-      >
-        <button
-          v-for="(p, i) in photos"
-          :key="p.image"
-          type="button"
-          role="radio"
-          class="timeline__item"
-          :class="{ 'is-on': i === current }"
-          :aria-checked="i === current"
-          :tabindex="i === current ? 0 : -1"
-          :aria-label="`${yearLabel(p)} · ${p.title}`"
-          @click="show(i)"
-        >
-          <img :src="p.image" alt="" loading="lazy" />
-          <span>{{ yearLabel(p) }}</span>
-        </button>
+      />
+      <div class="caption-card__ends" aria-hidden="true">
+        <span>{{ yearLabel(photos[0]) }}</span>
+        <span class="caption-card__ticks">
+          <i v-for="(p, i) in photos" :key="p.image" :class="{ 'is-on': i === nearest }" />
+        </span>
+        <span>{{ yearLabel(photos[last]) }}</span>
       </div>
     </section>
   </div>
@@ -185,23 +140,12 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0;
   user-select: none;
   -webkit-user-drag: none;
 }
-.compare__layer.is-previous {
-  opacity: 1;
-}
-.compare__layer.is-current {
-  z-index: 1;
-  opacity: 1;
-  animation: fade-in 0.7s var(--ease);
-}
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: scale(1.03);
-  }
+/* Jumps (keys, swipe) fade; dragging the slider follows the thumb directly */
+.compare__layer.is-animated {
+  transition: opacity 0.5s var(--ease);
 }
 .compare__veil {
   position: absolute;
@@ -249,120 +193,73 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   font: 600 12px var(--font-label);
   white-space: nowrap;
 }
-.compare__step {
-  position: absolute;
-  top: 34%;
-  z-index: 3;
-}
-.compare__step--newer {
-  left: var(--gutter);
-}
-.compare__step--older {
-  right: var(--gutter);
-}
-.compare__step:disabled {
-  opacity: 0;
-  pointer-events: none;
-}
 .caption-card {
   position: absolute;
-  left: var(--gutter);
-  right: var(--gutter);
-  bottom: 18px;
+  left: var(--s-3);
+  right: var(--s-3);
+  bottom: var(--s-3);
   z-index: 3;
-  padding: var(--s-4) var(--s-4) var(--s-3);
+  padding: var(--s-3) var(--s-4) var(--s-2);
   border-radius: var(--r-lg);
   background: var(--cream);
   box-shadow: var(--e-2);
 }
 .caption-card__head {
-  display: flex;
-  align-items: center;
-  gap: var(--s-2);
+  overflow: hidden;
+  font: 600 12px var(--font-label);
+  color: var(--ink-700);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
-.caption-card__year {
-  font: 700 26px/1.1 var(--font-heading);
+.caption-card__head b {
+  font: 700 16px var(--font-heading);
   color: var(--ink-900);
 }
-.caption-card__title {
-  margin-top: 2px;
-  font: 600 13px var(--font-label);
-  color: var(--ink-700);
+.caption-card__tag {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: var(--brand-50);
+  color: var(--brand-600);
+  font: 700 10px var(--font-label);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 2px;
 }
 .caption-card__text {
   display: -webkit-box;
-  margin-top: 6px;
+  margin-top: 2px;
   overflow: hidden;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  font: 400 14px/21px var(--font-body);
+  font: 400 13px/19px var(--font-body);
   color: var(--ink-900);
 }
-.caption-card__order {
+.caption-card__slider {
+  width: 100%;
+  margin: var(--s-2) 0 0;
+  accent-color: var(--brand-600);
+}
+.caption-card__ends {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  margin: var(--s-3) 0 var(--s-2);
-  font: 600 10px var(--font-label);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-500);
-}
-.caption-card__rail {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, var(--sand-dark), var(--sand));
-}
-.timeline {
-  display: flex;
-  gap: var(--s-2);
-  margin: 0 calc(-1 * var(--s-4));
-  padding: 4px var(--s-4) 2px;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
-  scrollbar-width: none;
-}
-.timeline::-webkit-scrollbar {
-  display: none;
-}
-.timeline__item {
-  flex: 0 0 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  scroll-snap-align: center;
   font: 600 11px var(--font-label);
-  color: var(--ink-500);
-  white-space: nowrap;
+  color: var(--ink-700);
 }
-.timeline__item img {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--r-md);
-  object-fit: cover;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  opacity: 0.75;
-  transition: opacity var(--dur) var(--ease), outline-color var(--dur) var(--ease);
+.caption-card__ticks {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
 }
-.timeline__item.is-on {
-  color: var(--brand-600);
+.caption-card__ticks i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sand-dark);
 }
-.timeline__item.is-on img {
-  outline-color: var(--brand-600);
-  opacity: 1;
-}
-.year-enter-active,
-.year-leave-active {
-  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
-}
-.year-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
-}
-.year-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
+.caption-card__ticks i.is-on {
+  background: var(--brand-600);
 }
 </style>
