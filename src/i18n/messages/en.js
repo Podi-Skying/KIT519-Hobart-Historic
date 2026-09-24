@@ -41,7 +41,6 @@ export default {
     eyebrow: 'Walk through history',
     titleMain: 'Hobart',
     titleSub: 'Heritage Guide',
-    lead: 'Discover historic places, follow walking routes, and reveal the past through augmented reality.',
     tap: 'Tap to start',
     aria: 'Hobart Heritage Guide — tap to start',
   },

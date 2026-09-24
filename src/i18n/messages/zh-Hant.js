@@ -38,7 +38,6 @@ export default {
     eyebrow: '走進歷史',
     titleMain: 'Hobart',
     titleSub: '文化遺產導覽',
-    lead: '探索歷史景點、跟著步行路線，透過擴增實境重現過去。',
     tap: '點擊開始',
     aria: '荷伯特文化遺產導覽 — 點擊開始',
   },

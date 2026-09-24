@@ -38,7 +38,6 @@ export default {
     eyebrow: 'Dạo bước qua lịch sử',
     titleMain: 'Hobart',
     titleSub: 'Cẩm nang di sản',
-    lead: 'Khám phá các địa danh lịch sử, đi theo lộ trình đi bộ và tái hiện quá khứ qua thực tế tăng cường.',
     tap: 'Chạm để bắt đầu',
     aria: 'Cẩm nang di sản Hobart — chạm để bắt đầu',
   },

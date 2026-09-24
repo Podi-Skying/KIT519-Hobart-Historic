@@ -38,7 +38,6 @@ export default {
     eyebrow: '역사 속을 걷다',
     titleMain: 'Hobart',
     titleSub: '문화유산 가이드',
-    lead: '역사적인 장소를 발견하고, 산책로를 따라 걸으며, 증강 현실로 과거를 되살려 보세요.',
     tap: '눌러서 시작',
     aria: '호바트 문화유산 가이드 — 눌러서 시작',
   },

@@ -38,7 +38,6 @@ export default {
     eyebrow: '歴史の中を歩こう',
     titleMain: 'Hobart',
     titleSub: '歴史遺産ガイド',
-    lead: '歴史ある名所を訪ね、散策ルートをたどり、AR で過去をよみがえらせましょう。',
     tap: 'タップして開始',
     aria: 'ホバート歴史遺産ガイド — タップして開始',
   },

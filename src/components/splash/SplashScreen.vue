@@ -42,9 +42,6 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
         <span class="splash__title-sub">{{ t('splash.titleSub') }}</span>
       </h1>
       <span class="splash__rule rise d3" />
-      <p class="splash__lead rise d3">
-        {{ t('splash.lead') }}
-      </p>
     </div>
 
     <div class="splash__cta">
@@ -157,11 +154,6 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   margin: clamp(12px, 2.4cqh, 20px) 0 clamp(10px, 1.9cqh, 16px);
   border-radius: 2px;
   background: var(--brand-600);
-}
-.splash__lead {
-  max-width: 290px;
-  font: 400 15px/23px var(--font-body);
-  text-shadow: 0 1px 10px rgba(44, 36, 23, 0.4);
 }
 .splash__cta {
   position: relative;
