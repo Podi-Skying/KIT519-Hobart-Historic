@@ -265,7 +265,7 @@ export default {
     help1: 'Hướng camera vào một công trình lịch sử.',
     help2: 'Khi nhận diện được, các bong bóng thông tin sẽ hiện ra.',
     help3: 'Chạm vào bong bóng để đọc, nghe hoặc xem ảnh. Kéo để di chuyển.',
-    help4: 'Dùng “So sánh” để xem địa điểm ngày xưa.',
+    help4: 'Dùng “Du hành thời gian” để xem mọi ảnh của địa điểm, từ mới đến cũ.',
     gotIt: 'Đã hiểu',
   },
   compare: {

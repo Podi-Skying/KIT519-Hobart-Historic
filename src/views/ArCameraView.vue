@@ -102,15 +102,10 @@ const exit = () => router.push({ name: 'home' })
     </div>
 
     <ArStatusPill class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
-      {{ detected ? t('ar.detected') : t('ar.scanning') }}
+      {{ detected ? `${t('ar.detected')} · ${site.shortName}` : t('ar.scanning') }}
     </ArStatusPill>
 
     <template v-if="detected">
-      <button type="button" class="landmark-label" aria-haspopup="dialog" @click="chooserOpen = true">
-        <b>{{ site.name }}</b>
-        <small>{{ t('common.built', { year: site.builtYear }) }} · {{ site.area }}</small>
-        <span class="landmark-label__switch">{{ t('ar.notThis') }} <AppIcon name="chevron" :size="12" :stroke-width="2.6" /></span>
-      </button>
       <ArBubble
         v-for="spot in hotspots"
         :key="spot.key"
@@ -166,7 +161,13 @@ const exit = () => router.push({ name: 'home' })
       </BaseButton>
     </div>
 
-    <ArHelpOverlay v-if="helpOpen" @close="helpOpen = false" />
+    <!-- "Not this building?" lives in help, keeping the camera view clear -->
+    <ArHelpOverlay
+      v-if="helpOpen"
+      :can-switch="detected"
+      @close="helpOpen = false"
+      @choose="helpOpen = false; chooserOpen = true"
+    />
 
     <BottomSheet
       v-if="chooserOpen"
@@ -260,40 +261,6 @@ const exit = () => router.push({ name: 'home' })
   left: 50%;
   z-index: 5;
   transform: translateX(-50%);
-}
-.landmark-label {
-  position: absolute;
-  top: 166px;
-  left: 50%;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: var(--s-2) var(--s-4);
-  border-radius: var(--r-md);
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--cream);
-  text-align: center;
-  white-space: nowrap;
-  transform: translateX(-50%);
-  animation: fade var(--dur-slow) var(--ease);
-}
-.landmark-label b {
-  font: 700 18px var(--font-heading);
-}
-.landmark-label small {
-  font: 500 12px var(--font-body);
-  opacity: 0.85;
-}
-.landmark-label__switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  margin-top: 4px;
-  font: 600 11px var(--font-label);
-  color: var(--ar-400);
 }
 .panel {
   position: absolute;

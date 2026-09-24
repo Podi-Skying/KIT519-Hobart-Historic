@@ -268,7 +268,7 @@ export default {
     help1: 'Point your camera at a heritage building.',
     help2: 'When it’s detected, info bubbles appear.',
     help3: 'Tap a bubble to read, listen or view photos. Drag to move it.',
-    help4: 'Use Compare to see the site as it was.',
+    help4: 'Use “Travel through time” to see every photo of the site, newest to oldest.',
     gotIt: 'Got it',
   },
   compare: {
