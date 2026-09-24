@@ -47,15 +47,22 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
       </p>
     </div>
 
-    <TapToStart class="splash__cta rise-centered d4" :label="t('splash.tap')" />
+    <div class="splash__cta">
+      <TapToStart class="rise d4" :label="t('splash.tap')" />
+    </div>
   </div>
 </template>
 
 <style scoped>
+/* Copy flows from the top; the CTA gets the remaining height (its own size container), so the
+   two never overlap on short screens. */
 .splash {
   position: absolute;
   inset: 0;
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  container-type: size;
   overflow: hidden;
   cursor: pointer;
   background: var(--ink-900);
@@ -118,10 +125,8 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   margin: 4px 0 0 34px;
 }
 .splash__copy {
-  position: absolute;
-  top: 176px;
-  left: 28px;
-  right: 28px;
+  position: relative;
+  margin: clamp(164px, 21cqh, 176px) 28px 0; /* clears the tilted script */
 }
 .splash__eyebrow {
   font: 600 11px var(--font-label);
@@ -129,7 +134,7 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   text-transform: uppercase;
 }
 .splash__title {
-  margin-top: 14px;
+  margin-top: clamp(8px, 1.7cqh, 14px);
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.02;
@@ -138,18 +143,18 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
 }
 .splash__title-main {
   display: block;
-  font-size: 52px;
+  font-size: clamp(40px, 6.2cqh, 52px);
 }
 .splash__title-sub {
   display: block;
   margin-top: 4px;
-  font-size: 40px;
+  font-size: clamp(31px, 4.8cqh, 40px);
 }
 .splash__rule {
   display: block;
   width: 44px;
   height: 3px;
-  margin: 20px 0 16px;
+  margin: clamp(12px, 2.4cqh, 20px) 0 clamp(10px, 1.9cqh, 16px);
   border-radius: 2px;
   background: var(--brand-600);
 }
@@ -159,21 +164,22 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   text-shadow: 0 1px 10px rgba(44, 36, 23, 0.4);
 }
 .splash__cta {
-  position: absolute;
-  left: 50%;
-  bottom: 17%;
-  transform: translateX(-50%);
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: grid;
+  place-items: center;
+  margin: 16px 0 max(24px, 6cqh);
 }
 
 /* ---- entrance choreography ---- */
 .rise,
-.rise-tilted,
-.rise-centered {
+.rise-tilted {
   animation: 0.8s var(--ease) both;
 }
 .rise { animation-name: rise; }
 .rise-tilted { animation-name: rise-tilted; animation-delay: 0.15s; }
-.rise-centered { animation-name: rise-centered; }
 .d1 { animation-delay: 0.15s; }
 .d2 { animation-delay: 0.3s; }
 .d3 { animation-delay: 0.45s; }
@@ -189,9 +195,5 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
 @keyframes rise-tilted {
   from { opacity: 0; transform: rotate(-7deg) translateY(10px); }
   to { opacity: 1; transform: rotate(-7deg); }
-}
-@keyframes rise-centered {
-  from { opacity: 0; transform: translate(-50%, 14px); }
-  to { opacity: 1; transform: translateX(-50%); }
 }
 </style>

@@ -1,5 +1,9 @@
 <script setup>
-/** Glowing call-to-action: solid core, two static halos, three filled pulses radiating out. */
+/**
+ * Glowing call-to-action: frosted translucent core, two static halos, three pulses.
+ * Sized from its parent's container (cqh/cqw) so the halos and pulses always fit the space
+ * the splash gives it and never cover the copy, on any screen height.
+ */
 defineProps({
   label: { type: String, default: 'Tap to start' },
 })
@@ -16,36 +20,30 @@ defineProps({
 
 <style scoped>
 .tap {
+  /* the outer halo and the pulse peak are 1.55× the core, so 60cqh keeps them inside the box */
+  --tap: clamp(84px, min(60cqh, 40cqw), 148px);
   position: relative;
   display: block;
-  width: 148px;
-  height: 148px;
+  width: var(--tap);
+  height: var(--tap);
 }
 .tap__halo,
 .tap__pulse {
   position: absolute;
-  left: 50%;
-  top: 50%;
+  inset: 0;
   border-radius: 50%;
   pointer-events: none;
 }
 .tap__halo--inner {
-  width: 206px;
-  height: 206px;
-  margin: -103px 0 0 -103px;
-  background: rgba(245, 239, 230, 0.2);
+  transform: scale(1.3);
+  background: rgba(245, 239, 230, 0.12);
 }
 .tap__halo--outer {
-  width: 272px;
-  height: 272px;
-  margin: -136px 0 0 -136px;
-  background: rgba(245, 239, 230, 0.1);
+  transform: scale(1.55);
+  background: rgba(245, 239, 230, 0.06);
 }
 .tap__pulse {
-  width: 148px;
-  height: 148px;
-  margin: -74px 0 0 -74px;
-  background: rgba(245, 239, 230, 0.4);
+  background: rgba(245, 239, 230, 0.26);
   animation: pulse 2.7s cubic-bezier(0.25, 0.6, 0.35, 1) infinite;
 }
 .tap__core {
@@ -54,13 +52,23 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 0.22em; /* optically centre the tracked text */
+  padding: 0 8% 0 calc(8% + 0.22em); /* optically centre the tracked text */
   border-radius: 50%;
-  white-space: nowrap;
-  background: radial-gradient(circle, #fffdf9 0 46%, var(--cream) 70%, var(--sand) 100%);
-  box-shadow: 0 0 36px 8px rgba(245, 225, 196, 0.5);
+  border: 1px solid rgba(255, 250, 243, 0.7);
+  text-align: center;
+  line-height: 1.5;
+  /* frosted, so the photo shows through; the blur keeps the label ≥ 4.5:1 on any background */
+  background: radial-gradient(
+    circle,
+    rgba(255, 253, 249, 0.78) 0 45%,
+    rgba(245, 239, 230, 0.6) 72%,
+    rgba(232, 220, 200, 0.42) 100%
+  );
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 28px 4px rgba(245, 225, 196, 0.3);
   color: var(--brand-600);
-  font: 700 12px var(--font-label);
+  font: 700 clamp(10px, calc(var(--tap) * 0.08), 12px) var(--font-label);
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -70,7 +78,7 @@ defineProps({
     opacity: 0.9;
   }
   100% {
-    transform: scale(2.1);
+    transform: scale(1.55);
     opacity: 0;
   }
 }
