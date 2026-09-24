@@ -28,6 +28,7 @@ export function useSheetDrag(onDismiss) {
   /** Pointer capture keeps the drag alive outside the panel; it can throw for stale pointers, which is harmless. */
   function capture(e, method) {
     try {
+      if (!e.currentTarget?.[method]) return
       e.currentTarget[method](e.pointerId)
     } catch {
       /* pointer already released */
@@ -37,8 +38,24 @@ export function useSheetDrag(onDismiss) {
   /** Only the pointer that started the press counts (ignores a second finger or a hovering mouse). */
   const isOwn = (e) => start && e.pointerId === start.id
 
+  /**
+   * Safety net: if pointer capture fails or is lost (release outside the panel or the
+   * window, a browser gesture), the panel still gets its release, so a drag can never
+   * be left stuck half-open with the map behind it not resized.
+   */
+  const release = (e) => end(e)
+  const releaseAll = () => end({ pointerId: start?.id, currentTarget: null })
+  function watchRelease(on) {
+    if (typeof window === 'undefined') return
+    const method = on ? 'addEventListener' : 'removeEventListener'
+    window[method]('pointerup', release, true)
+    window[method]('pointercancel', release, true)
+    window[method]('blur', releaseAll)
+  }
+
   function end(e) {
     if (!isOwn(e)) return
+    watchRelease(false)
     const velocity = offset.value / Math.max(1, performance.now() - start.t)
     start = null
     if (!dragging.value) return
@@ -61,6 +78,7 @@ export function useSheetDrag(onDismiss) {
       if (leaving.value || e.button !== 0) return
       start = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() }
       dragged = false
+      watchRelease(true)
     },
     pointermove(e) {
       if (!isOwn(e)) return
@@ -70,6 +88,7 @@ export function useSheetDrag(onDismiss) {
         // Sideways or upward: not ours (e.g. the stop row scrolling horizontally)
         if ((dx > TAP_SLOP && dx > dy) || dy < -TAP_SLOP) {
           start = null
+          watchRelease(false)
           return
         }
         if (dy < TAP_SLOP) return
@@ -81,6 +100,7 @@ export function useSheetDrag(onDismiss) {
     },
     pointerup: end,
     pointercancel: end,
+    lostpointercapture: end,
   }
 
   function swallowClick(e) {

@@ -184,7 +184,9 @@ onMounted(async () => {
     disableDefaultUI: true,
     clickableIcons: false,
     gestureHandling: props.interactive ? 'greedy' : 'none',
-    keyboardShortcuts: props.interactive,
+    // No keyboard-shortcuts button in the attribution bar; pins stay focusable and
+    // every map screen has on-screen zoom / locate controls.
+    keyboardShortcuts: false,
   })
 
   for (const site of props.sites) {

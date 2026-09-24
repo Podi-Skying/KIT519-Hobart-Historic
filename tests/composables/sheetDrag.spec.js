@@ -36,6 +36,19 @@ describe('useSheetDrag', () => {
     expect(sheet.style.value).toBeNull()
   })
 
+  it('still finishes when the release lands outside the panel (no stuck half-open sheet)', () => {
+    const win = new EventTarget()
+    vi.stubGlobal('window', win)
+    sheet.handlers.pointerdown(pointer(0))
+    vi.advanceTimersByTime(500)
+    sheet.handlers.pointermove(pointer(150))
+    win.dispatchEvent(Object.assign(new Event('pointerup'), { pointerId: 1 }))
+    vi.advanceTimersByTime(300)
+    expect(onDismiss).toHaveBeenCalledOnce()
+    expect(sheet.style.value).toBeNull()
+    vi.unstubAllGlobals()
+  })
+
   it('springs back after a short, slow drag', () => {
     drag(sheet, 50)
     expect(sheet.style.value).toBeNull()
