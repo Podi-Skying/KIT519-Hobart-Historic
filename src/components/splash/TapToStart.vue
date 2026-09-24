@@ -20,8 +20,8 @@ defineProps({
 
 <style scoped>
 .tap {
-  /* the outer halo and the pulse peak are 1.55× the core, so 60cqh keeps them inside the box */
-  --tap: clamp(84px, min(60cqh, 40cqw), 148px);
+  /* the outer halo and the pulse peak are 1.42× the core, so 70cqh keeps them inside the box */
+  --tap: clamp(124px, min(70cqh, 44cqw), 164px);
   position: relative;
   display: block;
   width: var(--tap);
@@ -35,11 +35,11 @@ defineProps({
   pointer-events: none;
 }
 .tap__halo--inner {
-  transform: scale(1.3);
+  transform: scale(1.22);
   background: rgba(245, 239, 230, 0.12);
 }
 .tap__halo--outer {
-  transform: scale(1.55);
+  transform: scale(1.42);
   background: rgba(245, 239, 230, 0.06);
 }
 .tap__pulse {
@@ -52,25 +52,24 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 18% 0 calc(18% + 0.22em); /* keeps the label on the bright centre; optically centred */
+  padding-left: 0.16em; /* optically centre the tracked text */
   border-radius: 50%;
-  text-align: center;
-  line-height: 1.5;
+  white-space: nowrap;
   /* frosted, so the photo shows through; the blur keeps the label ≥ 4.5:1 on any background.
      No border: the fill and the blur both fade out towards the rim, so the edge melts into the photo. */
   background: radial-gradient(
     circle closest-side,
-    rgba(255, 253, 249, 0.82) 0 58%,
-    rgba(245, 239, 230, 0.5) 80%,
+    rgba(255, 253, 249, 0.84) 0 70%,
+    rgba(245, 239, 230, 0.5) 88%,
     rgba(245, 239, 230, 0) 100%
   );
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  -webkit-mask-image: radial-gradient(circle closest-side, #000 72%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side, #000 72%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
   color: var(--brand-600);
-  font: 700 clamp(10px, calc(var(--tap) * 0.08), 12px) var(--font-label);
-  letter-spacing: 0.22em;
+  font: 700 clamp(9px, calc(var(--tap) * 0.07), 11.5px) var(--font-label);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 @keyframes pulse {
@@ -79,7 +78,7 @@ defineProps({
     opacity: 0.9;
   }
   100% {
-    transform: scale(1.55);
+    transform: scale(1.42);
     opacity: 0;
   }
 }

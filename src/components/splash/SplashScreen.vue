@@ -170,7 +170,7 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   container-type: size;
   display: grid;
   place-items: center;
-  margin: 16px 0 max(24px, 6cqh);
+  margin: 12px 0 max(16px, 5cqh);
 }
 
 /* ---- entrance choreography ---- */
