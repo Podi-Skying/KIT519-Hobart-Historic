@@ -4,11 +4,33 @@ import { useFavoritesStore } from '@/stores/favorites'
 import { useTripStore } from '@/stores/trip'
 import { usePlayerStore } from '@/stores/player'
 import { usePrefsStore } from '@/stores/prefs'
+import { useWeatherStore } from '@/stores/weather'
+import { CONDITIONS, LIVE_WEATHER, LIVE_WEATHER_INTERVAL_MS } from '@/data/weather'
 import { getSiteById } from '@/data/sites'
 import { MAX_STOPS, WAYPOINTS } from '@/data/navigation'
 
 beforeEach(() => {
   setActivePinia(createPinia())
+})
+
+describe('weather store (simulated live weather)', () => {
+  it('steps through every reading on the timer and wraps around', () => {
+    vi.useFakeTimers()
+    const weather = useWeatherStore()
+    weather.start()
+    weather.start() // idempotent: one timer only
+    expect(weather.current).toEqual(LIVE_WEATHER[0])
+    vi.advanceTimersByTime(LIVE_WEATHER_INTERVAL_MS)
+    expect(weather.index).toBe(1)
+    vi.advanceTimersByTime(LIVE_WEATHER_INTERVAL_MS * (LIVE_WEATHER.length - 1))
+    expect(weather.index).toBe(0)
+    weather.stop()
+    vi.useRealTimers()
+  })
+
+  it('has an icon for every simulated condition', () => {
+    for (const reading of LIVE_WEATHER) expect(CONDITIONS[reading.condition]?.icon).toBeTruthy()
+  })
 })
 
 describe('prefs store', () => {

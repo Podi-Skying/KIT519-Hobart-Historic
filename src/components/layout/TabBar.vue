@@ -2,6 +2,8 @@
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
+import CrossfadeIcon from '@/components/base/CrossfadeIcon.vue'
+import { useWeatherStore } from '@/stores/weather'
 
 const TABS = [
   { key: 'home', icon: 'home', to: { name: 'home' } },
@@ -12,6 +14,8 @@ const TABS = [
 
 const route = useRoute()
 const { t } = useI18n()
+/** The Weather tab shows the current (simulated) condition, fading as it changes. */
+const weather = useWeatherStore()
 </script>
 
 <template>
@@ -24,7 +28,8 @@ const { t } = useI18n()
       :class="{ 'is-active': route.meta.tab === tab.key }"
       :aria-current="route.meta.tab === tab.key ? 'page' : undefined"
     >
-      <AppIcon :name="tab.icon" :size="24" />
+      <CrossfadeIcon v-if="tab.key === 'weather'" :name="weather.icon" :size="24" />
+      <AppIcon v-else :name="tab.icon" :size="24" />
       <span>{{ t(`tabs.${tab.key}`) }}</span>
     </RouterLink>
   </nav>

@@ -54,6 +54,8 @@ export const ICONS = {
   wind: '<path d="M3 8h11a3 3 0 10-3-3M3 12h16a3 3 0 11-3 3M3 16h8"/>',
   drop: '<path d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  cloud: '<path d="M17.5 18.5H7.5a4.5 4.5 0 11.9-8.9A5.5 5.5 0 0118 11a3.75 3.75 0 01-.5 7.5z"/>',
+  rain: '<path d="M17 14.5H7.5a4 4 0 11.8-7.9A5 5 0 0117 8a3.25 3.25 0 010 6.5z"/><path d="M8.5 17.5l-1 3M12.5 17.5l-1 3M16.5 17.5l-1 3"/>',
   // display preferences
   text: '<path d="M3 19l5-13 5 13M4.8 14.5h6.4"/><path d="M14.5 19l3.5-8.5 3.5 8.5M15.6 16.5h4.8"/>',
   contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 010 18z" fill="currentColor"/>',

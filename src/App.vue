@@ -8,10 +8,14 @@ import AppToast from '@/components/layout/AppToast.vue'
 import SplashScreen from '@/components/splash/SplashScreen.vue'
 import { useUiStore } from '@/stores/ui'
 import { usePrefsStore } from '@/stores/prefs'
+import { useWeatherStore } from '@/stores/weather'
 
 const route = useRoute()
 const ui = useUiStore()
 const prefs = usePrefsStore()
+
+// Prototype: simulated weather changes every 10 s (Weather tab icon + page).
+useWeatherStore().start()
 
 // Display preferences switch tokens on <html> (tokens.css › Larger text / High contrast).
 watchEffect(() => {

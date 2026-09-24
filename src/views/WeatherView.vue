@@ -1,6 +1,7 @@
 <script setup>
 /**
  * Walking conditions. Numbers come from data/weather.js; all wording is localised.
+ * "Now" follows the simulated live weather (stores/weather.js), like the tab icon.
  * The advice card leads straight into planning (Accessible route preselected), so the
  * page isn't a dead end.
  */
@@ -8,18 +9,33 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
+import CrossfadeIcon from '@/components/base/CrossfadeIcon.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import SectionHeader from '@/components/base/SectionHeader.vue'
-import { BEST_COMFORT_SCORE, WEATHER } from '@/data/weather'
+import { computed } from 'vue'
+import { BEST_COMFORT_SCORE, CONDITIONS, WEATHER } from '@/data/weather'
 import { useTripStore } from '@/stores/trip'
+import { useWeatherStore } from '@/stores/weather'
 
-const { current, stats, bestWindow, hourlyComfort, forecast } = WEATHER
+const { bestWindow, hourlyComfort } = WEATHER
 const { t } = useI18n()
 const router = useRouter()
 const trip = useTripStore()
-/** UV is a word, not a number — localise it. */
-const statValue = (stat) => (stat.icon === 'sun' ? t('weather.uvLow') : stat.value)
+const weather = useWeatherStore()
+
+const current = computed(() => weather.current)
+const summary = computed(() => t('weather.now', { summary: t(`weather.conditions.${current.value.condition}`) }))
+const stats = computed(() => [
+  { icon: 'wind', value: `${current.value.wind} km/h` },
+  { icon: 'drop', value: `${current.value.rain}%` },
+  { icon: 'sun', value: t('weather.uvLow') },
+])
+/** Today's forecast tile follows the live reading. */
+const forecast = computed(() => [
+  { ...WEATHER.forecast[0], condition: current.value.condition, high: current.value.temperature },
+  ...WEATHER.forecast.slice(1),
+])
 
 /** The route picker shows "Accessible" already selected as soon as a place is chosen. */
 function planAccessibleWalk() {
@@ -35,16 +51,17 @@ function planAccessibleWalk() {
       <h1 class="t-h1">{{ t('weather.title') }}</h1>
     </header>
 
-    <section class="now" :aria-label="t('weather.now', { summary: t('weather.summary') })">
-      <p class="now__summary">{{ t('weather.now', { summary: t('weather.summary') }) }}</p>
+    <section class="now" :aria-label="summary">
+      <CrossfadeIcon class="now__icon" :name="CONDITIONS[current.condition].icon" :size="56" :stroke-width="1.6" />
+      <p class="now__summary">{{ summary }}</p>
       <p class="now__temp">{{ current.temperature }}°</p>
-      <p class="now__verdict">{{ t('weather.verdict', { verdict: t('weather.goodForWalking'), n: current.feelsLike }) }}</p>
+      <p class="now__verdict">{{ t('weather.verdict', { verdict: t(`weather.verdicts.${current.verdict}`), n: current.feelsLike }) }}</p>
     </section>
 
     <ul class="stats">
       <li v-for="stat in stats" :key="stat.icon" class="stat">
         <AppIcon :name="stat.icon" :size="18" />
-        <b>{{ statValue(stat) }}</b>
+        <b>{{ stat.value }}</b>
         {{ t(`weather.stats.${stat.icon}`) }}
       </li>
     </ul>
@@ -78,7 +95,7 @@ function planAccessibleWalk() {
     <ul class="forecast" tabindex="0" :aria-label="t('weather.week')">
       <li v-for="(day, i) in forecast" :key="day.day" :class="{ 'is-today': i === 0 }">
         {{ t(`weather.days.${day.day.toLowerCase()}`) }}
-        <span class="forecast__icon" aria-hidden="true">{{ day.icon }}</span>
+        <span class="forecast__icon" aria-hidden="true">{{ CONDITIONS[day.condition].emoji }}</span>
         <span class="sr-only">{{ t(`weather.conditions.${day.condition}`) }}</span>
         <b>{{ day.high }}°</b>
       </li>
@@ -119,6 +136,13 @@ function planAccessibleWalk() {
   height: 140px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(246, 223, 196, 0.5), transparent 70%);
+}
+.now__icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  color: var(--cream);
 }
 .now__summary {
   font: var(--t-small);
