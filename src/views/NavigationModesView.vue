@@ -1,13 +1,19 @@
 <script setup>
+/**
+ * "How would you like to navigate?" — route type first (so walkers who start from a site
+ * page can still pick Accessible), then the navigation mode.
+ */
 import { computed, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
+import RouteTypePicker from '@/components/map/RouteTypePicker.vue'
 import { NAVIGATION_MODES } from '@/data/navigation'
 import { useContent } from '@/i18n/content'
 import { useTripStore } from '@/stores/trip'
+import { useWalkingRoute } from '@/composables/useWalkingRoute'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -18,6 +24,12 @@ const { siteById } = useContent()
 const trip = useTripStore()
 const site = computed(() => siteById(props.id))
 watchEffect(() => trip.setDestination(props.id))
+// Plans the three routes now; the navigation screen reuses the cached result.
+const walk = useWalkingRoute(site)
+const routeType = computed({
+  get: () => trip.routeType,
+  set: (key) => trip.setRouteType(key),
+})
 </script>
 
 <template>
@@ -28,6 +40,10 @@ watchEffect(() => trip.setDestination(props.id))
       <h1 class="t-display content__title">{{ t('navModes.title') }}</h1>
       <p class="t-body">{{ t('navModes.subtitle') }}</p>
 
+      <p class="t-caption content__label">{{ t('map.routeType') }}</p>
+      <RouteTypePicker v-model="routeType" :summaries="walk.summaries.value" :loading="walk.status.value === 'loading'" />
+
+      <p class="t-caption content__label">{{ t('navModes.modeLabel') }}</p>
       <ul class="modes">
         <li v-for="mode in NAVIGATION_MODES" :key="mode.route">
           <RouterLink :to="{ name: mode.route, params: { id } }" class="mode">
@@ -52,10 +68,13 @@ watchEffect(() => trip.setDestination(props.id))
 .content__title {
   margin: 6px 0 var(--s-2);
 }
+.content__label {
+  margin: var(--s-5) 0 var(--s-2);
+}
 .modes {
   display: grid;
   gap: var(--s-3);
-  margin: var(--s-5) 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }

@@ -209,7 +209,10 @@ function toggleOffline() {
         v-on="sheetDrag.handlers"
         @click.capture="sheetDrag.swallowClick"
       >
-        <span class="panel__grip" aria-hidden="true" />
+        <!-- Tapping the grip hides the panel too: dragging is never the only way (WCAG 2.5.7) -->
+        <button type="button" class="panel__hide" :aria-label="t('map.hidePanel')" aria-expanded="true" @click="browseOpen = false">
+          <span class="panel__grip" aria-hidden="true" />
+        </button>
         <button type="button" class="nearest" @click="trip.setDestination(nearest.id)">
           <span class="nearest__icon"><AppIcon name="pin" :size="20" /></span>
           <span class="nearest__text">
@@ -297,6 +300,18 @@ function toggleOffline() {
   font: var(--t-label);
   color: var(--ink-700);
   touch-action: none;
+}
+.panel__hide {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 96px;
+  height: 32px;
+  margin: calc(-1 * var(--s-3)) auto 0;
+  padding-top: var(--s-3);
+}
+.panel__hide .panel__grip {
+  margin: 0;
 }
 .panel__grip {
   display: block;

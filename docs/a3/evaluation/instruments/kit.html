@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluation Kit — Hobart Heritage Guide</title>
+<style>
+  :root {
+    --ink: #1f1a12; --muted: #5b5244; --line: #b9ae9c; --soft: #f3eee6; --brand: #7d3045;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #e9e4dc; color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .page { width: 210mm; min-height: 297mm; margin: 12px auto; padding: 16mm 16mm 14mm; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+  h1 { font: 700 22px/1.2 Georgia, serif; margin: 0 0 4px; }
+  h2 { font: 700 17px/1.25 Georgia, serif; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--brand); }
+  h3 { font: 700 14px/1.3 system-ui, sans-serif; margin: 14px 0 6px; }
+  p { margin: 0 0 8px; }
+  .meta { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  .sec { color: var(--brand); font: 700 11px system-ui; letter-spacing: .08em; text-transform: uppercase; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 12.5px; }
+  th, td { border: 1px solid var(--line); padding: 5px 6px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  .fill { height: 24px; }
+  .tall { height: 64px; }
+  .xtall { height: 110px; }
+  .box { border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 8px 0; }
+  .say { background: var(--soft); border-left: 4px solid var(--brand); padding: 8px 12px; margin: 6px 0 10px; border-radius: 0 6px 6px 0; }
+  .say::before { content: "SAY  "; font: 700 10px system-ui; color: var(--brand); letter-spacing: .08em; }
+  .do::before { content: "DO  "; font: 700 10px system-ui; color: var(--muted); letter-spacing: .08em; }
+  .do { color: var(--muted); font-size: 13px; }
+  .scale { display: flex; gap: 6px; align-items: center; font-size: 12px; }
+  .scale span { display: inline-flex; width: 26px; height: 26px; border: 1.5px solid var(--ink); border-radius: 50%; align-items: center; justify-content: center; font-weight: 600; }
+  .scale em { font-style: normal; color: var(--muted); }
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .card { border: 1.5px dashed var(--line); border-radius: 8px; padding: 10px 12px; break-inside: avoid; }
+  .card b { display: block; font: 700 13px system-ui; color: var(--brand); margin-bottom: 4px; }
+  .card p { font-size: 15px; line-height: 1.45; margin: 0; }
+  .role h3 { margin-top: 0; }
+  .check td:first-child { width: 28px; text-align: center; }
+  .sig { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-top: 16px; }
+  .sig div { border-top: 1px solid var(--ink); padding-top: 3px; font-size: 11px; color: var(--muted); }
+  .toc a { color: inherit; }
+  .small { font-size: 11.5px; color: var(--muted); }
+  @media print {
+    body { background: #fff; }
+    .page { margin: 0; box-shadow: none; width: auto; min-height: auto; padding: 0; page-break-after: always; }
+    .noprint { display: none; }
+    @page { size: A4; margin: 14mm; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================ Cover ============================ -->
+<section class="page">
+  <p class="sec">KIT519 · Assignment 3 · Group 13</p>
+  <h1>Evaluation kit: Hobart Heritage Guide (final hi-fi prototype)</h1>
+  <p class="meta">Prototype: https://podi-skying.github.io/KIT519-Hobart-Historic/ · Plan: docs/a3/evaluation/evaluation-plan.md · Print A4, one set per session</p>
+  <table class="toc">
+    <tr><th>§</th><th>Instrument</th><th>Used by</th><th>Copies</th></tr>
+    <tr><td>1</td><td><a href="#s1">Information sheet &amp; consent form</a></td><td>Participant</td><td>1 per participant</td></tr>
+    <tr><td>2</td><td><a href="#s2">Pre-session questionnaire</a></td><td>Participant</td><td>1 per participant</td></tr>
+    <tr><td>3</td><td><a href="#s3">Persona role cards</a></td><td>Participant</td><td>1 set (cut out)</td></tr>
+    <tr><td>4</td><td><a href="#s4">Moderator script &amp; task cards</a></td><td>Moderator</td><td>1 script; task cards cut out</td></tr>
+    <tr><td>5</td><td><a href="#s5">Observation log + SEQ</a></td><td>Note-taker</td><td>1 per participant</td></tr>
+    <tr><td>6</td><td><a href="#s6">System Usability Scale (SUS)</a></td><td>Participant</td><td>1 per participant</td></tr>
+    <tr><td>7</td><td><a href="#s7">Debrief interview</a></td><td>Moderator</td><td>1 per participant</td></tr>
+    <tr><td>8</td><td><a href="#s8">Heuristic evaluation form</a></td><td>Evaluators E1–E4</td><td>1 per evaluator</td></tr>
+    <tr><td>9</td><td><a href="#s9">Cognitive walkthrough form</a></td><td>Evaluator pairs</td><td>1 per persona</td></tr>
+    <tr><td>10</td><td><a href="#s10">WCAG 2.2 AA manual checklist</a></td><td>E1</td><td>1</td></tr>
+  </table>
+  <div class="box">
+    <h3>Before each session</h3>
+    <ol>
+      <li>Open the prototype in a <b>new private/incognito tab</b>. This clears saved language, text size, stops and likes.</li>
+      <li>Set the phone to portrait, sound on, brightness high. Decide on location permission (allow or deny) and note it on §5.</li>
+      <li>Write the participant ID (P1…Pn), role (P1 Minzi, P2 Margaret, P3 Sam) and build commit on §5.</li>
+      <li>Moderator reads the script (§4) word for word and never demonstrates. Any hint counts as an <b>assist</b>.</li>
+    </ol>
+  </div>
+  <p class="small">Signed consent forms, raw notes and any recordings go in <code>docs/a3/evaluation/private/</code> (git-ignored) or stay on paper. Only anonymised data is entered into <code>data/*.csv</code>.</p>
+</section>
+
+<!-- ============================ §1 Consent ============================ -->
+<section class="page" id="s1">
+  <p class="sec">§1</p>
+  <h2>Information sheet &amp; consent</h2>
+  <h3>What is this?</h3>
+  <p>Group 13 (KIT519, University of Tasmania) has designed a prototype app that helps people explore Hobart's heritage sites on foot. We want to find out where the design is easy or hard to use. <b>We are testing the app, not you.</b> There are no right or wrong answers.</p>
+  <h3>What will you do?</h3>
+  <p>For about 35 minutes you will imagine you are a particular person (we'll give you a card), try a few tasks on a phone while saying what you think out loud, and answer short questionnaires.</p>
+  <h3>Your data</h3>
+  <ul>
+    <li>Participation is voluntary. You can stop at any time without giving a reason, and ask for your data to be removed.</li>
+    <li>We record what happens on screen, the time taken and what you say. We do not record your name with your answers; you will be "P" plus a number.</li>
+    <li>We will only record the screen or audio if you agree below. Recordings are kept privately and deleted after the unit is graded.</li>
+    <li>Anonymised results (for example times, scores and short quotes) may appear in our assignment report and presentation.</li>
+  </ul>
+  <h3>Consent</h3>
+  <table class="check">
+    <tr><td>☐</td><td>I have read this sheet and had the chance to ask questions.</td></tr>
+    <tr><td>☐</td><td>I agree to take part and know I can stop at any time.</td></tr>
+    <tr><td>☐</td><td>I agree that anonymised results and quotes may be used in the group's assignment.</td></tr>
+    <tr><td>☐</td><td><i>Optional:</i> I agree to the screen (and audio) being recorded for note-taking. Recordings are deleted after grading.</td></tr>
+  </table>
+  <div class="sig"><div>Name &amp; signature</div><div>Date</div></div>
+  <p class="small" style="margin-top:14px">Questions after the session: contact Group 13 via the KIT519 MyLO group area.</p>
+</section>
+
+<!-- ============================ §2 Pre-questionnaire ============================ -->
+<section class="page" id="s2">
+  <p class="sec">§2</p>
+  <h2>Pre-session questionnaire</h2>
+  <p class="meta">Participant ID: ______ · Role: ☐ P1 Minzi ☐ P2 Margaret ☐ P3 Sam</p>
+  <table>
+    <tr><th style="width:52%">Question</th><th>Answer (tick or write)</th></tr>
+    <tr><td>1. Age band</td><td>☐ 18–24 ☐ 25–34 ☐ 35–49 ☐ 50–64 ☐ 65+</td></tr>
+    <tr><td>2. How often do you use a smartphone map app (e.g. Google Maps)?</td><td>☐ Daily ☐ Weekly ☐ Monthly ☐ Rarely/never</td></tr>
+    <tr><td>3. Have you used augmented reality (AR) on a phone before?</td><td>☐ Often ☐ A few times ☐ Never</td></tr>
+    <tr><td>4. Have you used an audio guide (museum, tour app)?</td><td>☐ Yes ☐ No</td></tr>
+    <tr><td>5. How well do you know Hobart's historic areas?</td><td>☐ Very well ☐ Somewhat ☐ Not at all</td></tr>
+    <tr><td>6. Which language do you prefer for reading? For listening?</td><td class="fill"></td></tr>
+    <tr><td>7. Do you usually change text size or display settings on your phone?</td><td>☐ Larger text ☐ Bold/contrast ☐ No</td></tr>
+    <tr><td>8. <i>Optional:</i> anything about vision, hearing or mobility we should know to run the session comfortably? (No details needed.)</td><td class="tall"></td></tr>
+  </table>
+</section>
+
+<!-- ============================ §3 Role cards ============================ -->
+<section class="page" id="s3">
+  <p class="sec">§3</p>
+  <h2>Persona role cards <span class="small">(cut out; hand one to the participant)</span></h2>
+  <div class="cards" style="grid-template-columns:1fr">
+    <div class="card role">
+      <h3>You are <b style="display:inline">Minzi, 22</b>: an exchange student from Seoul</h3>
+      <p>You're in Hobart for a semester and love old buildings (you study design). You hurt your leg, so <b>hills and long walks are painful</b>. You read English slowly and prefer <b>Korean</b>. Today is Saturday and you want to visit one heritage place.</p>
+    </div>
+    <div class="card role">
+      <h3>You are <b style="display:inline">Margaret, 71</b>: a Sandy Bay resident</h3>
+      <p>Your eyesight isn't what it was: <b>small or pale text is hard to read</b>. You walk with a stick and <b>avoid steep streets</b>. You like to know where the <b>toilets</b> and cafés are, and you prefer <b>something on paper</b> to carry. You've never used AR.</p>
+    </div>
+    <div class="card role">
+      <h3>You are <b style="display:inline">Sam, 38</b>: a Year 9 history teacher</h3>
+      <p>You're planning a two-hour convict-history excursion <b>this week</b> for 24 students. One student uses a <b>wheelchair</b>. Students can't rely on phones, so you want a <b>printed hand-out</b> with the route and facts about each stop.</p>
+    </div>
+  </div>
+  <p class="small">Role-play note: participants are asked to answer "as the persona would", but to report their own difficulties honestly. Record in §5 whether the participant genuinely shares any persona trait (e.g. is a Korean speaker, uses larger text).</p>
+</section>
+
+<!-- ============================ §4 Moderator script + task cards ============================ -->
+<section class="page" id="s4">
+  <p class="sec">§4</p>
+  <h2>Moderator script</h2>
+  <p class="say">Thanks for helping. We're testing a prototype of a Hobart heritage walking app. Remember, we're testing the app, not you. If something is confusing, that's exactly what we need to know.</p>
+  <p class="say">I'll give you a card describing who you are. Please try each task as that person would. As you go, <b>think aloud</b>: tell me what you're looking at, what you expect, and what you're trying to do.</p>
+  <p class="say">Let's practise: tell me what you think this screen is for. <span class="do">(Show Home for 30 s, then continue.)</span></p>
+  <p class="say">I can't help during the tasks, because I want to see how the app works on its own. If you get stuck, try what you would normally do. You can say "I'd give up" at any time.</p>
+  <p class="do">For each task: hand over the task card and read it aloud. Start the timer at the first touch. Neutral prompts only: "What are you looking for?", "What do you expect to happen?". Stop at success, at the time limit, or when the participant gives up. Then ask the SEQ (§5).</p>
+  <p class="say">(If stuck for 60 s:) What would you try next? <span class="do">If still stuck after the time limit, show the path, and log it as <b>failed</b>.</span></p>
+  <p class="say">(After the last task:) Please fill in this short questionnaire about the whole app (§6). Then I have a few questions (§7).</p>
+  <h3>Task order by role</h3>
+  <table>
+    <tr><th>Role</th><th>Order</th></tr>
+    <tr><td>P1 Minzi</td><td>T1 → T2 → T3 → T4 → T5</td></tr>
+    <tr><td>P2 Margaret</td><td>T5 → T6 → T7</td></tr>
+    <tr><td>P3 Sam</td><td>T8 → T9 → T5</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <p class="sec">§4 · Task cards (cut out)</p>
+  <h2>Task cards</h2>
+  <div class="cards">
+    <div class="card"><b>T1 · Minzi</b><p>You're interested in convict history and your leg is sore. Find a convict-heritage place that's suitable for a wheelchair or pram, and open its page.</p></div>
+    <div class="card"><b>T2 · Minzi</b><p>Check whether today is good for walking. Then set up the <u>flattest</u> way to get there and start following it on a map.</p></div>
+    <div class="card"><b>T3 · Minzi</b><p>Switch to the camera view. When you get there (press "Simulate arrival"), listen to the story in Korean.</p></div>
+    <div class="card"><b>T4 · Minzi</b><p>See what this place looked like in 1844.</p></div>
+    <div class="card"><b>T5 · Everyone</b><p>Imagine the writing is too small for you to read comfortably. Make the app easier to read.</p></div>
+    <div class="card"><b>T6 · Margaret</b><p>Plan a gentle walk to the heritage place nearest to you, with a toilet stop on the way.</p></div>
+    <div class="card"><b>T7 · Margaret</b><p>Get a copy of this route that you can take with you on paper.</p></div>
+    <div class="card"><b>T8 · Sam</b><p>Your class excursion is this week. Find a day that should stay dry. Then plan an accessible route to Cascade Female Factory that also visits Salamanca Place and Narryna. How long will the walk take?</p></div>
+    <div class="card"><b>T9 · Sam</b><p>Prepare a hand-out for your students with the route and some facts about each stop.</p></div>
+  </div>
+  <h3>Success criteria (moderator only)</h3>
+  <table>
+    <tr><th>Task</th><th>Success when…</th><th>Limit</th></tr>
+    <tr><td>T1</td><td>Cascade Female Factory page open</td><td>3 min</td></tr>
+    <tr><td>T2</td><td>Standard map navigation open, summary shows "Accessible route"</td><td>4 min</td></tr>
+    <tr><td>T3</td><td>AR navigation → arrival sheet → audio playing in 한국어</td><td>4 min</td></tr>
+    <tr><td>T4</td><td>Compare view open, slider moved</td><td>2 min</td></tr>
+    <tr><td>T5</td><td>Larger text on (note whether High contrast was also used)</td><td>2 min</td></tr>
+    <tr><td>T6</td><td>Nearest site selected + Accessible + Toilets stop added</td><td>4 min</td></tr>
+    <tr><td>T7</td><td>Printable map open, print dialog shown</td><td>2 min</td></tr>
+    <tr><td>T8</td><td>Names a dry day (not Tue); route with both stops + Accessible; states minutes (write the number)</td><td>6 min</td></tr>
+    <tr><td>T9</td><td>Printable map with "At each stop" visible, print dialog shown</td><td>3 min</td></tr>
+  </table>
+</section>
+
+<!-- ============================ §5 Observation log ============================ -->
+<section class="page" id="s5">
+  <p class="sec">§5</p>
+  <h2>Observation log + Single Ease Question</h2>
+  <p class="meta">Participant ID: ____ · Role: ____ · Date/time: __________ · Device/browser: __________ · Location permission: ☐ allowed ☐ denied · Build commit: _______ · Moderator/note-taker: ____ / ____</p>
+  <table>
+    <tr><th style="width:6%">Task</th><th style="width:9%">Time (s)</th><th style="width:15%">Outcome</th><th style="width:7%">Errors</th><th style="width:7%">SEQ 1–7</th><th>Path, hesitations, quotes (write "…" verbatim)</th></tr>
+    <tr><td>T__</td><td></td><td>☐ OK ☐ Assist ☐ Fail</td><td></td><td></td><td class="xtall"></td></tr>
+    <tr><td>T__</td><td></td><td>☐ OK ☐ Assist ☐ Fail</td><td></td><td></td><td class="xtall"></td></tr>
+    <tr><td>T__</td><td></td><td>☐ OK ☐ Assist ☐ Fail</td><td></td><td></td><td class="xtall"></td></tr>
+    <tr><td>T__</td><td></td><td>☐ OK ☐ Assist ☐ Fail</td><td></td><td></td><td class="xtall"></td></tr>
+    <tr><td>T__</td><td></td><td>☐ OK ☐ Assist ☐ Fail</td><td></td><td></td><td class="xtall"></td></tr>
+  </table>
+  <div class="box">
+    <b>SEQ (ask after every task):</b> "Overall, how difficult or easy was that task?"
+    <div class="scale" style="margin-top:6px"><em>Very difficult</em><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><em>Very easy</em></div>
+  </div>
+  <p class="small"><b>Error</b> = entered a wrong screen, used a control that didn't help, or backtracked. <b>Assist</b> = any hint from the moderator. Hypotheses to watch: <b>H1</b> (T8: does the stated time match the navigation screen?), <b>H5</b> (T6/T8: looks for "add stop" in the selected-destination panel?), <b>H4</b> (does the collapsed "Plan a walk" tab get noticed?).</p>
+</section>
+
+<!-- ============================ §6 SUS ============================ -->
+<section class="page" id="s6">
+  <p class="sec">§6</p>
+  <h2>System Usability Scale</h2>
+  <p class="meta">Participant ID: ____ · Tick one box per statement, thinking about the app as a whole. Answer quickly, and don't skip any.</p>
+  <table>
+    <tr><th style="width:60%">Statement</th><th>Strongly disagree 1</th><th>2</th><th>3</th><th>4</th><th>Strongly agree 5</th></tr>
+    <tr><td>1. I think that I would like to use this system frequently.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>2. I found the system unnecessarily complex.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>3. I thought the system was easy to use.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>4. I think that I would need the support of a technical person to be able to use this system.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>5. I found the various functions in this system were well integrated.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>6. I thought there was too much inconsistency in this system.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>7. I would imagine that most people would learn to use this system very quickly.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>8. I found the system very cumbersome to use.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>9. I felt very confident using the system.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+    <tr><td>10. I needed to learn a lot of things before I could get going with this system.</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td><td>☐</td></tr>
+  </table>
+  <p class="small">Scoring (Brooke, 1996), done by <code>eval-summary.mjs</code>: odd items score − 1, even items 5 − score; sum × 2.5 = 0–100. 68 is the average; ≥ 75 is roughly "good" (Bangor et al., 2009).</p>
+</section>
+
+<!-- ============================ §7 Debrief ============================ -->
+<section class="page" id="s7">
+  <p class="sec">§7</p>
+  <h2>Debrief interview</h2>
+  <p class="meta">Participant ID: ____ · Note answers in brief; quote exact words where possible.</p>
+  <table>
+    <tr><th style="width:45%">Question</th><th>Answer</th></tr>
+    <tr><td>1. What was the easiest part? Why?</td><td class="tall"></td></tr>
+    <tr><td>2. What was the most confusing or frustrating moment?</td><td class="tall"></td></tr>
+    <tr><td>3. Was anything missing that you (as the persona) expected to find?</td><td class="tall"></td></tr>
+    <tr><td>4. <i>Minzi:</i> Would the route types (Normal / Accessible / Steep) help you choose? <i>Margaret:</i> Was the text readable after changing settings? <i>Sam:</i> Would you hand out the printed page as it is?</td><td class="tall"></td></tr>
+    <tr><td>5. Did you ever feel lost or unsure where you were in the app?</td><td class="tall"></td></tr>
+    <tr><td>6. If you could change one thing, what would it be?</td><td class="tall"></td></tr>
+    <tr><td>7. Would you use this app (or recommend it) for a heritage walk? 0–10</td><td class="fill"></td></tr>
+  </table>
+</section>
+
+<!-- ============================ §8 Heuristic evaluation ============================ -->
+<section class="page" id="s8">
+  <p class="sec">§8</p>
+  <h2>Heuristic evaluation form <span class="small">(Nielsen, 1994; complete independently before merging)</span></h2>
+  <p class="meta">Evaluator: E__ · Date: ______ · Walk through every screen in the site map at least twice: once freely, once following each persona's workflows.</p>
+  <table>
+    <tr><th style="width:27%">Heuristic</th><th>Prompts for this app</th></tr>
+    <tr><td>H1 Visibility of system status</td><td>Route loading and "straight-line estimate"; location state; which route type, stops and language are active; arrival.</td></tr>
+    <tr><td>H2 Match with the real world</td><td>Walking times and distances people can trust; street and place names; "Accessible" meaning; nipaluna / kunanyi naming.</td></tr>
+    <tr><td>H3 User control and freedom</td><td>Undo a stop, change route type or mode mid-walk, close sheets, get back from AR, collapse and restore the map panel.</td></tr>
+    <tr><td>H4 Consistency and standards</td><td>Same minutes for the same trip on every screen; one action colour; same arrival behaviour in map and AR.</td></tr>
+    <tr><td>H5 Error prevention</td><td>Stop limit (4); unknown site links; routes that include steps; printing an empty route.</td></tr>
+    <tr><td>H6 Recognition rather than recall</td><td>Icon-only buttons (voice, offline, locate); where the text-size setting lives; stop icons.</td></tr>
+    <tr><td>H7 Flexibility and efficiency</td><td>Shortcuts (nearest site, weather → plan); expert paths; search vs filter.</td></tr>
+    <tr><td>H8 Aesthetic and minimalist design</td><td>Duplicate content (Top 5 vs all 5 sites); panel density at larger text; one primary button per screen.</td></tr>
+    <tr><td>H9 Recognise, diagnose, recover from errors</td><td>No route found; speech voice missing; location denied or outside Hobart.</td></tr>
+    <tr><td>H10 Help and documentation</td><td>AR help overlay; route-type explanations; first-use guidance.</td></tr>
+  </table>
+  <h3>Issue log (copy rows into data/issues.csv)</h3>
+  <table>
+    <tr><th style="width:6%">#</th><th style="width:15%">Screen / route</th><th style="width:8%">Heur.</th><th>Problem (what, where, why it matters)</th><th style="width:9%">Severity 0–4</th><th style="width:16%">Suggested fix</th></tr>
+    <tr><td></td><td></td><td></td><td class="tall"></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td class="tall"></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td class="tall"></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td class="tall"></td><td></td><td></td></tr>
+  </table>
+  <p class="small"><b>Severity</b> (Nielsen): 0 not a problem · 1 cosmetic · 2 minor, low priority · 3 major, important to fix · 4 catastrophe, must fix before release. Rate from frequency, impact and persistence.</p>
+</section>
+
+<!-- ============================ §9 Cognitive walkthrough ============================ -->
+<section class="page" id="s9">
+  <p class="sec">§9</p>
+  <h2>Cognitive walkthrough form <span class="small">(Wharton et al., 1994)</span></h2>
+  <p class="meta">Evaluators: E__ &amp; E__ · Persona: ______ · Task: T__ · Correct action sequence taken from docs/a3/task-flows.md</p>
+  <p>For <b>each step</b> of the correct sequence, answer as the persona (first-time user, with their knowledge and needs):</p>
+  <ol class="small" style="font-size:12.5px;color:var(--ink)">
+    <li><b>Q1 Goal:</b> Will the user try to achieve the right effect?</li>
+    <li><b>Q2 Visibility:</b> Will the user notice that the correct action is available?</li>
+    <li><b>Q3 Association:</b> Will the user connect the correct action with the effect they want?</li>
+    <li><b>Q4 Feedback:</b> After the action, will the user see that progress is being made?</li>
+  </ol>
+  <table>
+    <tr><th style="width:5%">Step</th><th style="width:25%">Correct action</th><th style="width:6%">Q1</th><th style="width:6%">Q2</th><th style="width:6%">Q3</th><th style="width:6%">Q4</th><th>Failure story (for any "No"): why, and the likely user behaviour</th></tr>
+    <tr><td>1</td><td></td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td class="tall"></td></tr>
+    <tr><td>2</td><td></td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td class="tall"></td></tr>
+    <tr><td>3</td><td></td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td class="tall"></td></tr>
+    <tr><td>4</td><td></td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td class="tall"></td></tr>
+    <tr><td>5</td><td></td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td class="tall"></td></tr>
+    <tr><td>6</td><td></td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td>Y/N</td><td class="tall"></td></tr>
+  </table>
+  <p class="small">A "No" becomes a predicted problem in data/issues.csv (source = CW). The usability test then confirms or rejects it.</p>
+</section>
+
+<!-- ============================ §10 WCAG checklist ============================ -->
+<section class="page" id="s10">
+  <p class="sec">§10</p>
+  <h2>WCAG 2.2 AA manual checklist <span class="small">(complements the automated axe-core scan)</span></h2>
+  <p class="meta">Evaluator: E__ · Devices: iPhone + VoiceOver, desktop Chrome with keyboard only, 200 % browser zoom</p>
+  <table>
+    <tr><th style="width:12%">SC</th><th>Check on this prototype</th><th style="width:13%">Result</th><th style="width:24%">Notes / screen</th></tr>
+    <tr><td>1.1.1</td><td>Photos, icons-only buttons, weather emoji and the comfort chart have text alternatives</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>1.3.1</td><td>Headings, lists, radio groups (route type, language) and switches are exposed correctly to VoiceOver</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>1.4.2</td><td>No audio plays automatically (arrival, AR)</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>1.4.3</td><td>Text contrast ≥ 4.5:1, including text over photos</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>1.4.4 / 1.4.10</td><td>200 % zoom and "Larger text": no clipped text or horizontal scrolling of the page</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>1.4.11</td><td>Control outlines and chart bars ≥ 3:1 (check with High contrast on and off)</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>2.1.1</td><td>Everything works with a keyboard: sheets, route type, stops, print, carousel, horizontal lists</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>2.4.3 / 2.4.7</td><td>Focus order follows the layout; focus is always visible; closing a sheet returns focus</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>2.5.7</td><td>Every drag has a single-tap alternative (map panel grip button, bottom sheets ✕, AR bubbles)</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>2.5.8</td><td>Targets ≥ 24×24 px (the app's own rule: 44 px)</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>3.1.1 / 3.1.2</td><td>Page language changes with the app language; language names carry their own <code>lang</code></td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>4.1.2</td><td>Buttons have names; toggles report pressed/checked state</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+    <tr><td>2.3.3 (AAA)</td><td>"Reduce motion" turns off animations</td><td>☐ Pass ☐ Fail</td><td></td></tr>
+  </table>
+</section>
+
+</body>
+</html>
