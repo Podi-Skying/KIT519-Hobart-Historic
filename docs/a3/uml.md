@@ -17,52 +17,58 @@ Requirement IDs → [rtm.md](rtm.md). Rendered SVG/PNG copies → [figures/](fig
 ## 1. Use case diagram
 
 Actors are the three personas (primary), plus external systems (secondary). The system
-boundary is the web app. Use case IDs map to requirements.
+boundary is the web app.
+- **Generalisation:** the personas specialise a common **Walker** actor, which owns the shared
+  use cases. Each persona links only to the use cases specific to it.
+- **Use case IDs** map to requirements.
 
 ```mermaid
 flowchart LR
-  subgraph actors [" "]
+  subgraph actors [Actors]
     direction TB
     V["👤 Visitor<br/>(P1 Minzi)"]
     R["👤 Older resident<br/>(P2 Margaret)"]
     T["👤 Teacher / group leader<br/>(P3 Sam)"]
+    W["👤 Walker"]
+    V -- is a --> W
+    R -- is a --> W
+    T -- is a --> W
   end
 
   subgraph SYS [Hobart Heritage Guide — web app]
     direction TB
     UC1([UC1 Browse & filter sites · FR3 FR4])
     UC2([UC2 View site information & gallery · FR5 FR7])
-    UC3([UC3 Plan route: type & stops · FR1 FR11 FR17])
-    UC4([UC4 Navigate: map or AR · FR2 FR10])
-    UC5([UC5 Print walking map & hand-out · FR12])
-    UC6([UC6 Listen to audio tour · FR6 FR9])
-    UC7([UC7 Explore landmark in AR / compare past · FR13])
     UC8([UC8 Check walking weather · NFR4])
     UC9([UC9 Adjust language & display · FR14 NFR7])
+    UC3([UC3 Plan route: type & stops · FR1 FR11 FR17])
+    UC4([UC4 Navigate: map or AR · FR2 FR10])
     UC10([UC10 Arrive at destination · FR15])
+    UC6([UC6 Listen to audio tour · FR6 FR9])
+    UC5([UC5 Print walking map & hand-out · FR12])
+    UC7([UC7 Explore landmark in AR / compare past · FR13])
     UC11([UC11 Like a site · FR16])
   end
 
-  subgraph EXT [" "]
+  subgraph EXT [External systems]
     direction TB
     G[["Google Maps Platform<br/>Maps JS · Routes API"]]
     O[["Open-Meteo<br/>elevation API"]]
     D[["Device<br/>GPS · camera · speech · print"]]
   end
 
-  V --- UC1 & UC2 & UC3 & UC4 & UC6 & UC7 & UC8 & UC9 & UC11
-  R --- UC3 & UC5 & UC6 & UC8 & UC9
-  T --- UC1 & UC2 & UC3 & UC5 & UC7 & UC8
+  W --- UC1 & UC2 & UC8 & UC9 & UC3 & UC4 & UC6
+  V --- UC7 & UC11
+  R --- UC5
+  T --- UC5 & UC7
 
-  UC4 -. "«include»" .-> UC3
-  UC10 -. "«extend» on arrival" .-> UC4
-  UC10 -. "«include»" .-> UC6
-  UC5 -. "«include»" .-> UC3
+  UC4 -. «include» .-> UC3
+  UC5 -. «include» .-> UC3
+  UC10 -. «extend» on arrival .-> UC4
+  UC10 -. «include» .-> UC6
 
-  UC3 --- G
-  UC3 --- O
-  UC4 --- G
-  UC4 --- D
+  UC3 --- G & O
+  UC4 --- G & D
   UC6 --- D
   UC7 --- D
   UC5 --- D
@@ -308,7 +314,10 @@ stateDiagram-v2
   Ended --> Playing: play (restart)
   Idle --> Idle: locale change → reset
   Paused --> Idle: load another site
-  note right of Playing: no speech API → same clock runs silently\nvoiceStatus: ok | missing | unsupported
+  note right of Playing
+    No speech API: the same clock runs silently.
+    voiceStatus = ok, missing or unsupported
+  end note
 ```
 
 **Walking route** (`useWalkingRoute` status)

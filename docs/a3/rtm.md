@@ -1,6 +1,6 @@
 # Requirements Traceability Matrix (final)
 
-`rtm.csv` is the source; this page is generated from it (open the CSV in Excel for filtering).
+`rtm.csv` is the source; this page is generated from it by `node docs/a3/build-rtm.mjs` (open the CSV in Excel for filtering).
 Every requirement traces **forwards** to screens, code, tests and evaluation tasks, and
 **backwards** to its A1/A2 origin and stakeholder need. Personas/workflows → [personas.md](personas.md);
 evaluation tasks T1–T9 → [evaluation/evaluation-plan.md](evaluation/evaluation-plan.md#6-tasks);
@@ -47,9 +47,9 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | **FR16** | Users can like sites, likes rank the Top 5 | Could | P1 · W1 | Home cards, Site detail ♥ | tests/stores/stores.spec.js (favorites store) | — | Implemented |
 | **FR17** | The app suggests the nearest heritage site from the user's location (or a default origin) | Should | P2 · W6 | Map › Nearest heritage site | tests/lib/sites.spec.js (nearestSite), usability T6 | — | Implemented |
 | **NFR1** | Accessible by default: WCAG 2.2 AA, 44px targets, accessible routes, no forced gestures | Must | P1 P2 P3 · all | All screens | axe-core scans (evidence/before → after), tests/composables/sheetDrag.spec.js, heuristic + cognitive walkthrough | A11Y-1…A11Y-4 fixed in Round 1 | Partly verified — manual screen-reader test pending |
-| **NFR2** | Usable with limited connectivity | Should | P2 P3 · W7 W10 | Printable map, "Save map offline" toggle | usability T7 T9 | Offline mode is simulated, paper map is the real fallback (limitation) | Partial |
+| **NFR2** | Usable with limited connectivity | Should | P2 P3 · W7 W10 | Printable map, Save map offline toggle | usability T7 T9 | Offline mode is simulated, paper map is the real fallback (limitation) | Partial |
 | **NFR3** | Responsive and stable navigation (re-route only after 50 m, cached routes, graceful fallback) | Should | P1 · W3 | Standard / AR navigation | tests/lib/routing.spec.js, tests/lib/terrain.spec.js | — | Implemented |
-| **NFR4** | Clear walking-weather information that feeds route planning | Should | P1 P2 P3 · W2 W8 | Weather /weather | usability T2 T8 | Round 1 R1-3: "Plan an accessible walk", data is static (limitation) | Implemented (static data) |
+| **NFR4** | Clear walking-weather information that feeds route planning | Should | P1 P2 P3 · W2 W8 | Weather /weather | usability T2 T8 | Round 1 R1-3: Plan an accessible walk, data is static (limitation) | Implemented (static data) |
 | **NFR5** | Simple and consistent navigation (persistent tab bar, one action colour, back everywhere) | Must | P1 P2 P3 · all | Tab bar, PageHeader | heuristic evaluation (H4 consistency) | — | Implemented |
 | **NFR6** | Clear hierarchy and outdoor readability (contrast ≥ 4.5:1, one primary button per screen) | Must | P1 P2 P3 · all | All screens | axe color-contrast, heuristic evaluation | — | Implemented |
 | **NFR7** | All interface text, site content and narration in 5 languages | Must | P1 · W1–W4 | Language & display sheet | tests/i18n/i18n.spec.js (identical keys & placeholders in every locale) | — | Implemented |

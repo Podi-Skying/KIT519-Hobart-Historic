@@ -115,6 +115,7 @@ const STEPS = [
   ['map-accessible-preselected', run(closeSelected, click('.nearest', 2500))],
   ['navigate-standard-arrived', run(go('#/navigate/1/map', 3000), clickText('Simulate arrival', 900))],
   ['print-stops-facts', run(go('#/map', 1500), closeSelected, clickText('Salamanca', 400), clickText('Narryna', 400), go('#/navigate/1/print', 3000), scrollDown())],
+  ['map-panel-hidden', run(go('#/map', 2000), closeSelected, click('.panel__hide', 900))],
 ]
 
 // ---- main ---------------------------------------------------------------------------------------

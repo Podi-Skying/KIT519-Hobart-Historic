@@ -1,0 +1,272 @@
+{
+  "base": "https://podi-skying.github.io/KIT519-Hobart-Historic/",
+  "date": "2026-09-24T00:47:31.250Z",
+  "tags": [
+    "wcag2a",
+    "wcag2aa",
+    "wcag21a",
+    "wcag21aa",
+    "wcag22aa"
+  ],
+  "results": [
+    {
+      "step": "splash",
+      "screenshot": "01-splash.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "home",
+      "screenshot": "02-home.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "home-list",
+      "screenshot": "03-home-list.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "language-sheet",
+      "screenshot": "04-language-sheet.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "site-detail",
+      "screenshot": "05-site-detail.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "wcag": [
+            "wcag2aa",
+            "wcag143"
+          ],
+          "nodes": 1,
+          "targets": [
+            "span[data-v-b7da3568=\"\"]:nth-child(1)"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "site-detail-gallery",
+      "screenshot": "06-site-detail-gallery.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1",
+      "violations": []
+    },
+    {
+      "step": "audio-tour",
+      "screenshot": "07-audio-tour.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1/audio",
+      "violations": []
+    },
+    {
+      "step": "gallery",
+      "screenshot": "08-gallery.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1/gallery/0",
+      "violations": []
+    },
+    {
+      "step": "map-browse",
+      "screenshot": "09-map-browse.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": [
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "help": "All touch targets must be 24px large, or leave sufficient space",
+          "wcag": [
+            "wcag22aa",
+            "wcag258"
+          ],
+          "nodes": 1,
+          "targets": [
+            "div:nth-child(2) > button[aria-label=\"Keyboard shortcuts\"][title=\"Keyboard shortcuts\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "map-selected",
+      "screenshot": "10-map-selected.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": []
+    },
+    {
+      "step": "navigate-modes",
+      "screenshot": "11-navigate-modes.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1",
+      "violations": []
+    },
+    {
+      "step": "navigate-standard",
+      "screenshot": "12-navigate-standard.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/map",
+      "violations": []
+    },
+    {
+      "step": "navigate-ar",
+      "screenshot": "13-navigate-ar.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/ar",
+      "violations": [
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "help": "All touch targets must be 24px large, or leave sufficient space",
+          "wcag": [
+            "wcag22aa",
+            "wcag258"
+          ],
+          "nodes": 2,
+          "targets": [
+            "button[aria-label=\"Map Data\"]",
+            "a[aria-label=\"Terms (opens in new tab)\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "navigate-ar-arrived",
+      "screenshot": "14-navigate-ar-arrived.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/ar",
+      "violations": []
+    },
+    {
+      "step": "navigate-print",
+      "screenshot": "15-navigate-print.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/print",
+      "violations": []
+    },
+    {
+      "step": "navigate-print-steps",
+      "screenshot": "16-navigate-print-steps.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/print",
+      "violations": []
+    },
+    {
+      "step": "ar-camera",
+      "screenshot": "17-ar-camera.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/ar/1",
+      "violations": []
+    },
+    {
+      "step": "ar-compare",
+      "screenshot": "18-ar-compare.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/ar/1/compare",
+      "violations": []
+    },
+    {
+      "step": "weather",
+      "screenshot": "19-weather.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/weather",
+      "violations": []
+    },
+    {
+      "step": "weather-bottom",
+      "screenshot": "20-weather-bottom.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/weather",
+      "violations": []
+    },
+    {
+      "step": "display-settings",
+      "screenshot": "21-display-settings.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "display-both-on",
+      "screenshot": "22-display-both-on.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "home-large-contrast",
+      "screenshot": "23-home-large-contrast.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "site-detail-large-contrast",
+      "screenshot": "24-site-detail-large-contrast.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/sites/1",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "wcag": [
+            "wcag2aa",
+            "wcag143"
+          ],
+          "nodes": 1,
+          "targets": [
+            "span[data-v-b7da3568=\"\"]:nth-child(1)"
+          ]
+        }
+      ]
+    },
+    {
+      "step": "map-large-contrast",
+      "screenshot": "25-map-large-contrast.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": []
+    },
+    {
+      "step": "display-reset",
+      "screenshot": "26-display-reset.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/home",
+      "violations": []
+    },
+    {
+      "step": "weather-plan-accessible",
+      "screenshot": "27-weather-plan-accessible.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": []
+    },
+    {
+      "step": "map-accessible-preselected",
+      "screenshot": "28-map-accessible-preselected.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": []
+    },
+    {
+      "step": "navigate-standard-arrived",
+      "screenshot": "29-navigate-standard-arrived.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/map",
+      "violations": []
+    },
+    {
+      "step": "print-stops-facts",
+      "screenshot": "30-print-stops-facts.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/navigate/1/print",
+      "violations": []
+    },
+    {
+      "step": "map-panel-hidden",
+      "screenshot": "31-map-panel-hidden.png",
+      "url": "https://podi-skying.github.io/KIT519-Hobart-Historic/#/map",
+      "violations": [
+        {
+          "id": "target-size",
+          "impact": "serious",
+          "help": "All touch targets must be 24px large, or leave sufficient space",
+          "wcag": [
+            "wcag22aa",
+            "wcag258"
+          ],
+          "nodes": 3,
+          "targets": [
+            "div:nth-child(14) > div > a[target=\"_blank\"][rel=\"noopener\"]",
+            "div:nth-child(2) > button[aria-label=\"Keyboard shortcuts\"][title=\"Keyboard shortcuts\"]",
+            "a[aria-label=\"Terms (opens in new tab)\"]"
+          ]
+        }
+      ]
+    }
+  ]
+}

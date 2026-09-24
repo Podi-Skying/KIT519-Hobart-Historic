@@ -14,6 +14,8 @@ Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 - **AR**：依景點顯示相機畫面與資訊，可切換地標；有檔案照片的景點（Cascade、Penitentiary）提供今昔對照
 - **Weather**：步行天氣、最佳步行時段、一週預報；一鍵「規劃無障礙步行」
 
+> **KIT519 Assignment 3 設計與評估文件**：[`docs/a3/`](docs/a3/README.md)（personas、user journeys、task flows、site map、RTM、UML、評估計畫與工具、證據與發現）
+
 ---
 
 ## 目錄

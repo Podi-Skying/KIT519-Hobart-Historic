@@ -30,6 +30,14 @@ npm run build                                              # → dist/
   - Locally they go in `.env.local`. In CI they come from the repo secrets `GOOGLE_MAPS_API_KEY` and `GOOGLE_MAPS_MAP_ID`.
   - Without a key everything still works: maps fall back to the illustrated `MapCanvas`, and routes to dashed straight-line estimates.
 
+## Assignment 3 package (`docs/a3/`)
+
+- **Contents:** design and evaluation artefacts (personas → RTM → UML → evaluation), linked by IDs (`P#`, `W#`, `FR#`, `T#`, `E0-*`, `R1-*`). Keep them consistent with the app when features change.
+- **RTM:** `rtm.csv` is the source; regenerate `rtm.md` with `node docs/a3/build-rtm.mjs`.
+- **Evidence capture:** `docs/a3/evaluation/tools/capture.mjs` (own `package.json`, puppeteer-core + axe-core, uses local Chrome) screenshots every screen and runs WCAG 2.2 AA scans.
+- **Metrics:** `docs/a3/evaluation/analysis/metrics.mjs` holds the metric logic, tested by `tests/eval/metrics.spec.js`.
+- **GenAI rule:** the assignment forbids AI-written report prose or presentation scripts. Provide outlines, evidence and analysis only. Never invent participant data.
+
 ## Architecture
 
 **Layering** (README §4.1):

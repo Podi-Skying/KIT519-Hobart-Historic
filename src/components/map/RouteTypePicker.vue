@@ -43,7 +43,9 @@ const stats = computed(() => {
         @click="model = type.key"
       >
         {{ t(`routeTypes.${type.key}.label`) }}
-        <small>{{ t('common.minutes', { n: summaries[type.key].minutes }) }}</small>
+        <!-- While routes load, rough factor estimates would contradict the real times (e.g. Steep
+             "faster" than Normal), so show a placeholder; "Checking slopes…" explains it below -->
+        <small>{{ loading ? '…' : t('common.minutes', { n: summaries[type.key].minutes }) }}</small>
       </button>
     </div>
 
