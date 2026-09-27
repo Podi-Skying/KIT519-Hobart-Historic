@@ -53,34 +53,26 @@ function toggleVoice() {
   ui.showToast(t(trip.voiceGuidance ? 'voice.on' : 'voice.off'))
 }
 
-// Look around: tilt the phone or drag the street view; the arrows sit on a closer layer (parallax)
-const stage = ref(null)
-const look = useLookAround({ frame: () => stage.value })
-
-// ---- 360° Street View where the walker is, turned to face the way ahead on the route ----
-const can360 = isGoogleMapsConfigured()
-const view360 = ref(false)
-const pano = ref('loading')
-let panoHinted = false
+// ---- The view is 360° Street View where the walker is, turned to face the way ahead ----
+/** 'loading' | 'ready' | 'none' — 'none' (no Maps key / no panorama here) falls back to the photo. */
+const pano = ref(isGoogleMapsConfigured() ? 'loading' : 'none')
+const view360 = computed(() => pano.value !== 'none')
 /** Walker, or the default origin before they're located / outside Hobart. */
 const here = computed(() => location.origin)
 const ahead = computed(() => pointAhead(walk.path.value, here.value) ?? site.value.coordinates)
-function toggle360() {
-  if (view360.value) return (view360.value = false)
-  pano.value = 'loading'
-  view360.value = true
-}
 function onPanoReady() {
   pano.value = 'ready'
-  if (panoHinted) return
-  panoHinted = true
   ui.showToast(t('ar.view360Hint'), { duration: 2600 })
 }
 function onPanoUnavailable() {
-  if (!view360.value) return
-  view360.value = false
+  if (pano.value === 'none') return
+  pano.value = 'none'
   ui.showToast(t('arNav.view360None'), { duration: 3000 })
 }
+
+// Fallback only (no Street View): look around the photo; the painted arrows sit closer (parallax)
+const stage = ref(null)
+const look = useLookAround({ frame: () => stage.value })
 // Google's logo and terms sit at the bottom of the panorama and must stay visible (Maps Platform
 // terms): the panorama ends where the summary card begins instead of running underneath it.
 const summary = ref(null)
@@ -95,10 +87,11 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
 
 <template>
   <div ref="stage" class="ar-nav" v-on="look.handlers">
-    <!-- Simulated camera feed: the approach to this particular site -->
-    <div v-show="!view360 || pano !== 'ready'" class="ar-nav__world" :style="look.layer(1, LOOK_SCALE)">
-      <img class="ar-nav__feed" :src="site.arApproachImage" :alt="t('arNav.feedAlt', { name: site.name })" fetchpriority="high" draggable="false" />
+    <!-- Fallback when there's no Street View here: a photo of the approach to this site -->
+    <div v-if="!view360" class="ar-nav__world" :style="look.layer(1, LOOK_SCALE)">
+      <img class="ar-nav__feed" :src="site.arApproachImage" :alt="t('arNav.feedAlt', { name: site.name })" draggable="false" />
     </div>
+    <ArStatusPill v-if="pano === 'loading'" class="ar-nav__loading" spinner>{{ t('ar.view360Loading') }}</ArStatusPill>
     <Transition name="pano-fade">
       <StreetView360
         v-if="view360"
@@ -117,14 +110,6 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
       <IconButton variant="glass" icon="close" :label="t('arNav.close')" @click="close" />
       <span class="ar-nav__actions">
         <IconButton
-          v-if="can360"
-          variant="glass"
-          icon="pano"
-          :label="t('ar.view360')"
-          :pressed="view360"
-          @click="toggle360"
-        />
-        <IconButton
           variant="glass"
           :icon="trip.voiceGuidance ? 'volume' : 'mute'"
           :label="t('voice.label')"
@@ -135,10 +120,10 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
       </span>
     </div>
 
-    <ArStatusPill :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
+    <ArStatusPill data-toast-below :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
 
-    <!-- the painted arrows belong to the photo; in 360° the street itself (turned ahead) shows the way -->
-    <div v-show="!view360" class="ar-nav__near" :style="look.layer(1.4)" aria-hidden="true">
+    <!-- the painted arrows belong to the fallback photo; in 360° the street itself (turned ahead) shows the way -->
+    <div v-if="!view360" class="ar-nav__near" :style="look.layer(1.4)" aria-hidden="true">
     <div class="ar-nav__arrows">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
         <path class="ar-nav__arrow" d="M4 40 L36 6 L68 40 L36 27 Z" stroke-width="2.5" stroke-linejoin="round" />
@@ -230,6 +215,13 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.ar-nav__loading {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
 }
 .ar-nav__instruction {
   position: absolute;

@@ -240,10 +240,10 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
       </span>
     </div>
 
-    <ArStatusPill v-if="view360" class="ar-camera__status" :spinner="pano === 'loading'">
+    <ArStatusPill v-if="view360" data-toast-below class="ar-camera__status" :spinner="pano === 'loading'">
       {{ pano === 'loading' ? t('ar.view360Loading') : `${t('ar.view360Status')} · ${site.shortName}` }}
     </ArStatusPill>
-    <ArStatusPill v-else class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
+    <ArStatusPill v-else data-toast-below class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
       {{ detected ? `${t('ar.detected')} · ${site.shortName}` : t('ar.scanning') }}
     </ArStatusPill>
 

@@ -1,11 +1,30 @@
 <script setup>
+import { nextTick, ref, watch } from 'vue'
 import { useUiStore } from '@/stores/ui'
 
 const ui = useUiStore()
+
+/**
+ * Screens with their own floating status (AR: "Scanning…", the next turn) mark it
+ * `data-toast-below`; the toast then drops just under it instead of covering it.
+ */
+const region = ref(null)
+const top = ref(null)
+watch(
+  () => ui.toast,
+  async (toast) => {
+    if (!toast) return
+    await nextTick()
+    const anchor = document.querySelector('[data-toast-below]')
+    const frame = region.value?.offsetParent
+    if (!anchor || !frame) return (top.value = null)
+    top.value = Math.round(anchor.getBoundingClientRect().bottom - frame.getBoundingClientRect().top + 10)
+  },
+)
 </script>
 
 <template>
-  <div class="toast-region" role="status" aria-live="polite">
+  <div ref="region" class="toast-region" role="status" aria-live="polite" :style="top != null ? { top: `${top}px` } : null">
     <Transition name="toast">
       <div v-if="ui.toast" class="toast">
         {{ ui.toast.message }}
