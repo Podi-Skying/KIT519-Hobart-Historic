@@ -270,6 +270,11 @@ export default {
   ar: {
     lookAround: '傾斜手機或拖曳照片，環顧四周',
     motion: '傾斜手機來環顧四周',
+    view360: '360° 街景',
+    view360Status: '街景 · 現在',
+    view360Loading: '正在載入 360° 街景',
+    view360None: '{name} 附近沒有 360° 街景',
+    view360Hint: '拖曳或轉動手機，環顧四周',
     exit: '離開',
     help: 'AR 模式怎麼用',
     scanning: '正在掃描地標',

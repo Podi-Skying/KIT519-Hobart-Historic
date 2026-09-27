@@ -270,6 +270,11 @@ export default {
   ar: {
     lookAround: '휴대폰을 기울이거나 사진을 드래그해 둘러보세요',
     motion: '휴대폰을 기울여 둘러보기',
+    view360: '360° 스트리트 뷰',
+    view360Status: '스트리트 뷰 · 현재',
+    view360Loading: '360° 뷰 불러오는 중',
+    view360None: '{name} 근처에 360° 뷰가 없습니다',
+    view360Hint: '드래그하거나 휴대폰을 돌려 둘러보세요',
     exit: '나가기',
     help: 'AR 모드 사용법',
     scanning: '랜드마크 스캔 중',

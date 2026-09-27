@@ -273,6 +273,11 @@ export default {
   ar: {
     lookAround: 'Tilt your phone or drag the photo to look around',
     motion: 'Look around by tilting your phone',
+    view360: '360° street view',
+    view360Status: 'Street View · today',
+    view360Loading: 'Loading 360° view',
+    view360None: 'No 360° view near {name}',
+    view360Hint: 'Drag, or turn your phone, to look around',
     exit: 'Exit',
     help: 'How AR mode works',
     scanning: 'Scanning for landmarks',

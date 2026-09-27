@@ -14,6 +14,8 @@ import BottomSheet from '@/components/base/BottomSheet.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import ArBubble from '@/components/ar/ArBubble.vue'
 import ArHelpOverlay from '@/components/ar/ArHelpOverlay.vue'
+import StreetView360 from '@/components/ar/StreetView360.vue'
+import { isGoogleMapsConfigured } from '@/services/googleMaps'
 import { localizeNarration, useContent } from '@/i18n/content'
 import { siteTimeline } from '@/lib/sites'
 import { advancePosition, arTimeline, layerOpacity } from '@/lib/timeline'
@@ -100,6 +102,31 @@ watch(detected, (now) => {
   ui.showToast(t('ar.lookAround'), { duration: 2600 })
 })
 const helpOpen = ref(false)
+
+// ---- 360° Street View of the landmark today (Google), instead of the photo stack ----
+const can360 = isGoogleMapsConfigured()
+const view360 = ref(false)
+/** 'loading' until the panorama shows */
+const pano = ref('loading')
+let panoHinted = false
+function toggle360() {
+  if (view360.value) return (view360.value = false)
+  pauseTime() // the year bar is hidden while you look around today's street
+  openPanel.value = null
+  pano.value = 'loading'
+  view360.value = true
+}
+function onPanoReady() {
+  pano.value = 'ready'
+  if (panoHinted) return
+  panoHinted = true
+  ui.showToast(t('ar.view360Hint'), { duration: 2600 })
+}
+function onPanoUnavailable() {
+  if (!view360.value) return
+  view360.value = false
+  ui.showToast(t('ar.view360None', { name: site.value.shortName }), { duration: 3000 })
+}
 const chooserOpen = ref(false)
 const openPanel = ref(null) // 'info' | 'audio' | 'photos' | null
 const positions = reactive(structuredClone(DEFAULT_HOTSPOTS))
@@ -129,6 +156,7 @@ function scan() {
   openPanel.value = null
   player.pause() // the previous landmark's tour stops while the new one is found
   pauseTime()
+  view360.value = false
   position.value = 0
   Object.assign(positions, structuredClone(DEFAULT_HOTSPOTS))
   scanTimer = setTimeout(() => (detected.value = true), SCAN_DURATION_MS)
@@ -159,7 +187,7 @@ const exit = () => router.push({ name: 'home' })
 
 <template>
   <div ref="stage" class="ar-camera" v-on="look.handlers">
-    <div class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
+    <div v-show="!view360" class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
       <Transition name="feed" mode="out-in">
         <div :key="site.id" class="ar-camera__stack">
           <!-- stacked from today to oldest; only the two photos either side of `position` show -->
@@ -177,25 +205,52 @@ const exit = () => router.push({ name: 'home' })
         </div>
       </Transition>
     </div>
-    <div class="ar-camera__veil" />
-
-    <div class="reticle" aria-hidden="true"><i /><i /><i /><i /></div>
-    <div v-if="!detected" class="scanline" aria-hidden="true" />
+    <StreetView360
+      v-if="view360"
+      :key="site.id"
+      data-no-look
+      :target="site.coordinates"
+      @ready="onPanoReady"
+      @unavailable="onPanoUnavailable"
+    />
+    <template v-else>
+      <div class="ar-camera__veil" />
+      <div class="reticle" aria-hidden="true"><i /><i /><i /><i /></div>
+      <div v-if="!detected" class="scanline" aria-hidden="true" />
+    </template>
 
     <div class="ar-camera__top" data-no-look>
       <BaseButton variant="secondary" size="sm" icon="back" @click="exit">{{ t('ar.exit') }}</BaseButton>
       <span class="ar-camera__actions">
         <!-- iOS asks before sharing motion; elsewhere tilt works straight away -->
-        <IconButton v-if="look.canAskMotion.value" variant="glass" icon="compass" :label="t('ar.motion')" @click="look.enableMotion()" />
+        <IconButton
+          v-if="look.canAskMotion.value && !view360"
+          variant="glass"
+          icon="compass"
+          :label="t('ar.motion')"
+          @click="look.enableMotion()"
+        />
+        <!-- today's street in 360°: Google Street View (only when a Maps key is configured) -->
+        <IconButton
+          v-if="can360 && detected"
+          variant="glass"
+          icon="pano"
+          :label="t('ar.view360')"
+          :pressed="view360"
+          @click="toggle360"
+        />
         <IconButton variant="glass" icon="help" :label="t('ar.help')" @click="helpOpen = true" />
       </span>
     </div>
 
-    <ArStatusPill class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
+    <ArStatusPill v-if="view360" class="ar-camera__status" :spinner="pano === 'loading'">
+      {{ pano === 'loading' ? t('ar.view360Loading') : `${t('ar.view360Status')} · ${site.shortName}` }}
+    </ArStatusPill>
+    <ArStatusPill v-else class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
       {{ detected ? `${t('ar.detected')} · ${site.shortName}` : t('ar.scanning') }}
     </ArStatusPill>
 
-    <div v-if="detected" class="ar-camera__hotspots" :style="look.layer(1.35)">
+    <div v-if="detected && !view360" class="ar-camera__hotspots" :style="look.layer(1.35)">
       <ArBubble
         v-for="spot in hotspots"
         :key="spot.key"
@@ -252,7 +307,7 @@ const exit = () => router.push({ name: 'home' })
     </Transition>
 
     <!-- Through time: a year bar instead of a separate page -->
-    <section class="ar-camera__bottom timeline text-zoom" data-no-look :aria-label="t('compare.title')">
+    <section v-show="!view360" class="ar-camera__bottom timeline text-zoom" data-no-look :aria-label="t('compare.title')">
       <p class="timeline__head">
         <b>{{ yearLabel(shownPhoto) }}</b>
         <span v-if="shownPhoto.archival" class="timeline__tag">{{ t('compare.archival') }}</span>

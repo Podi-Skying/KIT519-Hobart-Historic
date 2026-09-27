@@ -68,6 +68,7 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
    - `http://localhost:5173/*`
    - `https://podi-skying.github.io/*`
    若有設定 **API restrictions**，需同時勾選 Maps JavaScript API 與 Routes API。
+   AR 頁的 **360° 街景**（`StreetViewPanorama`）屬於 Maps JavaScript API，不需另外啟用：動態街景每月前 5,000 次載入免費，尋找最近全景的 metadata 查詢不收費。依 Google 條款不下載或快取街景圖片，畫面保留 Google 標示。
    （Maps JS 的 key 會出現在網頁原始碼中，這是正常設計；靠網域限制防止他人盜用。）
 3. 本機：複製 `.env.example` 成 `.env.local`，填入 `VITE_GOOGLE_MAPS_API_KEY`。`.env.local` 不會被 git 追蹤。
 4. 線上版：GitHub repo → **Settings → Secrets and variables → Actions → New repository secret**，新增 `GOOGLE_MAPS_API_KEY`。下次部署時自動套用。
@@ -232,7 +233,7 @@ hobart-heritage/
 | `/map` | MapView | Map |
 | `/navigate/:id` | → 導向 `/navigate/:id/map`（舊網址相容） | Map |
 | `/navigate/:id/map` · `/ar` · `/print` | 標準（預設）／AR／列印導航；在導航畫面用 `NavigationModeSheet` 切換 | Map |
-| `/ar/:id?` | ArCameraView（無 id = 最近的景點；穿越時光在畫面內播放）· 舊網址 `/ar/:id/compare` 導向這裡 | AR |
+| `/ar/:id?` | ArCameraView（無 id = 最近的景點；穿越時光在畫面內播放；右上 360° 按鈕切換 Google 街景）· 舊網址 `/ar/:id/compare` 導向這裡 | AR |
 | `/weather` | WeatherView | Weather |
 
 不存在的景點 id 會被 `beforeEnter` 導回 Home；未知路徑一律導回 Home。

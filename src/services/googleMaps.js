@@ -67,3 +67,14 @@ export function loadGoogleMaps() {
 
   return loading
 }
+
+/**
+ * The Street View library (360° panoramas), on the same key and script as the map.
+ * Billing: Dynamic Street View — 5,000 free panorama loads a month; the nearest-panorama
+ * lookup (StreetViewService) is Street View Metadata, which is free.
+ * @returns {Promise<{ StreetViewPanorama: any, StreetViewService: any, StreetViewSource: any, StreetViewPreference: any }>}
+ */
+export async function loadStreetView() {
+  await loadGoogleMaps()
+  return window.google.maps.importLibrary('streetView')
+}
