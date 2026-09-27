@@ -139,8 +139,11 @@ onBeforeUnmount(() => player.pause())
 }
 .wave i {
   width: 4px;
-  height: 5px;
-  border-radius: 2px;
+  height: 26px;
+  /* animate scaleY, not height: stays on the compositor, no layout per frame */
+  transform: scaleY(calc(5 / 26));
+  transform-origin: bottom;
+  border-radius: var(--r-pill);
   background: var(--cream);
 }
 .wave.is-playing i {
@@ -160,7 +163,7 @@ onBeforeUnmount(() => player.pause())
 .track__times {
   display: flex;
   justify-content: space-between;
-  font: 600 12px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-500);
 }
 .controls {
@@ -172,10 +175,12 @@ onBeforeUnmount(() => player.pause())
 }
 .controls__skip {
   min-width: var(--hit);
+  min-height: var(--hit);
+  justify-content: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font: 600 11px var(--font-label);
+  font: var(--t-micro);
   color: var(--ink-700);
 }
 .controls__play {
@@ -197,7 +202,7 @@ onBeforeUnmount(() => player.pause())
   border-radius: var(--r-md);
   background: var(--accent-50);
   color: var(--ink-700);
-  font: 400 13px/19px var(--font-body);
+  font: var(--t-body-sm);
 }
 .notice :deep(svg) {
   flex-shrink: 0;
@@ -213,7 +218,7 @@ onBeforeUnmount(() => player.pause())
   border: 1.5px solid var(--sand);
   border-radius: var(--r-md);
   background: var(--paper);
-  font: 400 14px/22px var(--font-body);
+  font: var(--t-reading);
 }
 .transcript li + li {
   margin-top: var(--s-2);
@@ -225,16 +230,16 @@ onBeforeUnmount(() => player.pause())
 @media (prefers-reduced-motion: reduce) {
   .wave.is-playing i {
     animation: none;
-    height: 14px; /* static 'playing' bars */
+    transform: scaleY(0.55); /* static 'playing' bars */
   }
 }
 @keyframes wave {
   0%,
   100% {
-    height: 5px;
+    transform: scaleY(calc(5 / 26));
   }
   50% {
-    height: 26px;
+    transform: scaleY(1);
   }
 }
 </style>

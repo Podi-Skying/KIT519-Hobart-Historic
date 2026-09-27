@@ -48,14 +48,14 @@ defineProps({
   display: block;
   margin-top: var(--s-2);
   font: var(--t-caption);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-caption);
   text-transform: uppercase;
   color: var(--accent-700);
 }
 .rail__caption {
   display: block;
   margin-top: 2px;
-  font: 600 13px/18px var(--font-label);
+  font: var(--t-label);
   color: var(--ink-900);
 }
 </style>

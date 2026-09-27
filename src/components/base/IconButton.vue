@@ -56,8 +56,8 @@ defineProps({
 .icon-btn--glass {
   background: var(--glass);
   color: var(--cream);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
 }
 .icon-btn--float {
   border-radius: var(--r-md);

@@ -56,7 +56,7 @@ const LABELS = [
   height: 100%;
 }
 .backdrop__labels {
-  font: 600 9px var(--font-label);
+  font: var(--t-micro);
   fill: var(--map-label);
 }
 </style>

@@ -153,7 +153,8 @@ const print = () => window.print()
   gap: var(--s-2);
   padding: 7px 0;
   border-bottom: 1px dashed var(--sand);
-  font: 500 13px/18px var(--font-body);
+  font: var(--t-body-sm);
+  font-weight: 500;
   color: var(--ink-900);
 }
 .paper__steps li :deep(svg) {
@@ -161,7 +162,7 @@ const print = () => window.print()
   color: var(--ink-500);
 }
 .paper__steps small {
-  font: 600 12px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-500);
   white-space: nowrap;
 }
@@ -185,7 +186,7 @@ const print = () => window.print()
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  font: 700 15px/20px var(--font-heading);
+  font: var(--t-card-title);
   color: var(--ink-900);
 }
 /* Same numbered pin as on the map above */
@@ -199,18 +200,19 @@ const print = () => window.print()
   border-radius: 50%;
   background: var(--ink-900);
   color: var(--paper);
-  font: 700 11px var(--font-label);
+  font: var(--t-micro);
+  font-weight: 700;
 }
 .fact__pin.is-destination {
   background: var(--brand-600);
 }
 .fact__meta {
   margin: 4px 0 6px;
-  font: 600 11px/16px var(--font-label);
+  font: var(--t-micro);
   color: var(--ink-500);
 }
 .fact__text {
-  font: 400 13px/19px var(--font-body);
+  font: var(--t-body-sm);
   color: var(--ink-700);
 }
 .paper__notes-label {

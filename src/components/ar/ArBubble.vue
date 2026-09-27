@@ -97,7 +97,7 @@ function onPointerUp() {
   border-radius: var(--r-pill);
   background: var(--glass);
   color: var(--cream);
-  font: 600 11px var(--font-label);
+  font: var(--t-micro);
 }
 @keyframes pop {
   from {

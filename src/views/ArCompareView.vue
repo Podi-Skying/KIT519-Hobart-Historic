@@ -4,7 +4,8 @@
  * views), newest first. One slider blends continuously from photo to photo, the way
  * the original past ↔ today slider did for two; the compact card names the nearest
  * photo's year and story so the photo keeps most of the screen. Arrow keys on the
- * slider (and swiping the photo) jump a whole photo.
+ * slider jump a whole photo; dragging on the photo scrubs the blend 1:1 (one screen width =
+ * one photo) and a flick carries on to wherever its momentum lands.
  */
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,6 +13,7 @@ import IconButton from '@/components/base/IconButton.vue'
 import { useContent } from '@/i18n/content'
 import { useGoBack } from '@/composables/useGoBack'
 import { siteTimeline } from '@/lib/sites'
+import { useSwipePager } from '@/composables/useSwipePager'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -19,8 +21,6 @@ const props = defineProps({
 
 /** Slider units per photo. */
 const STEP = 100
-/** Horizontal travel (px) that counts as a swipe on the photo. */
-const SWIPE = 48
 
 const { t } = useI18n()
 const { siteById } = useContent()
@@ -53,31 +53,33 @@ function onKey(e) {
   goTo(nearest.value + step)
 }
 
-// Swipe the photo: left = older, right = newer
-let swipeX = null
-const swipe = {
-  pointerdown: (e) => (swipeX = e.clientX),
-  pointerup: (e) => {
-    if (swipeX === null) return
-    const dx = e.clientX - swipeX
-    swipeX = null
-    if (dx < -SWIPE) goTo(nearest.value + 1)
-    else if (dx > SWIPE) goTo(nearest.value - 1)
+// Drag the photo: left = older, right = newer. The blend follows the finger continuously
+// (continuous feedback during the gesture), holds at the newest/oldest photo, and on
+// release snaps to the photo nearest to where the flick's momentum would carry it.
+const stage = ref(null)
+let dragStart = 0
+const widthPx = () => stage.value?.clientWidth || 360
+const pager = useSwipePager({
+  onStart: () => (dragStart = blend.value),
+  onMove(dx) {
+    blend.value = Math.min(Math.max(dragStart - (dx / widthPx()) * STEP, 0), last.value * STEP)
   },
-  pointercancel: () => (swipeX = null),
-}
+  onRelease({ projected }) {
+    goTo(Math.round((dragStart - (projected / widthPx()) * STEP) / STEP))
+  },
+})
 
 const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
 </script>
 
 <template>
   <div class="compare">
-    <div class="compare__stage" v-on="swipe">
+    <div ref="stage" class="compare__stage" v-on="pager.handlers">
       <img
         v-for="(p, i) in photos"
         :key="p.image"
         class="compare__layer"
-        :class="{ 'is-animated': blend % STEP === 0 }"
+        :class="{ 'is-animated': blend % STEP === 0 && !pager.dragging.value }"
         :src="p.image"
         :alt="i === nearest ? t('compare.photoAlt', { name: site.name, year: yearLabel(p) }) : ''"
         :aria-hidden="i === nearest ? undefined : 'true'"
@@ -173,14 +175,14 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
 }
 .compare__title span {
-  font: 600 11px var(--font-label);
-  letter-spacing: 0.12em;
+  font: var(--t-micro);
+  letter-spacing: var(--track-caption);
   text-transform: uppercase;
   opacity: 0.9;
 }
 .compare__title b {
   overflow: hidden;
-  font: 700 18px var(--font-heading);
+  font: var(--t-title);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -188,9 +190,9 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   padding: 6px 12px;
   border-radius: var(--r-pill);
   background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  font: 600 12px var(--font-label);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  font: var(--t-label-sm);
   white-space: nowrap;
 }
 .caption-card {
@@ -206,13 +208,13 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
 }
 .caption-card__head {
   overflow: hidden;
-  font: 600 12px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-700);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .caption-card__head b {
-  font: 700 16px var(--font-heading);
+  font: var(--t-title);
   color: var(--ink-900);
 }
 .caption-card__tag {
@@ -221,8 +223,9 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   border-radius: var(--r-pill);
   background: var(--brand-50);
   color: var(--brand-600);
-  font: 700 10px var(--font-label);
-  letter-spacing: 0.04em;
+  font: var(--t-micro);
+  font-weight: 700;
+  letter-spacing: var(--track-caption);
   text-transform: uppercase;
   vertical-align: 2px;
 }
@@ -232,7 +235,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   overflow: hidden;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  font: 400 13px/19px var(--font-body);
+  font: var(--t-body-sm);
   color: var(--ink-900);
 }
 .caption-card__slider {
@@ -244,7 +247,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  font: 600 11px var(--font-label);
+  font: var(--t-micro);
   color: var(--ink-700);
 }
 .caption-card__ticks {
@@ -257,7 +260,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--sand-dark);
+  background: var(--outline);
 }
 .caption-card__ticks i.is-on {
   background: var(--brand-600);

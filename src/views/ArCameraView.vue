@@ -230,20 +230,30 @@ const exit = () => router.push({ name: 'home' })
   width: 28px;
   height: 28px;
   border: 3px solid var(--ar-400);
-  border-radius: 4px;
+  border-radius: var(--r-xs);
 }
 .reticle i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
 .reticle i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
 .reticle i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
 .reticle i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+/* The box spans the travel range; the line inside moves with transform (compositor only, no layout). */
 .scanline {
   position: absolute;
+  top: 27%;
   left: 14%;
   right: 14%;
+  height: 40%;
+  container-type: size;
+  pointer-events: none;
+}
+.scanline::after {
+  content: '';
+  display: block;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--ar-400), transparent);
   box-shadow: 0 0 12px var(--ar-400);
   animation: scan 1.4s linear infinite;
+  will-change: transform;
 }
 .ar-camera__top {
   position: absolute;
@@ -278,13 +288,11 @@ const exit = () => router.push({ name: 'home' })
 }
 .panel__close {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 36px;
-  height: 36px;
+  top: 6px;
+  right: 6px; /* keeps IconButton's 44px */
 }
 .panel__title {
-  margin: 4px 40px var(--s-2) 0;
+  margin: 4px 44px var(--s-2) 0;
 }
 .panel__cta {
   margin-top: var(--s-4);
@@ -344,7 +352,7 @@ const exit = () => router.push({ name: 'home' })
   flex-direction: column;
 }
 .chooser__item b {
-  font: 700 15px/20px var(--font-heading);
+  font: var(--t-card-title);
   color: var(--ink-900);
 }
 .chooser__item small {
@@ -374,8 +382,8 @@ const exit = () => router.push({ name: 'home' })
   }
 }
 @keyframes scan {
-  from { top: 27%; }
-  to { top: 67%; }
+  from { transform: translateY(0); }
+  to { transform: translateY(100cqh); }
 }
 @keyframes fade {
   from { opacity: 0; }

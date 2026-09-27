@@ -17,6 +17,42 @@ const props = defineProps({
 
 const { t } = useI18n()
 const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
+
+/**
+ * The dot row works like an iOS page control: press anywhere on it and slide
+ * to scrub through the slides (each dot is only 24px wide on its own).
+ */
+let press = null // { x, id, scrubbing }
+function dotIndexAt(e) {
+  const dots = [...e.currentTarget.children]
+  let best = 0
+  dots.forEach((dot, i) => {
+    if (e.clientX >= dot.getBoundingClientRect().left) best = i
+  })
+  return best
+}
+const scrub = {
+  pointerdown(e) {
+    if (e.button !== 0) return
+    press = { x: e.clientX, id: e.pointerId, scrubbing: false }
+  },
+  pointermove(e) {
+    if (!press || e.pointerId !== press.id) return
+    if (!press.scrubbing) {
+      if (Math.abs(e.clientX - press.x) < 6) return // still a tap on one dot
+      press.scrubbing = true
+      e.currentTarget.setPointerCapture?.(e.pointerId)
+    }
+    const i = dotIndexAt(e)
+    if (i !== index.value) goTo(i)
+  },
+  pointerup() {
+    press = null
+  },
+  pointercancel() {
+    press = null
+  },
+}
 </script>
 
 <template>
@@ -68,7 +104,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
         <AppIcon name="back" :size="18" :stroke-width="2.4" />
       </button>
 
-      <div class="controls__dots" role="tablist" :aria-label="t('home.chooseSite')">
+      <div class="controls__dots" role="tablist" :aria-label="t('home.chooseSite')" v-on="scrub">
         <button
           v-for="(site, i) in props.sites"
           :key="site.id"
@@ -153,7 +189,8 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
   border-radius: var(--r-sm);
   background: rgba(255, 255, 255, 0.94);
   color: var(--ink-900);
-  font: 700 12px var(--font-label);
+  font: var(--t-label-sm);
+  font-weight: 700;
 }
 .rank-card__caption {
   position: absolute;
@@ -168,18 +205,18 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
   padding: 4px 10px;
   border-radius: var(--r-pill);
   background: var(--brand-600);
-  font: 600 11px var(--font-label);
+  font: var(--t-micro);
 }
 .rank-card__name {
   margin-top: 6px;
-  font: 700 18px/1.25 var(--font-heading);
+  font: var(--t-title);
 }
 .rank-card__meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 11px 14px;
-  font: 400 12px var(--font-body);
+  font: var(--t-meta);
   color: var(--ink-500);
 }
 .rank-card__accessible {
@@ -223,6 +260,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
 .controls__dots {
   display: flex;
   align-items: center;
+  touch-action: pan-y; /* horizontal slides scrub the dots */
 }
 /* 24px hit area around a 6px dot */
 .controls__dot {
@@ -235,8 +273,8 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
 .controls__dot i {
   width: 6px;
   height: 6px;
-  border-radius: 3px;
-  background: var(--sand-dark);
+  border-radius: var(--r-pill);
+  background: var(--outline);
   transition: width var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 .controls__dot.is-active i {

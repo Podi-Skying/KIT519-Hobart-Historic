@@ -84,7 +84,13 @@ const likes = computed(() => favorites.likeCount(props.site))
   border-radius: var(--r-pill);
   background: rgba(125, 48, 69, 0.88);
   color: var(--paper);
-  font: 700 11px var(--font-label);
+  font: var(--t-micro);
+  font-weight: 700;
+}
+.grid-card__like::before {
+  content: '';
+  position: absolute;
+  inset: -9px -6px; /* invisible 44×44 touch area around a smaller visual (Apple HIG minimum) */
 }
 .grid-card__like.is-liked {
   background: var(--brand-600);
@@ -93,7 +99,7 @@ const likes = computed(() => favorites.likeCount(props.site))
   padding: 9px 11px 11px;
 }
 .grid-card__name {
-  font: 700 13.5px/1.3 var(--font-heading);
+  font: var(--t-card-title);
   color: var(--ink-900);
 }
 .grid-card__link::after {
@@ -110,7 +116,7 @@ const likes = computed(() => favorites.likeCount(props.site))
 }
 .grid-card__meta {
   margin-top: 3px;
-  font: 400 11px var(--font-body);
+  font: var(--t-meta);
   color: var(--ink-500);
 }
 </style>

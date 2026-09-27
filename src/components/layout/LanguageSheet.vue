@@ -96,7 +96,7 @@ function choose(code, dismiss) {
   align-items: center;
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline);
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: left;
@@ -123,11 +123,12 @@ function choose(code, dismiss) {
   flex-direction: column;
 }
 .option__text b {
-  font: 600 16px/22px var(--font-label);
+  font: var(--t-h3);
+  font-weight: 600;
   color: var(--ink-900);
 }
 .option__text small {
-  font: 400 12px var(--font-body);
+  font: var(--t-meta);
   color: var(--ink-500);
 }
 .option__check {
@@ -137,7 +138,7 @@ function choose(code, dismiss) {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid var(--sand-dark);
+  border: 1.5px solid var(--outline);
   color: var(--paper);
 }
 .option.is-selected .option__check {
@@ -151,7 +152,7 @@ function choose(code, dismiss) {
   flex-shrink: 0;
   padding: 3px;
   border-radius: var(--r-pill);
-  background: var(--sand-dark);
+  background: var(--outline); /* off track: knob stays distinguishable */
   transition: background var(--dur) var(--ease);
 }
 .switch__knob {

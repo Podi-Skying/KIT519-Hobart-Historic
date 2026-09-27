@@ -60,7 +60,7 @@ onBeforeUnmount(() => resizeObserver?.disconnect())
 const PEEK_RAISE = 16
 const browseOpen = ref(true)
 const reopened = ref(false)
-const sheetDrag = useSheetDrag(() => (browseOpen.value = false))
+const sheetDrag = useSheetDrag(() => (browseOpen.value = false), { element: () => panel.value })
 
 function openBrowse() {
   browseOpen.value = true
@@ -166,7 +166,7 @@ function toggleOffline() {
       ref="panel"
       class="panel"
       :class="{ 'is-dragging': sheetDrag.dragging.value }"
-      :style="selected ? null : sheetDrag.style.value"
+      :style="selected ? null : [sheetDrag.style.value, sheetDrag.easing.value ? { '--release-ease': sheetDrag.easing.value } : null]"
     >
       <!-- Selected destination -->
       <section v-if="selected" class="panel__selected text-zoom" :aria-label="t('map.selected')">
@@ -248,7 +248,8 @@ function toggleOffline() {
 .map-view__map {
   position: absolute;
   inset: 0;
-  transition: bottom var(--dur) var(--ease);
+  /* No transition on `bottom`: animating it would re-lay-out the map every frame. It resizes
+     once, underneath the opaque panel, while the panel itself animates with transform. */
 }
 .map-view__controls {
   position: absolute;
@@ -269,9 +270,10 @@ function toggleOffline() {
   overflow-y: auto;
   background: var(--cream);
   border-radius: var(--r-xl) var(--r-xl) 0 0;
-  box-shadow: var(--e-3);
+  /* 2nd shadow = a cream skirt below the panel, so an upward rubber-band pull never shows a gap */
+  box-shadow: var(--e-3), 0 160px 0 0 var(--cream);
   scrollbar-width: none;
-  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  transition: transform var(--dur) var(--release-ease, var(--ease)), opacity var(--dur) var(--ease);
 }
 .panel.is-dragging {
   transition: none;
@@ -307,8 +309,8 @@ function toggleOffline() {
   align-items: flex-start;
   justify-content: center;
   width: 96px;
-  height: 32px;
-  margin: calc(-1 * var(--s-3)) auto 0;
+  height: var(--hit);
+  margin: calc(-1 * var(--s-3)) auto calc(-1 * var(--s-3));
   padding-top: var(--s-3);
 }
 .panel__hide .panel__grip {
@@ -319,7 +321,7 @@ function toggleOffline() {
   width: 40px;
   height: 4px;
   margin: 0 auto var(--s-3);
-  border-radius: 2px;
+  border-radius: var(--r-pill);
   background: var(--sand-dark);
 }
 .panel__label {
@@ -368,7 +370,7 @@ function toggleOffline() {
   color: var(--accent-700);
 }
 .nearest__text b {
-  font: 700 16px/22px var(--font-heading);
+  font: var(--t-title);
   color: var(--ink-900);
 }
 .nearest__text small {
@@ -396,7 +398,7 @@ function toggleOffline() {
   min-width: 0;
 }
 .selected__name {
-  font: 700 17px/22px var(--font-heading);
+  font: var(--t-title);
   color: var(--ink-900);
 }
 .stop-chips {
@@ -416,10 +418,11 @@ function toggleOffline() {
   border-radius: var(--r-pill);
   background: var(--paper);
   border: 1.5px solid var(--sand);
-  font: 600 12px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-900);
 }
 .stop-chips button {
+  position: relative;
   width: 20px;
   height: 20px;
   display: flex;
@@ -427,6 +430,11 @@ function toggleOffline() {
   justify-content: center;
   border-radius: 50%;
   background: var(--sand-fill);
+}
+.stop-chips button::before {
+  content: '';
+  position: absolute;
+  inset: -12px; /* invisible 44×44 touch area around a smaller visual (Apple HIG minimum) */
 }
 @keyframes slide-up {
   from {

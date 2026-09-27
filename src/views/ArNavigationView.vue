@@ -173,7 +173,8 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
   box-shadow: var(--e-3);
 }
 .ar-nav__eta {
-  font: 700 26px var(--font-heading);
+  font: var(--t-metric);
+  letter-spacing: var(--track-h1);
   color: var(--success-600);
 }
 @media (prefers-reduced-motion: reduce) {

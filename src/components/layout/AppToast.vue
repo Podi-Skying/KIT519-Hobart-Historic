@@ -34,7 +34,7 @@ const ui = useUiStore()
   border-radius: var(--r-md);
   background: var(--ink-900);
   color: var(--cream);
-  font: 600 14px var(--font-label);
+  font: var(--t-button);
   box-shadow: var(--e-2);
 }
 .toast__spinner {

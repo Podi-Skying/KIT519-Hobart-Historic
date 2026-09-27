@@ -113,7 +113,7 @@ const routeType = computed({
   gap: 4px;
 }
 .mode__title {
-  font: 700 18px/24px var(--font-heading);
+  font: var(--t-title);
   color: var(--ink-900);
 }
 .mode__description {

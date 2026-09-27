@@ -154,6 +154,15 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   align-items: center;
   transform: translate(-50%, -100%);
 }
+.pin::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: var(--hit);
+  height: var(--hit);
+  transform: translateX(-50%); /* invisible 44×44 touch area around a smaller visual (Apple HIG minimum) */
+}
 .pin:disabled {
   cursor: default;
 }
@@ -173,7 +182,8 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
 .pin__head b {
   transform: rotate(45deg);
   color: var(--cream);
-  font: 700 12px var(--font-label);
+  font: var(--t-label-sm);
+  font-weight: 700;
 }
 .pin.is-selected .pin__head {
   background: var(--brand-600);
@@ -183,10 +193,11 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   position: absolute;
   top: calc(100% + 6px);
   padding: 2px 7px;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
   background: var(--paper);
   color: var(--ink-900);
-  font: 700 10px var(--font-label);
+  font: var(--t-micro);
+  font-weight: 700;
   white-space: nowrap;
   box-shadow: var(--e-1);
 }

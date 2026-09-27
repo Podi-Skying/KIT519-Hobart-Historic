@@ -28,7 +28,8 @@ defineProps({
   border-radius: var(--r-md);
   background: var(--ink-900);
   color: var(--cream);
-  font: 600 15px var(--font-label);
+  font: var(--t-h3);
+  font-weight: 600;
   white-space: nowrap;
   box-shadow: var(--e-2);
 }

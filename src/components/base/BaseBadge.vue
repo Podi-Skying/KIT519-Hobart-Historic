@@ -23,7 +23,7 @@ defineProps({
   align-items: center;
   gap: 5px;
   border-radius: var(--r-pill);
-  font: 600 12px/1 var(--font-label);
+  font: var(--t-label-sm);
   white-space: nowrap;
 }
 .badge--md {

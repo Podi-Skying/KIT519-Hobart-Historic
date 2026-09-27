@@ -40,12 +40,15 @@ const current = computed(() => localeInfo(locale.value))
   border-radius: var(--r-pill);
   background: var(--sand-fill);
   color: var(--ink-900);
-  font: 700 12px var(--font-label);
+  font: var(--t-label-sm);
+  font-weight: 700;
   white-space: nowrap;
 }
 .language-button__aa {
   padding-left: 8px;
   border-left: 1.5px solid var(--sand-dark);
-  font: 700 13px var(--font-heading);
+  font: var(--t-label);
+  font-family: var(--font-heading);
+  font-weight: 700;
 }
 </style>

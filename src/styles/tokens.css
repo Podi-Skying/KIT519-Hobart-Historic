@@ -23,7 +23,8 @@
   --parchment: #faf6f0; /* subtle inset surfaces */
   --sand: #e8dcc8; /* borders, outlines */
   --sand-fill: #e8dcc8; /* quiet buttons — stays light in high contrast */
-  --sand-dark: #d4c4a8; /* inactive indicators */
+  --sand-dark: #d4c4a8; /* decorative only (grips, placeholders) — below 3:1, never a control's only boundary */
+  --outline: #958568; /* control boundaries & inactive indicators · 3.6:1 on paper, 3.15:1 on cream (WCAG 1.4.11) */
 
   /* ---- Accent · Sunset Amber — highlights only, never body text ---- */
   --accent-700: #8f5217; /* amber text on cream (5.4:1) */
@@ -43,13 +44,16 @@
   --photo-veil-top: rgba(44, 36, 23, 0.55);
   --photo-veil-bottom: rgba(44, 36, 23, 0.78);
 
+  /* ---- Weather hero card (charcoal → burgundy → dark amber; cream text ≥ 4.9:1 at every stop) ---- */
+  --weather-hero: linear-gradient(160deg, #3b3326 0%, #6b3a3f 55%, #98572f 100%);
+
   /* ---- Map (warm, low-contrast so pins stand out) ---- */
   --map-land: #ede8e0;
   --map-block: #e0d8ca;
   --map-road: #ffffff;
   --map-park: #dde5d2;
   --map-water: #cfdce2;
-  --map-label: #968b78;
+  --map-label: #6e6352; /* 4.8:1 on map land */
 
   /* ---- Typography — four roles ---- */
   --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
@@ -66,6 +70,28 @@
   --t-small: 500 13px/18px var(--font-body);
   --t-label: 600 13px/16px var(--font-label);
   --t-caption: 700 11px/14px var(--font-label); /* uppercase, +0.08em */
+  /* Supporting roles (use these instead of writing px sizes in components). 11px is the floor. */
+  --t-numeral: 700 58px/1 var(--font-heading); /* big data: temperature */
+  --t-metric: 700 26px/30px var(--font-heading); /* ETA */
+  --t-title: 700 17px/22px var(--font-heading); /* card & sheet-row titles */
+  --t-card-title: 700 15px/20px var(--font-heading); /* small card titles */
+  --t-strong: 700 17px/22px var(--font-label); /* instruction, stat value */
+  --t-button: 600 14px/20px var(--font-label); /* buttons, toast, verdict */
+  --t-label-sm: 600 12px/16px var(--font-label); /* chips' meta, counters, times */
+  --t-micro: 600 11px/14px var(--font-label); /* smallest label: tags, tab bar, axis */
+  --t-reading: 400 14px/22px var(--font-body); /* transcript, advice */
+  --t-body-sm: 400 13px/19px var(--font-body); /* notices, captions */
+  --t-meta: 400 12px/16px var(--font-body); /* secondary line under a title */
+  --t-input: 500 14px/20px var(--font-body); /* text fields, status bar */
+  --t-script: 600 27px/26px var(--font-script); /* decoration only */
+
+  /* Tracking is size-specific: large type tightens, small caps open up, body stays 0. */
+  --track-hero: -0.02em;
+  --track-display: -0.015em;
+  --track-h1: -0.01em;
+  --track-caption: 0.08em; /* uppercase captions */
+  --track-cta: 0.16em; /* the round Tap-to-start label */
+  --track-caps-wide: 0.28em; /* splash-only display caps */
 
   /* ---- Spacing — 4 pt grid ---- */
   --s-1: 4px;
@@ -79,6 +105,7 @@
   --safe-top: 44px; /* status bar height */
 
   /* ---- Radius ---- */
+  --r-xs: 4px; /* tiny marks: reticle corners, chart bars, map labels */
   --r-sm: 8px;
   --r-md: 12px;
   --r-lg: 16px;
@@ -134,4 +161,33 @@
   --photo-veil-top: rgba(28, 22, 14, 0.7);
   --photo-veil-bottom: rgba(28, 22, 14, 0.88);
   --focus-ring: 0 0 0 3px #2c2417;
+  --outline: #6e6352;
+}
+
+/* The system "Increase contrast" setting gets the same tokens as the in-app High contrast switch. */
+@media (prefers-contrast: more) {
+  :root {
+    --ink-700: #2c2417;
+    --ink-500: #3f3528;
+    --ink-300: #7a6e5c;
+    --sand: #8c7b5e;
+    --sand-dark: #6e6352;
+    --brand-100: #7d3045;
+    --glass: rgba(28, 22, 14, 0.82);
+    --photo-veil-top: rgba(28, 22, 14, 0.7);
+    --photo-veil-bottom: rgba(28, 22, 14, 0.88);
+    --focus-ring: 0 0 0 3px #2c2417;
+    --outline: #6e6352;
+  }
+}
+
+/* "Reduce transparency": frosted glass becomes solid (components drop their blur via --glass-blur). */
+:root {
+  --glass-blur: blur(12px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass: rgba(44, 36, 23, 0.94);
+    --glass-blur: none;
+  }
 }

@@ -157,6 +157,8 @@ hobart-heritage/
 │   │   ├── polyline.js        # Google encoded polyline 解碼
 │   │   ├── guidance.js        # 逐步導航：依位置判斷下一個轉彎
 │   │   ├── format.js          # formatClock / pluralize / formatKm
+│   │   ├── gesture.js         # 手勢物理：動量投射、橡皮筋、速度追蹤、放開速度接續動畫
+│   │   ├── pageTransition.js  # 換頁轉場判斷（push / pop / fade）
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
 │   ├── services/googleMaps.js # Google Maps API 載入器（讀取 VITE_ 環境變數）
@@ -173,7 +175,8 @@ hobart-heritage/
 │   │   └── ui.js              # Toast、狀態列底色
 │   ├── composables/           # 可重用的組合式函式
 │   │   ├── useCarousel.js     # 吸附輪播 + 桌機拖曳
-│   │   ├── useSwipe.js        # 左右滑動
+│   │   ├── useSheetDrag.js    # 底部面板拖曳（BottomSheet 與 Map 面板共用）
+│   │   ├── useSwipePager.js   # 相片 1:1 左右滑動（相簿、穿越時光）
 │   │   ├── useKeydown.js      # 頁面鍵盤快捷鍵
 │   │   ├── useGoBack.js       # 返回（沒有歷史紀錄時走 fallback）
 │   │   └── useWalkingRoute.js # 目前位置 → 景點的步行路線（所有導航畫面共用）
@@ -298,8 +301,11 @@ hobart-heritage/
 | `--cream` | `#F5EFE6` | **頁面底色**（每個畫面約 60%） |
 | `--paper` | `#FFFFFF` | 卡片、Home 標頭與輪播區、Tab bar |
 | `--parchment` | `#FAF6F0` | 列表 hover 等內嵌表面 |
-| `--sand` | `#E8DCC8` | 邊框、chip 外框、安靜按鈕 |
-| `--sand-dark` | `#D4C4A8` | 未啟用指示點、筆記虛線 |
+| `--sand` | `#E8DCC8` | 卡片、提示框等**裝飾性**邊框 |
+| `--sand-dark` | `#D4C4A8` | 拖曳把手、筆記虛線（僅裝飾） |
+| `--outline` | `#958568` | **可點元件的外框**與未啟用指示點：chip、次要按鈕、搜尋框、路線類型、清單選項、勾選圈、開關底色、輪播圓點。白底 3.6:1、米底 3.15:1（WCAG 1.4.11 ≥ 3:1） |
+
+> 規則：外框是「辨認這是一個控制項」的唯一線索時，用 `--outline`；只是分隔版面時才用 `--sand`。
 
 #### 點綴色 Accent — Sunset Amber
 
@@ -326,6 +332,10 @@ hobart-heritage/
 ███████████████████                    30%  砂岩炭灰（文字、深色元件）
 ██████                                 10%  勃根地紅 7% ＋ 琥珀 3%（行動、點綴）
 ```
+
+#### 天氣主卡
+
+`--weather-hero`：炭灰 → 勃根地 → 深琥珀漸層，米色文字在整條漸層上都 ≥ 4.9:1。
 
 #### 照片上的文字
 
@@ -354,6 +364,30 @@ hobart-heritage/
 | `--t-label` | Montserrat 600 · 13 / 16 | 按鈕、chip |
 | `--t-caption` | Montserrat 700 · 11 / 14，大寫、字距 +8% | 「CONVICT HERITAGE · SOUTH HOBART」 |
 
+輔助字級（元件裡**不再寫 px**，一律引用 token；必要時只另外覆寫 `font-weight`）：
+
+| Token | 規格 | 範例 |
+| --- | --- | --- |
+| `--t-numeral` | Playfair 700 · 58 / 1 | 天氣溫度 |
+| `--t-metric` | Playfair 700 · 26 / 30 | 導航 ETA |
+| `--t-title` | Playfair 700 · 17 / 22 | 卡片與清單列標題、輪播景點名 |
+| `--t-card-title` | Playfair 700 · 15 / 20 | 小卡片標題 |
+| `--t-strong` | Montserrat 700 · 17 / 22 | 導航指示、天氣數值 |
+| `--t-button` | Montserrat 600 · 14 / 20 | 按鈕、Toast、取消 |
+| `--t-label-sm` | Montserrat 600 · 12 / 16 | 時間、計數、徽章 |
+| `--t-micro` | Montserrat 600 · 11 / 14 | 最小標籤：Tab bar、圖釘、圖表軸、標記 |
+| `--t-reading` | Inter 400 · 14 / 22 | 逐字稿 |
+| `--t-body-sm` | Inter 400 · 13 / 19 | 提示框、說明 |
+| `--t-meta` | Inter 400 · 12 / 16 | 標題下的次要資訊 |
+| `--t-input` | Inter 500 · 14 / 20 | 輸入框、狀態列 |
+| `--t-script` | Caveat 600 · 27 / 26 | Leading page 點綴 |
+
+- **最小字級 11px**（Apple 最小 11pt）；地圖、圖表、AR 的標籤也不例外。
+- **字距跟著字級走**（Apple *The Details of UI Typography*）：大字收緊、小型大寫放寬、內文維持 0。
+  `--track-hero` −0.02em（52px、溫度 58px）· `--track-display` −0.015em · `--track-h1` −0.01em（24–30px、ETA）· 內文 0 ·
+  `--track-caption` +0.08em（11px 大寫）· `--track-cta` +0.16em（Tap to start）· `--track-caps-wide` +0.28em（只用在 Leading page）。
+  `.t-hero` / `.t-display` / `.t-h1` / `.t-caption` 工具類已內含字距。
+
 - 數字一律使用齊線數字（`lining-nums`），避免 Playfair 預設的舊式數字造成時間／溫度高低不一。
 - 行長控制在 45–75 字元；內文不使用粗體強調超過一句。
 
@@ -378,11 +412,12 @@ hobart-heritage/
 
 | 類別 | Token | 用途 |
 | --- | --- | --- |
-| 圓角 | `--r-sm` 8 | 縮圖、排名標 |
-| | `--r-md` 12 | 按鈕、輸入框、提示卡 |
+| 圓角 | `--r-xs` 4 | 極小標記：AR 取景框角、圖表長條頂端、圖釘標籤、Tab 指示條 |
+| | `--r-sm` 8 | 排名標、清單縮圖 |
+| | `--r-md` 12 | 按鈕、輸入框、提示卡、清單列、小磚塊（天氣數值、預報）、相片縮圖 |
 | | `--r-lg` 16 | 卡片、相片 |
 | | `--r-xl` 24 | 底部面板、主視覺卡 |
-| | `--r-pill` | chip、徽章、搜尋列、分段控制 |
+| | `--r-pill` | chip、徽章、搜尋列、分段控制、**小按鈕（`size="sm"`）**、拖曳把手、指示點 |
 | 陰影 | `--e-1` | 卡片 hover、浮在照片上的按鈕 |
 | | `--e-2` | 浮動控制（地圖按鈕、Toast、彈出卡） |
 | | `--e-3` | 由下往上的面板 |
@@ -390,6 +425,8 @@ hobart-heritage/
 | | `--dur-page` 380ms，曲線 `--ease-page` | 換頁（見下方「換頁轉場」） |
 | | `--motion` 1／0 | 所有位移、縮放、傾斜都乘上它；減少動態效果時為 0 |
 | 按壓 | `--press-scale` 0.96 · `--press-scale-card` 0.98 · `--press-dim` 0.55 | 按下回饋（見下方） |
+
+**圓角規則：** 同一種角色用同一種形狀。同一列的小型控制項（chip、搜尋框、小按鈕）一律膠囊形；卡片 16；清單列與小磚塊 12；只有裝置外框（`DeviceFrame` 44px）例外。
 
 **按下回饋（Apple：手指一碰到就回應，不等放開）**
 
@@ -415,6 +452,18 @@ hobart-heritage/
 | 第一次載入、同一路徑 | `none` | 不播放 |
 
 新舊兩頁**同時**進行（不用 `mode="out-in"`），點下去不必先等舊頁淡出。
+
+**手勢（Apple *Designing Fluid Interfaces*；物理在 `lib/gesture.js`，有單元測試）**
+
+- **底部面板**（`BottomSheet`、Map 瀏覽面板，共用 `useSheetDrag`）：
+  - 往下 1:1 跟手；往上超過原位會**橡皮筋**阻力（`rubberband`），不會硬停。面板底下有同色「裙邊」陰影，往上拉不會露出縫。
+  - 放開時的速度只取最後約 100ms（`createVelocityTracker`），用 Apple 的動量投射（`project`，減速率 0.99）判斷落點：投射後超過 96px 就關閉，否則彈回。
+  - **速度接續**：放開後的動畫曲線起始斜率 = 手指速度（`releaseEasing` → CSS 變數 `--release-ease`），拖曳和動畫之間沒有接縫。
+  - **可中斷**：面板正在彈回或滑出時再抓住它，會從它當下在畫面上的位置接著跟手（讀取 computed transform），不必等動畫跑完。
+  - ✕、Esc、點背景關閉都走同一條 `dismiss()` 動畫。
+- **相簿**：照片 1:1 跟著手指左右移動；放開時依投射落點決定換下一張或彈回，新舊照片一起滑動並接續手指速度。只有一張照片時兩端橡皮筋。
+- **穿越時光**：在照片上拖曳直接連續調整漸變（一個螢幕寬 = 一張照片），放開吸附到動量落點最近的一張。
+- **輪播圓點**：整排可以按住左右滑動來切換（像 iOS 的 page control）。
 
 **減少動態效果（`prefers-reduced-motion`）**
 
@@ -449,12 +498,14 @@ hobart-heritage/
 ### 5.8 無障礙檢查清單
 
 - [x] 文字對比 ≥ 4.5:1，大字 ≥ 3:1
-- [x] 所有可點擊元素 ≥ 44×44px
+- [x] 所有可點擊元素 ≥ 44×44px（視覺較小的元件——按讚、清除搜尋、移除停靠點、地圖圖釘、chip——用透明的 `::before` 擴大觸控區）
 - [x] 圖示按鈕皆有 `aria-label`；切換類按鈕有 `aria-pressed`
 - [x] 單選群組使用 `role="radiogroup"` / `aria-checked`
 - [x] 鍵盤：Tab 聚焦環（`--focus-ring`）、Enter/Space 啟動、Esc 關閉面板、相簿支援 ← →
 - [x] 動態訊息（Toast、掃描狀態、搜尋結果）使用 `aria-live`
-- [x] 支援 `prefers-reduced-motion`
+- [x] 支援 `prefers-reduced-motion`（改為淡入淡出，見 5.5）
+- [x] 支援 `prefers-contrast: more`（套用與 App 內「高對比」相同的 token）與 `prefers-reduced-transparency`（毛玻璃改為實色，`--glass-blur: none`）
+- [x] 最小字級 11px；可點元件外框 ≥ 3:1（`--outline`）
 - [x] 放大文字：`.text-zoom` 表面（頁面、面板、Tab bar）放大 1.2 倍；地圖與相機畫面不縮放，避免座標偏移
 - [x] 高對比：`:root[data-contrast=high]` 覆寫 token，次要文字與外框加深（外框 ≥ 3:1，WCAG 1.4.11）
 - [x] 橫向捲動區可用鍵盤聚焦；圖表與 emoji 天氣圖示另有文字替代

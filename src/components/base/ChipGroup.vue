@@ -34,7 +34,7 @@ const model = defineModel({ type: String, required: true })
   scroll-padding: 0 var(--gutter);
   scrollbar-width: none;
   margin: 0 calc(var(--gutter) * -1);
-  padding: 2px var(--gutter);
+  padding: 4px var(--gutter); /* room for the chips' 44px touch area */
   /* fade the right edge to hint that the row scrolls */
   mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
@@ -47,21 +47,28 @@ const model = defineModel({ type: String, required: true })
   display: none;
 }
 .chip {
+  position: relative;
   flex-shrink: 0;
   height: 36px;
   padding: 0 var(--s-4);
   border-radius: var(--r-pill);
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline); /* ≥ 3:1 so the chip reads as a control (WCAG 1.4.11) */
   background: var(--paper);
   color: var(--ink-700);
-  font: 500 13px var(--font-label);
+  font: var(--t-label);
+  font-weight: 500;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease),
     scale var(--dur) var(--ease);
 }
 @media (hover: hover) {
   .chip:hover {
-    border-color: var(--sand-dark);
+    border-color: var(--ink-500);
   }
+}
+.chip::before {
+  content: '';
+  position: absolute;
+  inset: -5px 0; /* 36px visual, 46px touch height */
 }
 .chip.is-selected {
   background: var(--brand-600);

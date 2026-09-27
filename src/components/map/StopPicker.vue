@@ -48,7 +48,7 @@ const { t } = useI18n()
   align-items: center;
   gap: var(--s-2);
   text-align: center;
-  font: 600 12px/15px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-700);
 }
 .stop__icon {
@@ -58,7 +58,7 @@ const { t } = useI18n()
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline);
   background: var(--paper);
   color: var(--ink-900);
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease);

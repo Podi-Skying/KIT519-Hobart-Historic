@@ -52,7 +52,7 @@ defineProps({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 0.16em; /* optically centre the tracked text */
+  padding-left: var(--track-cta); /* optically centre the tracked text */
   border-radius: 50%;
   white-space: nowrap;
   /* frosted, so the photo shows through; the blur keeps the label ≥ 4.5:1 on any background.
@@ -68,9 +68,18 @@ defineProps({
   -webkit-mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
   mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
   color: var(--brand-600);
-  font: 700 clamp(9px, calc(var(--tap) * 0.07), 11.5px) var(--font-label);
-  letter-spacing: 0.16em;
+  font: 700 clamp(11px, calc(var(--tap) * 0.075), 12px) / 1 var(--font-label); /* 11px floor */
+  letter-spacing: var(--track-cta);
   text-transform: uppercase;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tap__core {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--cream);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .tap__pulse {

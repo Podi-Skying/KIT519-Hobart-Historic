@@ -93,8 +93,8 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   position: absolute;
   top: 62px;
   left: 28px;
-  font: 600 11px var(--font-label);
-  letter-spacing: 0.32em;
+  font: var(--t-micro);
+  letter-spacing: var(--track-caps-wide);
   text-transform: uppercase;
 }
 .splash__location::after {
@@ -109,7 +109,7 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   position: absolute;
   top: 86px;
   right: 24px;
-  font: 600 27px/26px var(--font-script);
+  font: var(--t-script);
   transform: rotate(-7deg);
   text-shadow: 0 2px 12px rgba(44, 36, 23, 0.35);
 }
@@ -126,8 +126,8 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   margin: clamp(164px, 21cqh, 176px) 28px 0; /* clears the tilted script */
 }
 .splash__eyebrow {
-  font: 600 11px var(--font-label);
-  letter-spacing: 0.28em;
+  font: var(--t-micro);
+  letter-spacing: var(--track-caps-wide);
   text-transform: uppercase;
 }
 .splash__title {
@@ -135,7 +135,8 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.02;
-  color: #fffaf3;
+  letter-spacing: var(--track-hero);
+  color: var(--cream);
   text-shadow: 0 2px 24px rgba(44, 36, 23, 0.4);
 }
 .splash__title-main {
@@ -152,7 +153,7 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
   width: 44px;
   height: 3px;
   margin: clamp(12px, 2.4cqh, 20px) 0 clamp(10px, 1.9cqh, 16px);
-  border-radius: 2px;
+  border-radius: var(--r-pill);
   background: var(--brand-600);
 }
 .splash__cta {

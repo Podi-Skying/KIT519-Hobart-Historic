@@ -3,10 +3,12 @@
  * Modal bottom sheet.
  * Dismiss by: dragging the grip/header down, the ✕ button, tapping the scrim, or Escape.
  * Every dismissal animates out, then emits `close` (parent removes it with v-if).
+ * The drag itself is composables/useSheetDrag (shared with the Map panel).
  */
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from './IconButton.vue'
+import { useSheetDrag } from '@/composables/useSheetDrag'
 
 const { t } = useI18n()
 
@@ -22,53 +24,15 @@ const props = defineProps({
 })
 const emit = defineEmits(['close'])
 
-/** Drag further than this (px) — or flick faster than FLICK px/ms — to dismiss. */
-const DISMISS_DISTANCE = 96
-const FLICK_VELOCITY = 0.6
-const LEAVE_MS = 220
+const sheetEl = ref(null)
+/** Same gesture as the Map panel: velocity hand-off, projection, rubber-band, interruptible. */
+const { handlers, swallowClick, style, dragging, leaving, easing, dismiss } = useSheetDrag(() => emit('close'), {
+  element: () => sheetEl.value,
+})
+/** Buttons, Escape and the scrim animate out the same way a drag does. */
+const close = () => dismiss()
 
-const offset = ref(0)
-const dragging = ref(false)
-const leaving = ref(false)
-let drag = null
-
-function dismiss() {
-  if (leaving.value) return
-  leaving.value = true
-  setTimeout(() => emit('close'), LEAVE_MS)
-}
-
-/** Pointer capture keeps the drag alive outside the handle; it can throw for stale pointers, which is harmless. */
-function capture(e, method) {
-  try {
-    e.currentTarget[method](e.pointerId)
-  } catch {
-    /* pointer already released */
-  }
-}
-
-function onPointerDown(e) {
-  if (e.button !== undefined && e.button !== 0) return
-  if (e.target.closest('button')) return // let the ✕ button click through
-  drag = { y: e.clientY, t: performance.now() }
-  dragging.value = true
-  capture(e, 'setPointerCapture')
-}
-function onPointerMove(e) {
-  if (!drag) return
-  offset.value = Math.max(0, e.clientY - drag.y) // only downward
-}
-function onPointerUp(e) {
-  if (!drag) return
-  const velocity = offset.value / Math.max(1, performance.now() - drag.t)
-  drag = null
-  dragging.value = false
-  if (offset.value > DISMISS_DISTANCE || velocity > FLICK_VELOCITY) dismiss()
-  else offset.value = 0 // snap back
-  capture(e, 'releasePointerCapture')
-}
-
-const onKey = (e) => e.key === 'Escape' && dismiss()
+const onKey = (e) => e.key === 'Escape' && close()
 onMounted(() => window.addEventListener('keydown', onKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
@@ -76,11 +40,12 @@ const showClose = () => props.closable ?? Boolean(props.title)
 </script>
 
 <template>
-  <div class="scrim" :class="{ 'is-leaving': leaving }" @click.self="dismiss">
+  <div class="scrim" :class="{ 'is-leaving': leaving }" @click.self="close">
     <section
+      ref="sheetEl"
       class="sheet"
       :class="{ 'is-dragging': dragging, 'is-leaving': leaving }"
-      :style="!leaving && offset ? { transform: `translateY(${offset}px)` } : null"
+      :style="[style, easing ? { '--release-ease': easing } : null]"
       role="dialog"
       aria-modal="true"
       :aria-label="label"
@@ -88,10 +53,8 @@ const showClose = () => props.closable ?? Boolean(props.title)
       <!-- Drag handle area: grip + header -->
       <div
         class="sheet__handle text-zoom"
-        @pointerdown="onPointerDown"
-        @pointermove="onPointerMove"
-        @pointerup="onPointerUp"
-        @pointercancel="onPointerUp"
+        v-on="handlers"
+        @click.capture="swallowClick"
       >
         <span class="sheet__grip" aria-hidden="true" />
         <header v-if="title || showClose()" class="sheet__header">
@@ -106,13 +69,13 @@ const showClose = () => props.closable ?? Boolean(props.title)
               :icon="confirm ? 'check' : 'close'"
               :label="closeLabel || (confirm ? t('common.done') : t('common.close'))"
               :variant="confirm ? 'success' : 'sand'"
-              @click="dismiss"
+              @click="close"
             />
           </Transition>
         </header>
       </div>
       <div class="sheet__body text-zoom">
-        <slot :dismiss="dismiss" />
+        <slot :dismiss="close" />
       </div>
     </section>
   </div>
@@ -140,12 +103,15 @@ const showClose = () => props.closable ?? Boolean(props.title)
   background: var(--cream);
   color: var(--ink-700);
   border-radius: var(--r-xl) var(--r-xl) 0 0;
-  box-shadow: var(--e-3);
+  /* 2nd shadow = a cream skirt below the sheet, so an upward rubber-band pull never shows a gap */
+  box-shadow: var(--e-3), 0 160px 0 0 var(--cream);
   animation: slide-in var(--dur-slow) var(--ease);
-  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  /* --release-ease: the finger's release velocity handed to the animation (lib/gesture releaseEasing) */
+  transition: transform var(--dur) var(--release-ease, var(--ease)), opacity var(--dur) var(--ease);
 }
 .sheet.is-dragging {
   transition: none;
+  animation: none; /* grabbed mid-entrance: the finger takes over from where it was caught */
 }
 .sheet.is-leaving {
   transform: translateY(calc(100% * var(--motion)));
@@ -165,7 +131,7 @@ const showClose = () => props.closable ?? Boolean(props.title)
   width: 40px;
   height: 4px;
   margin: 0 auto var(--s-3);
-  border-radius: 2px;
+  border-radius: var(--r-pill);
   background: var(--sand-dark);
 }
 .sheet__header {
@@ -176,6 +142,7 @@ const showClose = () => props.closable ?? Boolean(props.title)
 }
 .sheet__title {
   font: var(--t-h1);
+  letter-spacing: var(--track-h1);
   color: var(--ink-900);
 }
 .sheet__subtitle {

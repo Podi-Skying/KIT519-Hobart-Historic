@@ -36,7 +36,8 @@ const { t } = useI18n()
   box-shadow: 0 40px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .stage__credit {
-  font: 500 11px var(--font-body);
+  font: var(--t-meta);
+  font-weight: 500;
   color: #8c826f;
 }
 @media (max-width: 430px) {

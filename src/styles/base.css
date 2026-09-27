@@ -85,9 +85,9 @@ a {
 }
 
 /* ---- Typography utilities (map 1:1 to tokens) ---- */
-.t-hero { font: var(--t-hero); color: var(--ink-900); }
-.t-display { font: var(--t-display); color: var(--ink-900); }
-.t-h1 { font: var(--t-h1); color: var(--ink-900); }
+.t-hero { font: var(--t-hero); letter-spacing: var(--track-hero); color: var(--ink-900); }
+.t-display { font: var(--t-display); letter-spacing: var(--track-display); color: var(--ink-900); }
+.t-h1 { font: var(--t-h1); letter-spacing: var(--track-h1); color: var(--ink-900); }
 .t-h2 { font: var(--t-h2); color: var(--ink-900); }
 .t-h3 { font: var(--t-h3); color: var(--ink-900); }
 .t-body { font: var(--t-body); color: var(--ink-700); }
@@ -95,7 +95,7 @@ a {
 .t-label { font: var(--t-label); }
 .t-caption {
   font: var(--t-caption);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-caption);
   text-transform: uppercase;
   color: var(--ink-500);
 }

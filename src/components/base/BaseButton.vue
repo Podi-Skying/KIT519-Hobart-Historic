@@ -36,8 +36,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   justify-content: center;
   gap: var(--s-2);
   border-radius: var(--r-md);
-  font: 600 14px/1 var(--font-label);
-  letter-spacing: 0.01em;
+  font: var(--t-button);
   white-space: nowrap;
   /* `scale` = release of the press (base.css › Press feedback); the press itself is instant */
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
@@ -47,7 +46,8 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   padding: 0 var(--s-5);
 }
 .btn--sm {
-  min-height: 40px;
+  border-radius: var(--r-pill); /* small buttons share the capsule shape of the chips and search field beside them */
+  min-height: var(--hit);
   padding: 0 var(--s-4);
   font-size: 13px;
 }
@@ -66,7 +66,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
 .btn--secondary {
   background: var(--paper);
   color: var(--ink-900);
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline);
 }
 .btn--secondary:active {
   background: var(--parchment);
@@ -77,7 +77,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
     background: var(--brand-700);
   }
   .btn--secondary:hover {
-    border-color: var(--sand-dark);
+    border-color: var(--ink-500);
   }
 }
 .btn--quiet {

@@ -124,7 +124,7 @@ function planAccessibleWalk() {
   padding: 22px;
   overflow: hidden;
   border-radius: var(--r-xl);
-  background: linear-gradient(160deg, #3b3326 0%, #6b3a3f 55%, #c77b45 100%);
+  background: var(--weather-hero); /* tokens.css — cream text ≥ 4.9:1 across the whole gradient */
   color: var(--cream);
 }
 .now::after {
@@ -150,10 +150,11 @@ function planAccessibleWalk() {
 }
 .now__temp {
   margin: 8px 0 4px;
-  font: 700 58px/1 var(--font-heading);
+  font: var(--t-numeral);
+  letter-spacing: var(--track-hero);
 }
 .now__verdict {
-  font: 600 14px var(--font-label);
+  font: var(--t-button);
 }
 .stats {
   display: grid;
@@ -168,13 +169,14 @@ function planAccessibleWalk() {
   border: 1.5px solid var(--sand);
   border-radius: var(--r-md);
   background: var(--paper);
-  font: 500 12px var(--font-label);
+  font: var(--t-label-sm);
+  font-weight: 500;
   color: var(--ink-500);
 }
 .stat b {
   display: block;
   margin: 4px 0 1px;
-  font: 700 17px var(--font-label);
+  font: var(--t-strong);
   color: var(--ink-900);
 }
 .comfort {
@@ -193,7 +195,7 @@ function planAccessibleWalk() {
 }
 .comfort__bar {
   flex: 1;
-  border-radius: 6px 6px 2px 2px;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
   background: var(--sand);
 }
 .comfort__bar.is-best {
@@ -207,7 +209,7 @@ function planAccessibleWalk() {
 .comfort__labels span {
   flex: 1;
   text-align: center;
-  font: 600 10px var(--font-label);
+  font: var(--t-micro);
   color: var(--ink-500);
 }
 .forecast {
@@ -226,7 +228,7 @@ function planAccessibleWalk() {
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: center;
-  font: 600 12px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-500);
 }
 .forecast li.is-today {
@@ -242,7 +244,7 @@ function planAccessibleWalk() {
 .forecast b {
   display: block;
   margin-top: 6px;
-  font: 700 15px var(--font-label);
+  font: var(--t-h3);
   color: var(--ink-900);
 }
 .advice {
@@ -251,7 +253,7 @@ function planAccessibleWalk() {
   border-radius: var(--r-md);
   background: var(--success-50);
   color: var(--ink-900);
-  font: 500 14px/21px var(--font-body);
+  font: var(--t-input);
 }
 .advice__text {
   display: flex;

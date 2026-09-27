@@ -168,7 +168,7 @@ const endRoute = () => router.push({ name: 'map' })
   min-width: 0;
 }
 .instruction__title {
-  font: 700 18px var(--font-label);
+  font: var(--t-strong);
 }
 .instruction__sub {
   font: var(--t-small);
@@ -194,7 +194,8 @@ const endRoute = () => router.push({ name: 'map' })
   border-radius: var(--r-md);
   background: var(--ink-900);
   color: var(--cream);
-  font: 700 10px var(--font-label);
+  font: var(--t-micro);
+  font-weight: 700;
   box-shadow: var(--e-2);
 }
 .summary__count {
@@ -204,7 +205,9 @@ const endRoute = () => router.push({ name: 'map' })
   border-radius: var(--r-pill);
   background: var(--brand-600);
   color: var(--paper);
-  font: 700 11px/20px var(--font-label);
+  font: var(--t-micro);
+  font-weight: 700;
+  line-height: 20px;
 }
 .summary {
   position: absolute;
@@ -228,7 +231,8 @@ const endRoute = () => router.push({ name: 'map' })
   gap: var(--s-2);
 }
 .summary__eta {
-  font: 700 26px var(--font-heading);
+  font: var(--t-metric);
+  letter-spacing: var(--track-h1);
   color: var(--success-600);
 }
 .summary__actions {

@@ -79,7 +79,7 @@ function toggle(stop) {
   align-items: center;
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline);
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: left;
@@ -87,7 +87,7 @@ function toggle(stop) {
 }
 @media (hover: hover) {
   .stop:hover {
-    border-color: var(--sand-dark);
+    border-color: var(--ink-500);
   }
 }
 .stop.is-added {
@@ -116,15 +116,16 @@ function toggle(stop) {
   flex-direction: column;
 }
 .stop__text b {
-  font: 600 15px/20px var(--font-label);
+  font: var(--t-h3);
+  font-weight: 600;
   color: var(--ink-900);
 }
 .stop__text small {
-  font: 400 12px var(--font-body);
+  font: var(--t-meta);
   color: var(--ink-500);
 }
 .stop__detour {
-  font: 600 12px var(--font-label);
+  font: var(--t-label-sm);
   color: var(--ink-500);
   white-space: nowrap;
 }
@@ -136,7 +137,7 @@ function toggle(stop) {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1.5px solid var(--sand-dark);
+  border: 1.5px solid var(--outline);
   color: var(--paper);
 }
 .stop.is-added .stop__check {

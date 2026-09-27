@@ -72,17 +72,18 @@ const stats = computed(() => {
 .route-type {
   min-height: 56px;
   padding: var(--s-2) var(--s-1);
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline);
   border-radius: var(--r-md);
   background: var(--paper);
   color: var(--ink-900);
-  font: 600 13px var(--font-label);
+  font: var(--t-label);
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .route-type small {
   display: block;
   margin-top: 2px;
-  font: 500 12px var(--font-body);
+  font: var(--t-meta);
+  font-weight: 500;
   color: var(--ink-500);
 }
 .route-type.is-selected {
@@ -119,12 +120,12 @@ const stats = computed(() => {
   color: var(--accent-700);
 }
 .route-info__text p {
-  font: 400 13px/19px var(--font-body);
+  font: var(--t-body-sm);
   color: var(--ink-700);
 }
 .route-info__stats {
   margin-top: 4px;
-  font: 600 12px var(--font-label) !important;
+  font: var(--t-label-sm) !important;
   color: var(--ink-500) !important;
 }
 .fade-enter-active,

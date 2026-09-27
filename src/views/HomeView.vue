@@ -161,7 +161,7 @@ onBeforeUnmount(() => observer?.disconnect())
   background: var(--paper);
 }
 .home-header__eyebrow {
-  font: 400 13px var(--font-body);
+  font: var(--t-body-sm);
   color: var(--ink-500);
 }
 
@@ -211,7 +211,7 @@ onBeforeUnmount(() => observer?.disconnect())
 .toolbar__cancel {
   min-height: var(--hit);
   padding: 0 var(--s-1);
-  font: 600 14px var(--font-label);
+  font: var(--t-button);
   color: var(--brand-600);
   white-space: nowrap;
 }

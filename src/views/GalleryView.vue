@@ -1,12 +1,13 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { useContent } from '@/i18n/content'
-import { useSwipe } from '@/composables/useSwipe'
+import { useSwipePager } from '@/composables/useSwipePager'
+import { releaseEasing, rubberband } from '@/lib/gesture'
 import { useKeydown } from '@/composables/useKeydown'
 
 const props = defineProps({
@@ -22,13 +23,46 @@ const count = computed(() => site.value.gallery.length)
 const current = computed(() => Math.min(props.index, count.value - 1))
 const photo = computed(() => site.value.gallery[current.value])
 
-function show(i) {
+/** Which way the photos travel: 1 = next slides in from the right, -1 = previous from the left. */
+const direction = ref(1)
+/** Velocity hand-off from a swipe to the slide animation (lib/gesture releaseEasing). */
+const easing = ref(undefined)
+
+function show(i, dir = Math.sign(i - current.value) || 1) {
+  direction.value = dir
+  easing.value = undefined // arrows, thumbnails, keys: default curve
   const next = (i + count.value) % count.value
   router.replace({ name: 'gallery', params: { id: props.id, index: next } })
 }
-const step = (delta) => show(current.value + delta)
+const step = (delta) => show(current.value + delta, delta)
 
-const swipe = useSwipe(step)
+// ---- 1:1 swipe: the photo follows the finger, a flick throws it to the next one ----
+const stage = ref(null)
+const SLIDE_MS = 380 // var(--dur-page)
+const pager = useSwipePager({
+  resist: (dx) => (count.value > 1 ? dx : rubberband(dx, stage.value?.clientWidth || 320)),
+  onRelease({ offset, velocity, projected }) {
+    const width = stage.value?.clientWidth || 320
+    if (count.value > 1 && Math.abs(projected) > width / 2) {
+      const dir = projected < 0 ? 1 : -1
+      // Keep the photo where the finger left it until the route changes (see watch below),
+      // then it continues out at the finger's speed.
+      step(dir)
+      easing.value = releaseEasing(Math.abs(velocity), width - Math.abs(offset), SLIDE_MS)
+    } else {
+      easing.value = releaseEasing(-Math.sign(offset) * velocity, offset, SLIDE_MS)
+      pager.offset.value = 0 // spring back
+    }
+  },
+})
+// The new photo starts centred; the leaving one keeps its last offset and slides on from there.
+watch(current, () => {
+  pager.offset.value = 0
+})
+const photoStyle = computed(() => ({
+  '--dx': `${pager.offset.value}px`,
+  ...(easing.value ? { '--release-ease': easing.value } : {}),
+}))
 useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
 </script>
 
@@ -39,9 +73,16 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
     </PageHeader>
 
     <figure class="viewer">
-      <div class="viewer__stage" v-on="swipe">
-        <Transition name="photo" mode="out-in">
-          <img :key="photo.image" :src="photo.image" :alt="photo.caption" class="img-placeholder" draggable="false" />
+      <div ref="stage" class="viewer__stage" :class="{ 'is-dragging': pager.dragging.value }" v-on="pager.handlers">
+        <Transition :name="direction > 0 ? 'photo-next' : 'photo-prev'">
+          <img
+            :key="photo.image"
+            :src="photo.image"
+            :alt="photo.caption"
+            class="viewer__img img-placeholder"
+            :style="photoStyle"
+            draggable="false"
+          />
         </Transition>
         <button type="button" class="viewer__nav viewer__nav--prev pressable" :aria-label="t('gallery.previous')" @click="step(-1)">
           <AppIcon name="back" :size="20" :stroke-width="2.4" />
@@ -93,17 +134,24 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   touch-action: pan-y;
   user-select: none;
 }
-.viewer__stage img {
+.viewer__img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: translateX(var(--dx, 0px));
+  transition: transform var(--dur-page) var(--release-ease, var(--ease-page));
+}
+.viewer__stage.is-dragging .viewer__img {
+  transition: none; /* 1:1 with the finger */
 }
 .viewer__nav {
   position: absolute;
   top: 50%;
-  width: 40px;
-  height: 40px;
-  margin-top: -20px;
+  width: var(--hit);
+  height: var(--hit);
+  margin-top: calc(var(--hit) / -2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -126,7 +174,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
 }
 .viewer__year {
   font: var(--t-caption);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-caption);
   text-transform: uppercase;
   color: var(--accent-700);
 }
@@ -140,7 +188,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   flex: 0 0 68px;
   height: 68px;
   overflow: hidden;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md); /* same as the photo rail on the site page */
   border: 2px solid transparent;
   opacity: 0.55;
   transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
@@ -154,12 +202,22 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   height: 100%;
   object-fit: cover;
 }
-.photo-enter-active,
-.photo-leave-active {
-  transition: opacity var(--dur-fast) ease;
+/* Next/previous: both photos move together (reduced motion: --motion 0 → a cross-fade). */
+.photo-next-enter-active,
+.photo-next-leave-active,
+.photo-prev-enter-active,
+.photo-prev-leave-active {
+  transition: transform var(--dur-page) var(--release-ease, var(--ease-page)),
+    opacity var(--dur-page) var(--ease-page);
 }
-.photo-enter-from,
-.photo-leave-to {
-  opacity: 0;
+.photo-next-enter-from,
+.photo-prev-leave-to {
+  transform: translateX(calc(100% * var(--motion)));
+  opacity: var(--motion);
+}
+.photo-next-leave-to,
+.photo-prev-enter-from {
+  transform: translateX(calc(-100% * var(--motion)));
+  opacity: var(--motion);
 }
 </style>

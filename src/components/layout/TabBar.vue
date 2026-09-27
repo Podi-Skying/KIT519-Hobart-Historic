@@ -53,7 +53,7 @@ const weather = useWeatherStore()
   gap: 3px;
   padding-top: 10px;
   color: var(--ink-500);
-  font: 600 11px var(--font-label);
+  font: var(--t-micro);
   transition: color var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 /* Active indicator: short burgundy bar on the top edge */
@@ -64,7 +64,7 @@ const weather = useWeatherStore()
   left: 22%;
   right: 22%;
   height: 3px;
-  border-radius: 0 0 3px 3px;
+  border-radius: 0 0 var(--r-xs) var(--r-xs);
   background: var(--brand-600);
   transform: scaleX(0);
   transition: transform var(--dur) var(--ease);

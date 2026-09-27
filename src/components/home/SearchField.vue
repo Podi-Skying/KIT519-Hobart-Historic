@@ -48,7 +48,7 @@ defineExpose({ focus: () => input.value?.focus() })
   gap: var(--s-2);
   height: var(--hit);
   padding: 0 var(--s-4);
-  border: 1.5px solid var(--sand);
+  border: 1.5px solid var(--outline);
   border-radius: var(--r-pill);
   background: var(--paper);
   color: var(--ink-500);
@@ -63,14 +63,20 @@ defineExpose({ focus: () => input.value?.focus() })
   border: 0;
   outline: 0;
   background: none;
-  font: 500 14px var(--font-body);
+  font: var(--t-input);
   color: var(--ink-900);
 }
 .search input::-webkit-search-cancel-button {
   display: none;
 }
 .search__clear {
+  width: var(--hit);
+  height: var(--hit);
+  margin-right: calc(var(--s-4) * -1 + 2px); /* 44px target, icon stays where it was */
   display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   color: var(--ink-500);
 }
 </style>

@@ -35,7 +35,8 @@ defineProps({
   align-items: center;
   justify-content: space-between;
   padding: 4px 28px 0;
-  font: 600 14px var(--font-body);
+  font: var(--t-input);
+  font-weight: 600;
   pointer-events: none;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
