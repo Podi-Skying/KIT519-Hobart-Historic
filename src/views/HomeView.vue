@@ -79,7 +79,7 @@ const listTitle = computed(() => {
 const header = ref(null)
 const headerHeight = ref(120)
 
-// ---- toolbar gets a divider shadow only while it is stuck ----
+// ---- toolbar shows a scroll-edge fade only while content is actually under it ----
 const page = ref(null)
 const sentinel = ref(null)
 const toolbarStuck = ref(false)
@@ -175,10 +175,29 @@ onBeforeUnmount(() => observer?.disconnect())
   gap: var(--s-3);
   padding: var(--s-4) var(--gutter) var(--s-4);
   background: var(--cream);
-  transition: box-shadow var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease);
 }
+/* Stuck: the bar turns into translucent material with the cards scrolling (blurred) underneath,
+   and a soft scroll-edge fade replaces a hard divider (Apple: scroll edge effects). */
 .toolbar.is-stuck {
-  box-shadow: 0 8px 12px -10px rgba(44, 36, 23, 0.35);
+  background: var(--material-bar);
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
+}
+.toolbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14px;
+  background: linear-gradient(to bottom, rgba(44, 36, 23, 0.08), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease);
+}
+.toolbar.is-stuck::after {
+  opacity: 1;
 }
 .toolbar__title {
   display: flex;

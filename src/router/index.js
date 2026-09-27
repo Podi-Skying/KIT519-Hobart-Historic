@@ -12,8 +12,9 @@ import { pageTransition } from '@/lib/pageTransition'
  *               solidBg     background once the page scrolls (omit = always transparent)
  *               solidTone   text tone on that background (default 'dark')
  */
-const onCream = { tone: 'dark', solidBg: 'var(--cream)' }
-const onPhoto = { tone: 'light', solidBg: 'var(--cream)', solidTone: 'dark' }
+// Once the page scrolls, the status bar becomes translucent cream material (content blurs underneath).
+const onCream = { tone: 'dark', solidBg: 'var(--material-bar)' }
+const onPhoto = { tone: 'light', solidBg: 'var(--material-bar)', solidTone: 'dark' }
 const overCamera = { tone: 'light' }
 
 /** Reject unknown site ids instead of rendering an empty page. */
@@ -32,7 +33,7 @@ const routes = [
     name: 'home',
     component: () => import('@/views/HomeView.vue'),
     // Status bar turns cream once the white header has scrolled away (see HomeView `solid-after`).
-    meta: { tab: 'home', status: { tone: 'dark', solidBg: 'var(--cream)' } },
+    meta: { tab: 'home', status: { tone: 'dark', solidBg: 'var(--material-bar)' } },
   },
   {
     path: '/sites/:id(\\d+)',

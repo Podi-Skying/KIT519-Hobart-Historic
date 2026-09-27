@@ -119,7 +119,12 @@ const exit = () => router.push({ name: 'home' })
     </template>
 
     <Transition name="sheet">
-      <section v-if="openPanel" class="panel" :aria-label="hotspots.find((h) => h.key === openPanel)?.label">
+      <section
+        v-if="openPanel"
+        class="panel"
+        :style="{ '--origin-x': `${positions[openPanel].x}%` }"
+        :aria-label="hotspots.find((h) => h.key === openPanel)?.label"
+      >
         <IconButton class="panel__close" icon="close" :label="t('common.close')" variant="sand" @click="openPanel = null" />
 
         <template v-if="openPanel === 'info'">
@@ -371,10 +376,14 @@ const exit = () => router.push({ name: 'home' })
 .sheet-leave-active {
   transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
+/* The card grows out of (and shrinks back into) the bubble that opened it — anchored to its source. */
+.panel {
+  transform-origin: var(--origin-x, 50%) top;
+}
 .sheet-enter-from,
 .sheet-leave-to {
   opacity: 0;
-  transform: translateY(calc(12px * var(--motion)));
+  transform: translateY(calc(-16px * var(--motion))) scale(calc(1 - 0.12 * var(--motion)));
 }
 @media (prefers-reduced-motion: reduce) {
   .scanline {

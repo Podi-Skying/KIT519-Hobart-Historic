@@ -115,6 +115,8 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 - **Control outlines:** borders that identify a tappable control use `--outline` (≥ 3:1); `--sand` is for decorative borders only.
 - **Touch targets** are at least 44px (grow small visuals with a transparent `::before`), and `IconButton` requires a `label`.
 - **Press feedback:** every tappable element gets `.pressable`, `.pressable-card` or `.pressable-dim` (`base.css`). If the component declares its own `transition`, include `scale` (or `opacity`) in it. Wrap `:hover` in `@media (hover: hover)`.
+- **Materials:** translucent chrome uses `--material-bar` + `backdrop-filter: var(--material-blur)` (both turn solid under reduced transparency / high contrast); prefer a scroll-edge fade over a hard divider.
+- **Haptics:** `services/haptics.js` `haptic(kind)` only for meaningful moments (arrival, stop added/removed/full, dot scrub) — don't add it to ordinary taps.
 - **Motion:** multiply every travel distance / zoom by `var(--motion)` (0 under reduced motion → cross-fade). Gestures use `useSheetDrag` / `useSwipePager` with the physics in `lib/gesture.js` (velocity tracking, projection, rubber-band, `releaseEasing` hand-off); route transitions come from `lib/pageTransition.js`.
 - **Display preferences:** `stores/prefs.js` sets `data-text` and `data-contrast` on `<html>`.
   - High contrast overrides tokens in `tokens.css`, so colours must come from tokens.

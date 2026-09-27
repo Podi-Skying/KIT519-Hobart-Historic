@@ -22,6 +22,7 @@ import { useSheetDrag } from '@/composables/useSheetDrag'
 import { useTripStore } from '@/stores/trip'
 import { useUiStore } from '@/stores/ui'
 import { useLocationStore } from '@/stores/location'
+import { haptic, stopToggleHaptic } from '@/services/haptics'
 
 const { t } = useI18n()
 const { sites: SITES } = useContent()
@@ -110,6 +111,7 @@ function locate() {
 // ---- stops & preferences ----
 function toggleStop(stop) {
   const result = trip.toggleStop(stop.id)
+  haptic(stopToggleHaptic(result))
   const name = t(`waypoints.${stop.id}`)
   const messages = {
     added: t('map.toast.stopAdded', { name }),

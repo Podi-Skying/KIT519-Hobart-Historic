@@ -17,6 +17,7 @@ body {
 /* No grey system flash on tap (iOS/Android): every control draws its own press state. */
 html {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* no double-tap-zoom wait on taps (the old ~300ms delay); pinch-zoom still works */
 }
 
 body {

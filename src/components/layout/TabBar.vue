@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -16,10 +17,19 @@ const route = useRoute()
 const { t } = useI18n()
 /** The Weather tab shows the current (simulated) condition, fading as it changes. */
 const weather = useWeatherStore()
+
+/** One indicator that travels to the active tab (spatial continuity), instead of one per tab. */
+const activeIndex = computed(() => TABS.findIndex((tab) => tab.key === route.meta.tab))
 </script>
 
 <template>
   <nav class="tab-bar no-print text-zoom" :aria-label="t('tabs.main')">
+    <span
+      v-if="activeIndex >= 0"
+      class="tab-bar__indicator"
+      aria-hidden="true"
+      :style="{ transform: `translateX(${activeIndex * 100}%)` }"
+    />
     <RouterLink
       v-for="tab in TABS"
       :key="tab.key"
@@ -56,23 +66,28 @@ const weather = useWeatherStore()
   font: var(--t-micro);
   transition: color var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
-/* Active indicator: short burgundy bar on the top edge */
-.tab::before {
-  content: '';
+/* Active indicator: short burgundy bar on the top edge. A single bar slides from the old tab
+   to the new one, so the eye follows where you went (reduced motion: it moves instantly). */
+.tab-bar {
+  position: relative;
+}
+.tab-bar__indicator {
   position: absolute;
   top: -1px;
-  left: 22%;
-  right: 22%;
+  left: 0;
+  width: calc(100% / 4);
   height: 3px;
+  transition: transform calc(var(--dur-page) * var(--motion)) var(--ease-page);
+  pointer-events: none;
+}
+.tab-bar__indicator::before {
+  content: '';
+  position: absolute;
+  inset: 0 22%;
   border-radius: 0 0 var(--r-xs) var(--r-xs);
   background: var(--brand-600);
-  transform: scaleX(0);
-  transition: transform var(--dur) var(--ease);
 }
 .tab.is-active {
   color: var(--brand-600);
-}
-.tab.is-active::before {
-  transform: scaleX(1);
 }
 </style>

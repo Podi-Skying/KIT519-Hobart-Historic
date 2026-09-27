@@ -35,7 +35,8 @@ export function useCarousel({ gutter = 20 } = {}) {
     const el = track.value
     if (!el) return
     const next = Math.max(0, Math.min(el.children.length - 1, i))
-    el.scrollTo({ left: offsetOf(next), behavior: 'smooth' })
+    const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollTo({ left: offsetOf(next), behavior: reduce ? 'auto' : 'smooth' })
     index.value = next
   }
 

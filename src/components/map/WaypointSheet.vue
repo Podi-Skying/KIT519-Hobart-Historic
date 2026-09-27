@@ -11,6 +11,7 @@ import AppIcon from '@/components/base/AppIcon.vue'
 import { MAX_STOPS, WAYPOINTS } from '@/data/navigation'
 import { useTripStore } from '@/stores/trip'
 import { useUiStore } from '@/stores/ui'
+import { haptic, stopToggleHaptic } from '@/services/haptics'
 
 const props = defineProps({
   /** Hide the destination itself from the list. */
@@ -27,6 +28,7 @@ const hasSelection = computed(() => trip.stopIds.length > 0)
 
 function toggle(stop) {
   const result = trip.toggleStop(stop.id)
+  haptic(stopToggleHaptic(result))
   if (result === 'full') ui.showToast(t('map.toast.stopsFull', { n: MAX_STOPS }))
 }
 </script>

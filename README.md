@@ -166,6 +166,7 @@ hobart-heritage/
 │   ├── services/routeOptions.js # Normal / Accessible / Steep 路線挑選
 │   ├── services/elevation.js  # Open-Meteo 海拔：爬升與坡度
 │   ├── services/speech.js     # Web Speech API 朗讀與語音挑選
+│   ├── services/haptics.js    # 觸覺回饋（Vibration API，只用在有意義的時刻）
 │   ├── i18n/                  # 多語言：index.js、messages/、content/、content.js
 │   ├── stores/                # Pinia stores（依領域拆分）
 │   │   ├── favorites.js       # 按讚
@@ -464,6 +465,19 @@ hobart-heritage/
 - **相簿**：照片 1:1 跟著手指左右移動；放開時依投射落點決定換下一張或彈回，新舊照片一起滑動並接續手指速度。只有一張照片時兩端橡皮筋。
 - **穿越時光**：在照片上拖曳直接連續調整漸變（一個螢幕寬 = 一張照片），放開吸附到動量落點最近的一張。
 - **輪播圓點**：整排可以按住左右滑動來切換（像 iOS 的 page control）。
+
+**材質與空間（Apple：半透明材質表達層級、從哪裡來就回哪裡去）**
+
+- **半透明材質**（`--material-bar` + `--material-blur`）：頁面往下捲後，狀態列變成米色毛玻璃；Home 的篩選列黏在頂部時也一樣，卡片會在下方模糊地透出來。
+- **捲動邊緣效果**：篩選列黏住時，底下出現一道 14px 的淡陰影漸層，取代原本的硬陰影；沒有內容在下面時不顯示。
+- 開啟「降低透明度」或「高對比」時，材質自動變成實色米底、不模糊。
+- **Tab bar 指示條**只有一條，會從原本的 tab 滑到新的 tab，視線能跟著走。
+- **AR 資訊卡**從被點的泡泡那一側長出來、收回去時也回到那裡（`transform-origin` 對準泡泡）。
+- `html { touch-action: manipulation }`：點擊不用等雙擊縮放判斷（舊的約 300ms 延遲），雙指縮放仍可用。
+
+**觸覺回饋（`services/haptics.js`，Apple 的因果／和諧／實用三原則）**
+
+只在少數有意義的時刻震動，而且和畫面同一幀觸發：抵達目的地（success）、加入／移除停靠點（selection）、停靠點已滿（warning）、按住滑動輪播圓點時每換一張輕點一下（selection）。只有 Android 瀏覽器支援 Vibration API；iOS 會忽略，所以它永遠不是唯一的回饋。
 
 **減少動態效果（`prefers-reduced-motion`）**
 

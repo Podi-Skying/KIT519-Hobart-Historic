@@ -7,7 +7,12 @@ defineProps({
 </script>
 
 <template>
-  <div class="status-bar no-print" :class="`status-bar--${tone}`" :style="{ background }" aria-hidden="true">
+  <div
+    class="status-bar no-print"
+    :class="[`status-bar--${tone}`, { 'is-material': background !== 'transparent' }]"
+    :style="{ background }"
+    aria-hidden="true"
+  >
     <span>9:41</span>
     <span class="status-bar__icons">
       <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
@@ -39,6 +44,10 @@ defineProps({
   font-weight: 600;
   pointer-events: none;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.status-bar.is-material {
+  -webkit-backdrop-filter: var(--material-blur);
+  backdrop-filter: var(--material-blur);
 }
 .status-bar--dark {
   color: var(--ink-900);

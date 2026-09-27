@@ -5,11 +5,12 @@
  * Narration is one tap away rather than autoplaying: sound that starts by itself is hard to
  * stop for screen-reader users (WCAG 1.4.2) and startling in the street.
  */
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import BottomSheet from '@/components/base/BottomSheet.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
+import { haptic } from '@/services/haptics'
 
 const props = defineProps({
   /** Content-localised site (from useContent). */
@@ -19,6 +20,9 @@ const props = defineProps({
 })
 const emit = defineEmits(['close'])
 const { t } = useI18n()
+
+// Arrival is the one moment in the walk worth a distinct 'success' tap on the wrist/hand.
+onMounted(() => haptic('success'))
 
 /** Listen and Scan, with the primary one on top. */
 const actions = computed(() => {

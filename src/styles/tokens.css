@@ -47,6 +47,10 @@
   /* ---- Weather hero card (charcoal → burgundy → dark amber; cream text ≥ 4.9:1 at every stop) ---- */
   --weather-hero: linear-gradient(160deg, #3b3326 0%, #6b3a3f 55%, #98572f 100%);
 
+  /* ---- Materials: translucent chrome that content scrolls under (status bar, sticky toolbar) ---- */
+  --material-bar: rgba(245, 239, 230, 0.78); /* cream, lets colour through */
+  --material-blur: saturate(180%) blur(20px);
+
   /* ---- Map (warm, low-contrast so pins stand out) ---- */
   --map-land: #ede8e0;
   --map-block: #e0d8ca;
@@ -162,6 +166,8 @@
   --photo-veil-bottom: rgba(28, 22, 14, 0.88);
   --focus-ring: 0 0 0 3px #2c2417;
   --outline: #6e6352;
+  --material-bar: var(--cream); /* solid chrome: nothing shows through behind text */
+  --material-blur: none;
 }
 
 /* The system "Increase contrast" setting gets the same tokens as the in-app High contrast switch. */
@@ -178,6 +184,8 @@
     --photo-veil-bottom: rgba(28, 22, 14, 0.88);
     --focus-ring: 0 0 0 3px #2c2417;
     --outline: #6e6352;
+    --material-bar: var(--cream);
+    --material-blur: none;
   }
 }
 
@@ -189,5 +197,7 @@
   :root {
     --glass: rgba(44, 36, 23, 0.94);
     --glass-blur: none;
+    --material-bar: var(--cream);
+    --material-blur: none;
   }
 }

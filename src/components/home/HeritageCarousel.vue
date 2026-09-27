@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n'
 import SectionHeader from '@/components/base/SectionHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { useCarousel } from '@/composables/useCarousel'
+import { haptic } from '@/services/haptics'
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -44,7 +45,10 @@ const scrub = {
       e.currentTarget.setPointerCapture?.(e.pointerId)
     }
     const i = dotIndexAt(e)
-    if (i !== index.value) goTo(i)
+    if (i !== index.value) {
+      goTo(i)
+      haptic('selection') // a tick per slide while scrubbing, like an iOS picker
+    }
   },
   pointerup() {
     press = null
