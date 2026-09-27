@@ -33,7 +33,7 @@ defineProps({
 .badge--sm {
   height: 24px;
   padding: 0 9px;
-  font-size: 11px;
+  font-size: 0.6875rem;
 }
 .badge--neutral {
   background: var(--paper);

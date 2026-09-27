@@ -168,7 +168,7 @@ function toggleOffline() {
       ref="panel"
       class="panel"
       :class="{ 'is-dragging': sheetDrag.dragging.value }"
-      :style="selected ? null : [sheetDrag.style.value, sheetDrag.easing.value ? { '--release-ease': sheetDrag.easing.value } : null]"
+      :style="selected ? null : sheetDrag.style.value"
     >
       <!-- Selected destination -->
       <section v-if="selected" class="panel__selected text-zoom" :aria-label="t('map.selected')">
@@ -275,7 +275,8 @@ function toggleOffline() {
   /* 2nd shadow = a cream skirt below the panel, so an upward rubber-band pull never shows a gap */
   box-shadow: var(--e-3), 0 160px 0 0 var(--cream);
   scrollbar-width: none;
-  transition: transform var(--dur) var(--release-ease, var(--ease)), opacity var(--dur) var(--ease);
+  /* transform is spring-driven (useSheetDrag → lib/spring) */
+  transition: opacity var(--dur) var(--ease);
 }
 .panel.is-dragging {
   transition: none;

@@ -59,35 +59,36 @@
   --map-water: #cfdce2;
   --map-label: #6e6352; /* 4.8:1 on map land */
 
-  /* ---- Typography — four roles ---- */
+  /* ---- Typography — four roles. Sizes in rem: they follow the browser's text-size setting
+     (Apple: respect Dynamic Type). 1rem = 16px, so 0.6875rem = 11px, the floor. ---- */
   --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --font-body: Inter, system-ui, -apple-system, sans-serif;
   --font-label: Montserrat, Inter, system-ui, sans-serif;
   --font-script: Caveat, 'Segoe Script', cursive;
 
-  --t-hero: 700 52px/1.02 var(--font-heading);
-  --t-display: 700 30px/36px var(--font-heading);
-  --t-h1: 700 24px/30px var(--font-heading);
-  --t-h2: 700 19px/25px var(--font-heading);
-  --t-h3: 700 15px/21px var(--font-label);
-  --t-body: 400 15px/23px var(--font-body);
-  --t-small: 500 13px/18px var(--font-body);
-  --t-label: 600 13px/16px var(--font-label);
-  --t-caption: 700 11px/14px var(--font-label); /* uppercase, +0.08em */
+  --t-hero: 700 3.25rem/1.02 var(--font-heading);
+  --t-display: 700 1.875rem/2.25rem var(--font-heading);
+  --t-h1: 700 1.5rem/1.875rem var(--font-heading);
+  --t-h2: 700 1.1875rem/1.5625rem var(--font-heading);
+  --t-h3: 700 0.9375rem/1.3125rem var(--font-label);
+  --t-body: 400 0.9375rem/1.4375rem var(--font-body);
+  --t-small: 500 0.8125rem/1.125rem var(--font-body);
+  --t-label: 600 0.8125rem/1rem var(--font-label);
+  --t-caption: 700 0.6875rem/0.875rem var(--font-label); /* uppercase, +0.08em */
   /* Supporting roles (use these instead of writing px sizes in components). 11px is the floor. */
-  --t-numeral: 700 58px/1 var(--font-heading); /* big data: temperature */
-  --t-metric: 700 26px/30px var(--font-heading); /* ETA */
-  --t-title: 700 17px/22px var(--font-heading); /* card & sheet-row titles */
-  --t-card-title: 700 15px/20px var(--font-heading); /* small card titles */
-  --t-strong: 700 17px/22px var(--font-label); /* instruction, stat value */
-  --t-button: 600 14px/20px var(--font-label); /* buttons, toast, verdict */
-  --t-label-sm: 600 12px/16px var(--font-label); /* chips' meta, counters, times */
-  --t-micro: 600 11px/14px var(--font-label); /* smallest label: tags, tab bar, axis */
-  --t-reading: 400 14px/22px var(--font-body); /* transcript, advice */
-  --t-body-sm: 400 13px/19px var(--font-body); /* notices, captions */
-  --t-meta: 400 12px/16px var(--font-body); /* secondary line under a title */
-  --t-input: 500 14px/20px var(--font-body); /* text fields, status bar */
-  --t-script: 600 27px/26px var(--font-script); /* decoration only */
+  --t-numeral: 700 3.625rem/1 var(--font-heading); /* big data: temperature */
+  --t-metric: 700 1.625rem/1.875rem var(--font-heading); /* ETA */
+  --t-title: 700 1.0625rem/1.375rem var(--font-heading); /* card & sheet-row titles */
+  --t-card-title: 700 0.9375rem/1.25rem var(--font-heading); /* small card titles */
+  --t-strong: 700 1.0625rem/1.375rem var(--font-label); /* instruction, stat value */
+  --t-button: 600 0.875rem/1.25rem var(--font-label); /* buttons, toast, verdict */
+  --t-label-sm: 600 0.75rem/1rem var(--font-label); /* chips' meta, counters, times */
+  --t-micro: 600 0.6875rem/0.875rem var(--font-label); /* smallest label: tags, tab bar, axis */
+  --t-reading: 400 0.875rem/1.375rem var(--font-body); /* transcript, advice */
+  --t-body-sm: 400 0.8125rem/1.1875rem var(--font-body); /* notices, captions */
+  --t-meta: 400 0.75rem/1rem var(--font-body); /* secondary line under a title */
+  --t-input: 500 0.875rem/1.25rem var(--font-body); /* text fields, status bar */
+  --t-script: 600 1.6875rem/1.625rem var(--font-script); /* decoration only */
 
   /* Tracking is size-specific: large type tightens, small caps open up, body stays 0. */
   --track-hero: -0.02em;
@@ -97,15 +98,16 @@
   --track-cta: 0.16em; /* the round Tap-to-start label */
   --track-caps-wide: 0.28em; /* splash-only display caps */
 
-  /* ---- Spacing — 4 pt grid ---- */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 20px;
-  --s-6: 24px;
-  --s-8: 32px;
-  --gutter: 20px;
+  /* ---- Spacing — 4 pt grid, in rem so it grows with the reader's browser text size
+     (1rem = 16px by default; touch targets and the status bar stay in px) ---- */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.25rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --gutter: 1.25rem;
   --safe-top: 44px; /* status bar height */
 
   /* ---- Radius ---- */

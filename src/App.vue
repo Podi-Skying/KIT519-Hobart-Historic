@@ -51,6 +51,8 @@ const statusBar = computed(() => {
     </div>
 
     <TabBar v-if="!route.meta.hideTabBar" />
+    <!-- Modal sheets teleport here (BottomSheet), outside the page they belong to -->
+    <div id="sheet-layer" />
     <AppToast />
 
     <Transition name="splash">

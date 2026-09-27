@@ -158,6 +158,7 @@ hobart-heritage/
 │   │   ├── guidance.js        # 逐步導航：依位置判斷下一個轉彎
 │   │   ├── format.js          # formatClock / pluralize / formatKm
 │   │   ├── gesture.js         # 手勢物理：動量投射、橡皮筋、速度追蹤、放開速度接續動畫
+│   │   ├── spring.js          # 彈簧（damping ratio + response，Apple 參數）與 rAF 驅動器
 │   │   ├── pageTransition.js  # 換頁轉場判斷（push / pop / fade）
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
@@ -384,6 +385,7 @@ hobart-heritage/
 | `--t-script` | Caveat 600 · 27 / 26 | Leading page 點綴 |
 
 - **最小字級 11px**（Apple 最小 11pt）；地圖、圖表、AR 的標籤也不例外。
+- 字級與間距 token 以 **rem** 表示（1rem = 16px，預設看起來完全一樣）：使用者在瀏覽器調大字級時，文字和間距一起放大（Apple：尊重 Dynamic Type）。觸控區 `--hit`、狀態列高度、圓角維持 px。App 內的「放大文字」仍另外以 `zoom` 放大。
 - **字距跟著字級走**（Apple *The Details of UI Typography*）：大字收緊、小型大寫放寬、內文維持 0。
   `--track-hero` −0.02em（52px、溫度 58px）· `--track-display` −0.015em · `--track-h1` −0.01em（24–30px、ETA）· 內文 0 ·
   `--track-caption` +0.08em（11px 大寫）· `--track-cta` +0.16em（Tap to start）· `--track-caps-wide` +0.28em（只用在 Leading page）。
@@ -458,10 +460,14 @@ hobart-heritage/
 
 - **底部面板**（`BottomSheet`、Map 瀏覽面板，共用 `useSheetDrag`）：
   - 往下 1:1 跟手；往上超過原位會**橡皮筋**阻力（`rubberband`），不會硬停。面板底下有同色「裙邊」陰影，往上拉不會露出縫。
-  - 放開時的速度只取最後約 100ms（`createVelocityTracker`），用 Apple 的動量投射（`project`，減速率 0.99）判斷落點：投射後超過 96px 就關閉，否則彈回。
-  - **速度接續**：放開後的動畫曲線起始斜率 = 手指速度（`releaseEasing` → CSS 變數 `--release-ease`），拖曳和動畫之間沒有接縫。
-  - **可中斷**：面板正在彈回或滑出時再抓住它，會從它當下在畫面上的位置接著跟手（讀取 computed transform），不必等動畫跑完。
-  - ✕、Esc、點背景關閉都走同一條 `dismiss()` 動畫。
+  - 放開時的速度只取最後約 100ms（`createVelocityTracker`），用 Apple 的動量投射（`project`，減速率 0.99）判斷落點：投射後超過 96px 就關閉，否則回位。
+  - **真正的彈簧**（`lib/spring.js`，Apple 的 damping ratio + response）逐幀驅動，並從手指的速度開始（速度接續，沒有接縫）：
+    - 慢慢放開 → `SPRINGS.sheet`（damping 1、response 0.3），不回彈
+    - 往上甩 → `SPRINGS.flick`（damping 0.8），因為有動量，會輕輕回彈一下
+    - 關閉 → 以甩動的速度滑出畫面，再通知父元件
+  - **可中斷**：面板正在回位或滑出時再抓住它，彈簧就停在那個位置、從手指下面接著跟手；抓住正在關閉的面板就不會關。
+  - ✕、Esc、點背景關閉都走同一條 `dismiss()` 動畫；減少動態效果時改為淡出。
+- **模態深度**：`BottomSheet` 透過 `<Teleport>` 畫在頁面之上（`App.vue` 的 `#sheet-layer`）。面板開著時，後面的頁面會縮小 6%、往下 10px、加上圓角，底色變深，面板讀起來是「疊在上面的一層」而不是換頁（Apple：dim to focus）。Map 的瀏覽面板不是模態，所以不會把頁面推後。
 - **相簿**：照片 1:1 跟著手指左右移動；放開時依投射落點決定換下一張或彈回，新舊照片一起滑動並接續手指速度。只有一張照片時兩端橡皮筋。
 - **穿越時光**：在照片上拖曳直接連續調整漸變（一個螢幕寬 = 一張照片），放開吸附到動量落點最近的一張。
 - **輪播圓點**：整排可以按住左右滑動來切換（像 iOS 的 page control）。

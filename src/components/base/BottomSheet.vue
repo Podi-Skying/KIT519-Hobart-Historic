@@ -25,8 +25,8 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const sheetEl = ref(null)
-/** Same gesture as the Map panel: velocity hand-off, projection, rubber-band, interruptible. */
-const { handlers, swallowClick, style, dragging, leaving, easing, dismiss } = useSheetDrag(() => emit('close'), {
+/** Same gesture as the Map panel: spring physics with velocity hand-off, projection, rubber-band, interruptible. */
+const { handlers, swallowClick, style, dragging, leaving, dismiss } = useSheetDrag(() => emit('close'), {
   element: () => sheetEl.value,
 })
 /** Buttons, Escape and the scrim animate out the same way a drag does. */
@@ -40,45 +40,48 @@ const showClose = () => props.closable ?? Boolean(props.title)
 </script>
 
 <template>
-  <div class="scrim" :class="{ 'is-leaving': leaving }" @click.self="close">
-    <section
-      ref="sheetEl"
-      class="sheet"
-      :class="{ 'is-dragging': dragging, 'is-leaving': leaving }"
-      :style="[style, easing ? { '--release-ease': easing } : null]"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="label"
-    >
-      <!-- Drag handle area: grip + header -->
-      <div
-        class="sheet__handle text-zoom"
-        v-on="handlers"
-        @click.capture="swallowClick"
+  <!-- Rendered above the page (App.vue #sheet-layer) so the page itself can recede behind it. -->
+  <Teleport to="#sheet-layer" defer>
+    <div class="scrim" :class="{ 'is-leaving': leaving }" @click.self="close">
+      <section
+        ref="sheetEl"
+        class="sheet"
+        :class="{ 'is-dragging': dragging, 'is-leaving': leaving }"
+        :style="style"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="label"
       >
-        <span class="sheet__grip" aria-hidden="true" />
-        <header v-if="title || showClose()" class="sheet__header">
-          <div>
-            <h2 v-if="title" class="sheet__title">{{ title }}</h2>
-            <p v-if="subtitle" class="sheet__subtitle">{{ subtitle }}</p>
-          </div>
-          <Transition name="swap" mode="out-in">
-            <IconButton
-              v-if="showClose()"
-              :key="confirm ? 'confirm' : 'close'"
-              :icon="confirm ? 'check' : 'close'"
-              :label="closeLabel || (confirm ? t('common.done') : t('common.close'))"
-              :variant="confirm ? 'success' : 'sand'"
-              @click="close"
-            />
-          </Transition>
-        </header>
-      </div>
-      <div class="sheet__body text-zoom">
-        <slot :dismiss="close" />
-      </div>
-    </section>
-  </div>
+        <!-- Drag handle area: grip + header -->
+        <div
+          class="sheet__handle text-zoom"
+          v-on="handlers"
+          @click.capture="swallowClick"
+        >
+          <span class="sheet__grip" aria-hidden="true" />
+          <header v-if="title || showClose()" class="sheet__header">
+            <div>
+              <h2 v-if="title" class="sheet__title">{{ title }}</h2>
+              <p v-if="subtitle" class="sheet__subtitle">{{ subtitle }}</p>
+            </div>
+            <Transition name="swap" mode="out-in">
+              <IconButton
+                v-if="showClose()"
+                :key="confirm ? 'confirm' : 'close'"
+                :icon="confirm ? 'check' : 'close'"
+                :label="closeLabel || (confirm ? t('common.done') : t('common.close'))"
+                :variant="confirm ? 'success' : 'sand'"
+                @click="close"
+              />
+            </Transition>
+          </header>
+        </div>
+        <div class="sheet__body text-zoom">
+          <slot :dismiss="close" />
+        </div>
+      </section>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -106,16 +109,12 @@ const showClose = () => props.closable ?? Boolean(props.title)
   /* 2nd shadow = a cream skirt below the sheet, so an upward rubber-band pull never shows a gap */
   box-shadow: var(--e-3), 0 160px 0 0 var(--cream);
   animation: slide-in var(--dur-slow) var(--ease);
-  /* --release-ease: the finger's release velocity handed to the animation (lib/gesture releaseEasing) */
-  transition: transform var(--dur) var(--release-ease, var(--ease)), opacity var(--dur) var(--ease);
+  /* transform is driven frame by frame by a spring (useSheetDrag → lib/spring), so no CSS transition on it */
+  transition: opacity var(--dur) var(--ease);
 }
 .sheet.is-dragging {
   transition: none;
   animation: none; /* grabbed mid-entrance: the finger takes over from where it was caught */
-}
-.sheet.is-leaving {
-  transform: translateY(calc(100% * var(--motion)));
-  opacity: var(--motion); /* reduced motion: fades out instead of sliding */
 }
 .sheet__handle {
   flex-shrink: 0;
