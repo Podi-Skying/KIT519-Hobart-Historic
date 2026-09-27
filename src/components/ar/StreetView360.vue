@@ -3,11 +3,15 @@
  * 360° Street View of a landmark (Google Maps JavaScript API › StreetViewPanorama).
  * Finds the nearest outdoor panorama within PANO_SEARCH_RADIUS_M of the landmark and opens it
  * turned towards the building. Drag to look around; on phones, motion tracking turns the view
- * with the phone (Google's own control asks iOS for motion permission).
+ * with the phone. Google's own motion control is replaced by an app-styled toggle (bottom right),
+ * which also asks iOS for motion permission.
  * Google's terms: imagery is never downloaded or cached, and the Google attribution stays visible.
  * Emits `ready` once the panorama shows, `unavailable` if there is no key, no panorama or an error.
  */
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import IconButton from '@/components/base/IconButton.vue'
+import { hasMotionPermission, requestMotionPermission } from '@/composables/useLookAround'
 import { loadStreetView, onGoogleMapsAuthFailure } from '@/services/googleMaps'
 import { PANO_SEARCH_RADIUS_M, facingPov } from '@/lib/streetView'
 
@@ -17,8 +21,25 @@ const props = defineProps({
 })
 const emit = defineEmits(['ready', 'unavailable'])
 
+const { t } = useI18n()
 const el = ref(null)
 let panorama = null
+
+// ---- motion tracking (turn the phone to look around) ----
+/** Phones/tablets with a gyro; a desktop mouse has nothing to track. */
+const canMotion =
+  typeof window !== 'undefined' &&
+  'DeviceOrientationEvent' in window &&
+  window.matchMedia?.('(pointer: coarse)').matches
+const motion = ref(false)
+function setMotion(on) {
+  motion.value = on
+  panorama?.setMotionTracking(on)
+}
+async function toggleMotion() {
+  if (motion.value) return setMotion(false)
+  if (await requestMotionPermission()) setMotion(true) // iOS prompts here, inside the tap
+}
 let alive = true
 const stopAuthWatch = onGoogleMapsAuthFailure(() => emit('unavailable'))
 
@@ -47,9 +68,11 @@ onMounted(async () => {
       zoomControl: false,
       showRoadLabels: false,
       clickToGo: false, // stay at the landmark
-      motionTracking: true,
-      motionTrackingControl: true,
+      // on by default where no prompt is needed (Android, or iOS after an earlier grant)
+      motionTracking: canMotion && hasMotionPermission(),
+      motionTrackingControl: false, // replaced by the toggle below
     })
+    motion.value = panorama.getMotionTracking?.() ?? false
     emit('ready')
   } catch {
     if (alive) emit('unavailable') // no key, no panorama nearby (ZERO_RESULTS) or network error
@@ -65,14 +88,38 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="el" class="street-view" />
+  <div class="street-view">
+    <div ref="el" class="street-view__pano" />
+    <IconButton
+      v-if="canMotion"
+      class="street-view__motion"
+      variant="glass"
+      icon="phoneMotion"
+      :label="t('ar.motion')"
+      :pressed="motion"
+      @click="toggleMotion"
+    />
+  </div>
 </template>
 
 <style scoped>
-.street-view {
+.street-view,
+.street-view__pano {
   position: absolute;
   inset: 0;
+}
+.street-view {
   z-index: 1; /* own stacking context: Google's high z-indexes stay under the app's top bar */
   background: var(--ink-900);
+}
+.street-view__pano {
+  z-index: 0;
+}
+/* Same glass button as the AR top bar; pressed = motion on (charcoal, like other toggles) */
+.street-view__motion {
+  position: absolute;
+  right: var(--gutter);
+  bottom: calc(var(--safe-bottom) + var(--s-6));
+  z-index: 1;
 }
 </style>

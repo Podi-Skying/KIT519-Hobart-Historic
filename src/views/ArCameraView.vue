@@ -182,7 +182,8 @@ function chooseSite(id, dismiss) {
   router.replace({ name: 'ar', params: { id } })
 }
 
-const exit = () => router.push({ name: 'home' })
+/** Exit goes back to where AR was opened from (site page, map…); opened directly → Home. */
+const exit = () => (window.history.state?.back ? router.back() : router.replace({ name: 'home' }))
 </script>
 
 <template>
@@ -223,13 +224,6 @@ const exit = () => router.push({ name: 'home' })
       <BaseButton variant="secondary" size="sm" icon="back" @click="exit">{{ t('ar.exit') }}</BaseButton>
       <span class="ar-camera__actions">
         <!-- iOS asks before sharing motion; elsewhere tilt works straight away -->
-        <IconButton
-          v-if="look.canAskMotion.value && !view360"
-          variant="glass"
-          icon="compass"
-          :label="t('ar.motion')"
-          @click="look.enableMotion()"
-        />
         <!-- today's street in 360°: Google Street View (only when a Maps key is configured) -->
         <IconButton
           v-if="can360 && detected"

@@ -65,7 +65,6 @@ const look = useLookAround({ frame: () => stage.value })
     <div class="ar-nav__top" data-no-look>
       <IconButton variant="glass" icon="close" :label="t('arNav.close')" @click="close" />
       <span class="ar-nav__actions">
-        <IconButton v-if="look.canAskMotion.value" variant="glass" icon="compass" :label="t('ar.motion')" @click="look.enableMotion()" />
         <IconButton
           variant="glass"
           :icon="trip.voiceGuidance ? 'volume' : 'mute'"

@@ -13,6 +13,18 @@ const needsPermission = () =>
   typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'
 /** iOS asks once per page; remember a grant so every AR screen can use it. */
 let motionGranted = !needsPermission()
+/** True once motion sensors may be read without asking (always, except iOS before a grant). */
+export const hasMotionPermission = () => motionGranted
+/** iOS: ask for motion access; must run inside a tap. Resolves true when granted. */
+export async function requestMotionPermission() {
+  if (motionGranted) return true
+  try {
+    motionGranted = (await DeviceOrientationEvent.requestPermission()) === 'granted'
+  } catch {
+    motionGranted = false
+  }
+  return motionGranted
+}
 
 /**
  * "Look around" an AR photo: tilt the phone (gyro) and/or drag the photo. The photo slides within
@@ -57,13 +69,7 @@ export function useLookAround({ frame, drag = true }) {
   }
   /** iOS: must be called from a tap. Elsewhere it just starts listening. */
   async function enableMotion() {
-    if (needsPermission() && !motionGranted) {
-      try {
-        motionGranted = (await DeviceOrientationEvent.requestPermission()) === 'granted'
-      } catch {
-        motionGranted = false
-      }
-    }
+    if (needsPermission()) await requestMotionPermission()
     canAskMotion.value = false
     if (motionGranted) listen()
   }
@@ -97,6 +103,11 @@ export function useLookAround({ frame, drag = true }) {
     },
     pointerup: release,
     pointercancel: release,
+    // No separate "enable motion" button: iOS asks on the first tap anywhere in the view
+    // (the permission prompt needs a tap; any tap on the photo, a bubble or a control counts).
+    click() {
+      if (canAskMotion.value) enableMotion()
+    },
   }
   function release(e) {
     if (!start || e.pointerId !== start.id) return

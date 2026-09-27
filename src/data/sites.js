@@ -111,7 +111,7 @@ const CATALOGUE = [
     categoryLabel: 'Colonial Commerce',
     area: 'Waterfront',
     builtYear: '1835–1860',
-    coordinates: { lat: -42.88716, lng: 147.3369 },
+    coordinates: { lat: -42.88696, lng: 147.33244 }, // 45 Salamanca Pl
     accessible: true,
     baseLikes: 181,
     image: landmarkImage('salamanca-main.webp'),

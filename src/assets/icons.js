@@ -7,6 +7,8 @@ export const ICONS = {
   home: '<path d="M3.5 10.5L12 3.5l8.5 7"/><path d="M5.5 9v10.5a1 1 0 001 1H10v-6h4v6h3.5a1 1 0 001-1V9"/>',
   // 360° view: a ring you look around inside, with the turn arrow
   pano: '<ellipse cx="12" cy="12" rx="9" ry="4.5"/><path d="M12 3v2.5M12 18.5V21"/><path d="M17.5 5.5l2 1.8-2.4 1.2"/>',
+  // phone with motion arcs: "move your phone to look around"
+  phoneMotion: '<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M11 18h2"/><path d="M4.5 8.5c-1.3 2.2-1.3 4.8 0 7M19.5 8.5c1.3 2.2 1.3 4.8 0 7"/>',
   compass: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
   map: '<path d="M9 4L3 6.5v13.5l6-2.5 6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>',
   ar: '<path d="M3 8V5a2 2 0 012-2h3M16 3h3a2 2 0 012 2v3M21 16v3a2 2 0 01-2 2h-3M8 21H5a2 2 0 01-2-2v-3"/><path d="M12 7.5l4 2.2v4.6l-4 2.2-4-2.2V9.7z"/><path d="M8 9.7l4 2.2 4-2.2M12 11.9v4.6"/>',
