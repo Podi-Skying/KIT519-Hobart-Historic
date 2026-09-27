@@ -173,11 +173,19 @@ export function useSheetDrag(onDismiss, { element } = {}) {
     e.preventDefault()
   }
 
+  /** 0 = at rest … 1 = fully off screen. Lets the scrim and the page behind follow the sheet. */
+  const progress = computed(() => {
+    const height = element?.()?.offsetHeight || 600
+    return Math.min(1, Math.max(0, offset.value / height))
+  })
+  /** True while the finger or a spring is moving the sheet (CSS transitions must not lag it). */
+  const tracking = computed(() => dragging.value || offset.value !== 0 || (leaving.value && !fading.value))
+
   const style = computed(() => {
     if (fading.value) return { opacity: 0 } // reduced motion: cross-fade out (CSS opacity transition)
     if (leaving.value || offset.value) return { transform: `translateY(${offset.value}px)` }
     return null
   })
 
-  return { handlers, swallowClick, style, dragging, leaving, dismiss }
+  return { handlers, swallowClick, style, dragging, leaving, dismiss, progress, tracking }
 }

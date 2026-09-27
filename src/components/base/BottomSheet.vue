@@ -5,7 +5,7 @@
  * Every dismissal animates out, then emits `close` (parent removes it with v-if).
  * The drag itself is composables/useSheetDrag (shared with the Map panel).
  */
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from './IconButton.vue'
 import { useSheetDrag } from '@/composables/useSheetDrag'
@@ -26,11 +26,30 @@ const emit = defineEmits(['close'])
 
 const sheetEl = ref(null)
 /** Same gesture as the Map panel: spring physics with velocity hand-off, projection, rubber-band, interruptible. */
-const { handlers, swallowClick, style, dragging, leaving, dismiss } = useSheetDrag(() => emit('close'), {
+const { handlers, swallowClick, style, dragging, leaving, dismiss, progress, tracking } = useSheetDrag(() => emit('close'), {
   element: () => sheetEl.value,
 })
 /** Buttons, Escape and the scrim animate out the same way a drag does. */
 const close = () => dismiss()
+
+/**
+ * The page behind recedes while the sheet is up (base.css › Modal depth) and comes forward as
+ * the sheet is dragged down — continuously, 1:1 with the sheet, not on/off at the end.
+ */
+function frame() {
+  return sheetEl.value?.closest('.device')
+}
+watchEffect(() => {
+  const device = frame()
+  if (!device) return
+  device.style.setProperty('--sheet-progress', progress.value.toFixed(4))
+  device.classList.toggle('is-sheet-tracking', tracking.value)
+})
+onBeforeUnmount(() => {
+  const device = frame()
+  device?.style.removeProperty('--sheet-progress')
+  device?.classList.remove('is-sheet-tracking')
+})
 
 const onKey = (e) => e.key === 'Escape' && close()
 onMounted(() => window.addEventListener('keydown', onKey))
@@ -42,7 +61,12 @@ const showClose = () => props.closable ?? Boolean(props.title)
 <template>
   <!-- Rendered above the page (App.vue #sheet-layer) so the page itself can recede behind it. -->
   <Teleport to="#sheet-layer" defer>
-    <div class="scrim" :class="{ 'is-leaving': leaving }" @click.self="close">
+    <div
+      class="scrim"
+      :class="{ 'is-leaving': leaving, 'is-tracking': tracking }"
+      :style="{ opacity: leaving && !tracking ? undefined : 1 - progress }"
+      @click.self="close"
+    >
       <section
         ref="sheetEl"
         class="sheet"
@@ -97,6 +121,9 @@ const showClose = () => props.closable ?? Boolean(props.title)
 }
 .scrim.is-leaving {
   opacity: 0;
+}
+.scrim.is-tracking {
+  transition: none; /* its opacity follows the sheet frame by frame */
 }
 .sheet {
   width: 100%;

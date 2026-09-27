@@ -4,7 +4,7 @@
  * in the app language (Web Speech API — free, no API key). Changing language
  * switches both the script and the voice.
  */
-import { computed, onBeforeUnmount, watch, watchEffect } from 'vue'
+import { computed, onBeforeUnmount, ref, watch, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -34,6 +34,15 @@ watchEffect(() => player.load(props.id))
 watch(locale, () => player.reset())
 // Don't keep talking after the listener leaves the page.
 onBeforeUnmount(() => player.pause())
+
+// While the thumb is held, the bar fill and the times follow it 1:1; the seek (which snaps to
+// the start of a line) happens on release.
+const scrubbing = ref(null)
+const shownPosition = computed(() => scrubbing.value ?? player.position)
+function seekTo(value) {
+  player.seek(value)
+  scrubbing.value = null
+}
 </script>
 
 <template>
@@ -55,18 +64,20 @@ onBeforeUnmount(() => player.pause())
       <p class="muted">{{ site.name }} · {{ t('audio.narratedIn', { language: languageName }) }}</p>
 
       <input
-        class="track__seek"
+        class="track__seek slider"
         type="range"
         min="0"
         :max="player.duration"
         step="1"
-        :value="player.position"
+        :value="shownPosition"
+        :style="{ '--fill': `${player.duration ? (shownPosition / player.duration) * 100 : 0}%` }"
         :aria-label="t('audio.position')"
-        @change="player.seek(Number($event.target.value))"
+        @input="scrubbing = Number($event.target.value)"
+        @change="seekTo(Number($event.target.value))"
       />
       <div class="track__times">
-        <span>{{ formatClock(player.position) }}</span>
-        <span>-{{ formatClock(player.remaining) }}</span>
+        <span>{{ formatClock(shownPosition) }}</span>
+        <span>-{{ formatClock(Math.max(0, player.duration - shownPosition)) }}</span>
       </div>
 
       <div class="controls">
@@ -156,9 +167,7 @@ onBeforeUnmount(() => player.pause())
   margin-top: 4px;
 }
 .track__seek {
-  width: 100%;
-  margin: var(--s-4) 0 var(--s-1);
-  accent-color: var(--brand-600);
+  margin: var(--s-2) 0 calc(-1 * var(--s-2)); /* 44px touch area, visually where the thin bar was */
 }
 .track__times {
   display: flex;

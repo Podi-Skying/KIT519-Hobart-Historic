@@ -172,6 +172,20 @@
   --material-blur: none;
 }
 
+/* Chinese, Japanese and Korean have no letter case and are set solid: wide tracking made for
+   Latin capitals only loosens them, and negative tracking crowds them (Apple's CJK tracking
+   tables sit near 0). <html lang> follows the app language (i18n/index.js). */
+:root:lang(zh-Hant),
+:root:lang(ja),
+:root:lang(ko) {
+  --track-hero: 0em;
+  --track-display: 0em;
+  --track-h1: 0em;
+  --track-caption: 0.02em;
+  --track-cta: 0.04em;
+  --track-caps-wide: 0.08em;
+}
+
 /* The system "Increase contrast" setting gets the same tokens as the in-app High contrast switch. */
 @media (prefers-contrast: more) {
   :root {

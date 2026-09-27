@@ -110,7 +110,7 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
   - Montserrat: labels, buttons and the tab bar.
   - Caveat: decoration only.
 - **Keep the global `lining-nums` rule.** `base.css` sets `* { font-variant-numeric: lining-nums !important }` because Playfair defaults to old-style figures and every `font:` shorthand resets numeric variants.
-- **Colours:** burgundy `--brand-600` is the only action colour, and `--ar-400` appears only over camera views.
+- **Colours:** burgundy `--brand-600` is the only action colour, and `--ar-400` appears only over camera views. Exception: on the dark toast the action (Undo) uses `--accent-100`, since burgundy fails contrast there.
 - **Type:** components use the `--t-*` font tokens (README §5.3), never `font: 600 12px …`; override only `font-weight`. Minimum size 11px. Large headings carry their `--track-*` letter-spacing.
 - **Control outlines:** borders that identify a tappable control use `--outline` (≥ 3:1); `--sand` is for decorative borders only.
 - **Touch targets** are at least 44px (grow small visuals with a transparent `::before`), and `IconButton` requires a `label`.

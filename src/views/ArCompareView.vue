@@ -132,7 +132,8 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
       <input
         v-model.number="blend"
         @pointerdown="blendSpring.stop()"
-        class="caption-card__slider"
+        class="caption-card__slider slider"
+        :style="{ '--fill': `${last ? (blend / (last * STEP)) * 100 : 0}%` }"
         type="range"
         min="0"
         :max="last * STEP"
@@ -265,9 +266,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   color: var(--ink-900);
 }
 .caption-card__slider {
-  width: 100%;
-  margin: var(--s-2) 0 0;
-  accent-color: var(--brand-600);
+  margin: 0 0 calc(-1 * var(--s-2));
 }
 .caption-card__ends {
   display: flex;

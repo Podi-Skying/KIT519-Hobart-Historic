@@ -38,7 +38,7 @@ const activeIndex = computed(() => TABS.findIndex((tab) => tab.key === route.met
       :class="{ 'is-active': route.meta.tab === tab.key }"
       :aria-current="route.meta.tab === tab.key ? 'page' : undefined"
     >
-      <CrossfadeIcon v-if="tab.key === 'weather'" :name="weather.icon" :size="24" />
+      <CrossfadeIcon v-if="tab.key === 'weather'" :name="weather.icon" :size="24" subtle />
       <AppIcon v-else :name="tab.icon" :size="24" />
       <span>{{ t(`tabs.${tab.key}`) }}</span>
     </RouterLink>

@@ -125,6 +125,20 @@ describe('useSheetDrag', () => {
     expect(tap.stopPropagation).not.toHaveBeenCalled()
   })
 
+  it('reports progress so the scrim and the page behind follow the sheet', () => {
+    const tall = useSheetDrag(onDismiss, { element: () => ({ offsetHeight: 400 }) })
+    expect(tall.progress.value).toBe(0)
+    expect(tall.tracking.value).toBe(false)
+    tall.handlers.pointerdown(pointer(0))
+    tall.handlers.pointermove(pointer(20))
+    tall.handlers.pointermove(pointer(100))
+    expect(tall.progress.value).toBe(0.25)
+    expect(tall.tracking.value).toBe(true)
+    tall.handlers.pointerup(pointer(100))
+    vi.advanceTimersByTime(SETTLE)
+    expect(tall.tracking.value).toBe(false)
+  })
+
   it('dismiss() (✕, Escape, scrim) animates out the same way', () => {
     sheet.dismiss()
     expect(sheet.leaving.value).toBe(true)

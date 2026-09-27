@@ -25,7 +25,7 @@ defineProps({
   align-items: center;
   gap: 10px;
   padding: 12px 18px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-pill); /* same capsule as the other floating status over the camera */
   background: var(--ink-900);
   color: var(--cream);
   font: var(--t-h3);

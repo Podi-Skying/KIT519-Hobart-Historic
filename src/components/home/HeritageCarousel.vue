@@ -25,7 +25,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
  */
 let press = null // { x, id, scrubbing }
 function dotIndexAt(e) {
-  const dots = [...e.currentTarget.children]
+  const dots = [...e.currentTarget.querySelectorAll('.controls__dot')]
   let best = 0
   dots.forEach((dot, i) => {
     if (e.clientX >= dot.getBoundingClientRect().left) best = i
@@ -114,7 +114,7 @@ const scrub = {
           :key="site.id"
           type="button"
           role="tab"
-          class="controls__dot"
+          class="controls__dot pressable-dim"
           :class="{ 'is-active': i === index }"
           :aria-selected="i === index"
           :aria-label="t('home.showSite', { n: i + 1, name: site.name })"
@@ -122,6 +122,8 @@ const scrub = {
         >
           <i />
         </button>
+        <!-- One capsule slides to the active dot (transform only — no layout per frame) -->
+        <span class="controls__indicator" aria-hidden="true" :style="{ transform: `translateX(${index * 24}px)` }" />
       </div>
 
       <button
@@ -262,6 +264,7 @@ const scrub = {
   cursor: default;
 }
 .controls__dots {
+  position: relative;
   display: flex;
   align-items: center;
   touch-action: pan-y; /* horizontal slides scrub the dots */
@@ -279,11 +282,18 @@ const scrub = {
   height: 6px;
   border-radius: var(--r-pill);
   background: var(--outline);
-  transition: width var(--dur) var(--ease), background var(--dur) var(--ease);
 }
-.controls__dot.is-active i {
+.controls__indicator {
+  position: absolute;
+  top: 50%;
+  left: 3px; /* centred on a 24px dot slot */
   width: 18px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: var(--r-pill);
   background: var(--brand-600);
+  pointer-events: none;
+  transition: transform calc(var(--dur-page) * var(--motion)) var(--ease-page);
 }
 .controls__dot:focus-visible {
   box-shadow: none;

@@ -35,7 +35,7 @@ const ui = useUiStore()
   align-items: center;
   gap: var(--s-3);
   padding: 12px 18px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-pill); /* iOS-style capsule banner */
   background: var(--ink-900);
   color: var(--cream);
   font: var(--t-button);

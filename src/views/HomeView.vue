@@ -247,6 +247,6 @@ onBeforeUnmount(() => observer?.disconnect())
 .swap-enter-from,
 .swap-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(calc(-4px * var(--motion)));
 }
 </style>
