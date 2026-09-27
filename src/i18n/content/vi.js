@@ -41,7 +41,7 @@ export default {
         { caption: 'Bên trong nhà thờ', description: 'Ghế, bục giảng và đàn ống trong gian chính.' },
         { caption: 'Cửa sổ kính màu', description: 'Một trong những cửa sổ kính màu của nhà thờ.' },
         { caption: 'Tháp về đêm', description: 'Ngọn tháp được chiếu sáng trên Battery Point khi trời tối.' },
-        { caption: 'Cửa sổ bên', description: 'Cửa sổ đầu hình thang từ năm 1836; cửa sổ ở hiên có từ năm 1888.' },
+        { caption: 'Cửa sổ bên', description: 'Cửa sổ đầu hình thang từ thập niên 1830; cửa sổ ở hiên có từ năm 1888.' },
       ],
     },
     3: {
@@ -50,7 +50,7 @@ export default {
         'Dãy nhà kho đá sa thạch từng chứa hàng từ nghề săn cá voi và buôn bán. Ngày nay nơi đây có chợ, phòng tranh và nhà hàng nhưng vẫn giữ nét thuộc địa xưa.',
       gallery: [
         { caption: 'Phố Salamanca', description: 'Dãy nhà kho do tù nhân xây dựng.' },
-        { caption: 'Chợ Salamanca', description: 'Các sạp hàng dọc theo dãy nhà kho.' },
+        { caption: 'Góc nhà kho', description: 'Nhà kho sa thạch vào một ngày thường yên tĩnh.' },
         { caption: 'Nhà kho ven bến', description: 'Mặt tiền nhà kho đã được trùng tu.' },
         { caption: 'Khu Salamanca', description: 'Khu phố lịch sử gần bến cảng.' },
         { caption: 'Bến Princes Wharf', description: 'Thuyền buồm neo đậu bên bến cạnh các nhà kho.' },
@@ -66,7 +66,7 @@ export default {
     4: {
       categoryLabel: 'Di sản tù nhân',
       description:
-        'Quần thể nhà đá sa thạch gồm nhà nguyện, phòng giam và tòa án, nối với nhau bằng đường hầm. Một trong những trải nghiệm lịch sử giàu không khí nhất ở Hobart.',
+        'Nhà nguyện do tù nhân xây (1831–1834, thiết kế của John Lee Archer), với xà lim dưới sàn và đường hầm nối tới toà án hình sự được xây sau này — một trong những di tích giàu không khí nhất Hobart.',
       gallery: [
         { caption: 'Mặt ngoài nhà nguyện', description: 'Quần thể nhà nguyện còn lại.' },
         { caption: 'Old Trinity và nhà tù', description: 'Ảnh tư liệu khu nhà tù.' },
@@ -76,7 +76,7 @@ export default {
         { caption: 'Tường nhà tù', description: 'Những bức tường còn lại của nhà tù Hobart cũ.' },
         { caption: 'Nhà nguyện bằng gạch', description: 'Tường nhà nguyện xây bằng gạch do tù nhân làm.' },
         { caption: 'Do tù nhân xây', description: 'Tù nhân xây theo thiết kế của John Lee Archer.' },
-        { caption: 'Ngọn tháp', description: 'Tháp nhà nguyện, khởi công năm 1830.' },
+        { caption: 'Ngọn tháp', description: 'Tháp đồng hồ do Archer xây năm 1833–34.' },
         { caption: 'Cửa sổ lớn kiểu Georgian', description: 'Cửa sổ lớn của John Lee Archer — nhà thờ ở trên, xà lim ở dưới.' },
         { caption: 'Bên trong nhà nguyện', description: 'Một phần sàn được cắt để thấy xà lim bên dưới.' },
       ],
@@ -88,9 +88,9 @@ export default {
     5: {
       categoryLabel: 'Đời sống thuộc địa',
       description:
-        'Một trong những ngôi nhà thương gia thời thuộc địa lâu đời và nguyên vẹn nhất nước Úc, với bộ sưu tập cho thấy rõ đời sống ở Van Diemen’s Land thời kỳ đầu.',
+        'Dinh thự thương nhân kiểu Phục hưng Hy Lạp, xây năm 1835–1840 cho thuyền trưởng Andrew Haig. Năm 1955 trở thành bảo tàng dân gian đầu tiên của Úc, tái hiện đời sống gia đình thời Van Diemen’s Land.',
       gallery: [
-        { caption: 'Nhà thương gia Narryna', description: 'Mặt tiền kiểu Georgia và đài phun nước.' },
+        { caption: 'Nhà thương nhân Narryna', description: 'Mặt tiền kiểu Phục hưng Hy Lạp và đài phun nước.' },
         { caption: 'Sân trong Narryna', description: 'Khoảnh sân nơi người làm làm việc.' },
         { caption: 'Mặt tiền và đài phun nước', description: 'Lối vào chính và đường vòng xe ngựa.' },
         { caption: 'Chi tiết mặt tiền', description: 'Chi tiết kiến trúc của mặt tiền.' },
@@ -108,7 +108,7 @@ export default {
     1: {
       title: 'Cuộc sống ở South Hobart những năm 1840',
       transcript: [
-        'Vào những năm 1840, Nhà máy Nữ Cascade nằm trong một thung lũng ẩm thấp dưới chân kunanyi, tức núi Wellington.',
+        'Vào những năm 1840, Nhà máy Nữ Cascades nằm trong một thung lũng ẩm thấp dưới chân kunanyi, tức núi Wellington.',
         'Phụ nữ đến từ Anh được đánh giá, phân loại và giao việc — giặt giũ, may vá hoặc gỡ sợi dây thừng cũ.',
         'Trẻ em thường sống cùng mẹ bên trong tường cho đến khi cai sữa.',
         'Ngày nay, những khoảnh sân còn lại giúp chúng ta ghi nhớ cuộc đời và sự kiên cường của những người phụ nữ ấy.',
@@ -127,7 +127,7 @@ export default {
       title: 'Những nhà kho của cảng săn cá voi',
       transcript: [
         'Vào những năm 1830, bến cảng này là nơi nhộn nhịp nhất Hobart Town, với dãy nhà kho đá sa thạch do tù nhân xây dựng.',
-        'Dầu cá voi, len, ngũ cốc và gỗ đi qua những cánh cửa này để đến London và xa hơn nữa.',
+        'Dầu cá voi, len, ngũ cốc và hàng nhập khẩu đi qua những cánh cửa này ra vào bến cảng.',
         'Con phố được đặt tên theo trận Salamanca năm 1812 ở Tây Ban Nha, trong thời Chiến tranh Napoléon.',
         'Ngày nay chính những tòa nhà ấy có phòng tranh, quán cà phê và phiên chợ thứ Bảy nổi tiếng.',
       ],

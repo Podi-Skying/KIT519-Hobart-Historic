@@ -95,6 +95,7 @@ onMounted(async () => {
       panControl: false,
       zoomControl: false,
       showRoadLabels: false,
+      keyboardShortcuts: false, // no "Keyboard shortcuts" button in the attribution strip (touch app)
       clickToGo: false, // the app moves the view (with the walker), not taps
       // on by default where no prompt is needed (Android, or iOS after an earlier grant)
       motionTracking: canMotion && hasMotionPermission(),

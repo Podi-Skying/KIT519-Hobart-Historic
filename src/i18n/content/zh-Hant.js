@@ -41,7 +41,7 @@ export default {
         { caption: '教堂內部', description: '中殿的長椅、講壇與管風琴。' },
         { caption: '彩繪玻璃窗', description: '教堂的一扇彩繪玻璃窗。' },
         { caption: '夜晚的鐘樓', description: '入夜後在 Battery Point 上方打亮的鐘樓。' },
-        { caption: '側窗', description: '1836 年的梯形頂窗；門廊的窗戶則是 1888 年加上的。' },
+        { caption: '側窗', description: '1830 年代的梯形頂窗；門廊的窗戶則是 1888 年加上的。' },
       ],
     },
     3: {
@@ -50,7 +50,7 @@ export default {
         '一整排砂岩倉庫曾存放捕鯨與貿易貨物。如今這裡有市集、藝廊和餐廳，同時保留著殖民時期的風貌。',
       gallery: [
         { caption: 'Salamanca 街景', description: '由流放犯建造的一整排倉庫。' },
-        { caption: 'Salamanca 市集', description: '沿著倉庫擺設的市集攤位。' },
+        { caption: '倉庫轉角', description: '平日安靜的砂岩倉庫。' },
         { caption: '海濱倉庫', description: '修復後的倉庫立面。' },
         { caption: 'Salamanca 街區', description: '鄰近海濱的歷史街區。' },
         { caption: 'Princes Wharf', description: '停泊在倉庫旁海濱的帆船。' },
@@ -66,7 +66,7 @@ export default {
     4: {
       categoryLabel: '流放犯遺產',
       description:
-        '由禮拜堂、牢房和法庭組成的砂岩建築群，彼此以地下通道相連，是荷伯特最具氛圍的歷史景點之一。',
+        '由流放犯建造的禮拜堂（1831–1834 年，John Lee Archer 設計），地板下有牢房，並以地下通道連接後來改建的刑事法庭，是荷伯特最具氛圍的歷史景點之一。',
       gallery: [
         { caption: '禮拜堂外觀', description: '倖存至今的禮拜堂建築群。' },
         { caption: 'Old Trinity 與監獄', description: '監獄園區的檔案照片。' },
@@ -76,7 +76,7 @@ export default {
         { caption: '監獄圍牆', description: '舊 Hobart 監獄留存的牆垣。' },
         { caption: '磚造禮拜堂', description: '由流放犯燒製的磚砌成的禮拜堂牆面。' },
         { caption: '流放犯建造', description: '由流放犯依 John Lee Archer 的設計建造。' },
-        { caption: '鐘樓', description: '1830 年動工的禮拜堂鐘樓。' },
+        { caption: '鐘樓', description: 'Archer 在 1833–1834 年建造的鐘樓。' },
         { caption: '喬治亞式大窗', description: 'John Lee Archer 設計的大窗——上層是教堂，下層是牢房。' },
         { caption: '禮拜堂內部', description: '部分地板被切開，可以看到下方的牢房。' },
       ],
@@ -88,9 +88,9 @@ export default {
     5: {
       categoryLabel: '殖民時期生活',
       description:
-        '澳洲最古老、保存最完整的殖民時期商人宅邸之一，館藏生動呈現早期范迪門斯地（Van Diemen’s Land）的生活樣貌。',
+        '1835–1840 年為 Andrew Haig 船長建造的希臘復興式商人宅邸。1955 年成為澳洲第一座民俗博物館，房間生動呈現早期范迪門斯地（Van Diemen’s Land）的家庭生活。',
       gallery: [
-        { caption: 'Narryna 商人宅邸', description: '喬治亞式立面與噴泉。' },
+        { caption: 'Narryna 商人宅邸', description: '希臘復興式立面與噴泉。' },
         { caption: 'Narryna 庭院', description: '昔日的工作庭院。' },
         { caption: '立面與噴泉', description: '正式入口與馬車迴車道。' },
         { caption: '立面細節', description: '立面的建築細節。' },
@@ -108,7 +108,7 @@ export default {
     1: {
       title: '1840 年代的南荷伯特生活',
       transcript: [
-        '1840 年代，Cascade 女子工廠坐落在 kunanyi／威靈頓山腳下一處潮濕的山谷中。',
+        '1840 年代，Cascades 女子工廠坐落在 kunanyi／威靈頓山腳下一處潮濕的山谷中。',
         '從英國抵達的女性會先接受評估、分級，再被分派工作，例如洗衣、縫紉或拆解麻絮。',
         '孩子們往往和母親一起住在高牆之內，直到斷奶為止。',
         '今天，這些保存下來的院落讓我們記得這群女性的生命與堅韌。',
@@ -127,7 +127,7 @@ export default {
       title: '捕鯨港口的倉庫',
       transcript: [
         '1830 年代，這片海濱是荷伯特鎮最繁忙的地方，沿岸林立著流放犯建造的砂岩倉庫。',
-        '鯨油、羊毛、穀物和木材經由這些大門，運往倫敦和更遠的地方。',
+        '鯨油、羊毛、穀物和進口貨物經由這些大門進出這座港口。',
         '這條街的名字來自 1812 年在西班牙發生的薩拉曼卡戰役，那是拿破崙戰爭中的一場戰役。',
         '如今，同樣的建築裡有藝廊、咖啡館，還有著名的週六市集。',
       ],

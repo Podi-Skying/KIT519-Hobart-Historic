@@ -9,7 +9,7 @@ export const NARRATION = {
     chapter: 1,
     chapterCount: 4,
     transcript: [
-      'In the 1840s, the Cascade Female Factory sat in a damp valley below kunanyi / Mount Wellington.',
+      'In the 1840s, the Cascades Female Factory sat in a damp valley below kunanyi / Mount Wellington.',
       'Women arriving from Britain were assessed, classed and assigned work — laundry, sewing or picking oakum.',
       'Children often lived with their mothers inside the walls until they were weaned.',
       'Today, the surviving yards help us remember the lives and resilience of these women.',
@@ -32,7 +32,7 @@ export const NARRATION = {
     chapterCount: 3,
     transcript: [
       'In the 1830s this waterfront was the busiest place in Hobart Town, lined with sandstone warehouses built by convict labour.',
-      'Whale oil, wool, grain and timber passed through these doors on their way to London and beyond.',
+      'Whale oil, wool, grain and imported goods passed through these doors in and out of the port.',
       'The street takes its name from the 1812 Battle of Salamanca, fought in Spain during the Napoleonic Wars.',
       'Today the same buildings hold galleries, cafés and the famous Saturday market.',
     ],

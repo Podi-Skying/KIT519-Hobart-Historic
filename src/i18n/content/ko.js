@@ -41,7 +41,7 @@ export default {
         { caption: '교회 내부', description: '본당의 신도석, 설교단, 파이프 오르간.' },
         { caption: '채색 유리창', description: '교회의 채색 유리창 중 하나.' },
         { caption: '밤의 탑', description: '해가 진 뒤 Battery Point 위로 불을 밝힌 탑.' },
-        { caption: '측면 창', description: '1836년의 사다리꼴 창. 현관 창은 1888년에 더해졌습니다.' },
+        { caption: '측면 창', description: '1830년대의 사다리꼴 창. 현관 창은 1888년에 더해졌습니다.' },
       ],
     },
     3: {
@@ -50,7 +50,7 @@ export default {
         '한때 고래잡이와 무역 물품을 보관하던 사암 창고들이 늘어서 있습니다. 지금은 시장과 갤러리, 레스토랑이 들어서 있으면서도 식민지 시대의 분위기를 간직하고 있습니다.',
       gallery: [
         { caption: 'Salamanca 거리 풍경', description: '유형수들이 지은 창고들.' },
-        { caption: 'Salamanca 마켓', description: '창고를 따라 늘어선 시장 노점.' },
+        { caption: '창고 모퉁이', description: '평일의 조용한 사암 창고.' },
         { caption: '해안가 창고', description: '복원된 창고 파사드.' },
         { caption: 'Salamanca 지구', description: '해안가 근처의 역사 지구.' },
         { caption: 'Princes Wharf', description: '창고 옆 부두에 정박한 범선들.' },
@@ -66,7 +66,7 @@ export default {
     4: {
       categoryLabel: '유형수 유산',
       description:
-        '예배당, 감방, 법정으로 이루어진 사암 건물들이 지하 터널로 연결되어 있습니다. 호바트에서 가장 분위기 있는 역사 체험 장소 중 하나입니다.',
+        '죄수들이 지은 예배당(1831–1834년, John Lee Archer 설계). 바닥 아래에 감방이 있고 지하 통로가 나중에 만든 형사 법정과 이어지는, Hobart에서 가장 분위기 있는 유적지 중 하나입니다.',
       gallery: [
         { caption: '예배당 외관', description: '남아 있는 예배당 건물들.' },
         { caption: 'Old Trinity와 교도소', description: '교도소 지구의 기록 사진.' },
@@ -76,7 +76,7 @@ export default {
         { caption: '감옥 담장', description: '옛 Hobart 감옥에 남은 담장.' },
         { caption: '벽돌 예배당', description: '죄수들이 구운 벽돌로 쌓은 예배당 벽.' },
         { caption: '죄수들이 지은 건물', description: 'John Lee Archer의 설계로 죄수들이 지었습니다.' },
-        { caption: '탑', description: '1830년에 착공한 예배당 탑.' },
+        { caption: '탑', description: 'Archer가 1833–34년에 지은 시계탑.' },
         { caption: '조지아 양식 대형 창', description: 'John Lee Archer의 큰 창 — 위는 교회, 아래는 감방.' },
         { caption: '예배당 내부', description: '바닥 일부를 잘라 아래 감방이 보입니다.' },
       ],
@@ -88,9 +88,9 @@ export default {
     5: {
       categoryLabel: '식민지 시대 생활',
       description:
-        '호주에서 가장 오래되고 가장 온전하게 남은 식민지 시대 상인 저택 중 하나로, 소장품을 통해 초기 밴디멘스랜드의 생활을 가까이에서 엿볼 수 있습니다.',
+        '1835–1840년 Andrew Haig 선장을 위해 지은 그리스 부흥 양식의 상인 저택. 1955년 호주 최초의 민속 박물관이 되었으며, 초기 반디멘스랜드의 가정생활을 보여 줍니다.',
       gallery: [
-        { caption: 'Narryna 상인의 집', description: '조지 왕조 양식 파사드와 분수.' },
+        { caption: 'Narryna 상인의 집', description: '그리스 부흥 양식의 정면과 분수.' },
         { caption: 'Narryna 안뜰', description: '일꾼들이 일하던 안뜰.' },
         { caption: '파사드와 분수', description: '정문과 마차 회차로.' },
         { caption: '파사드 세부', description: '파사드의 건축 장식.' },
@@ -108,7 +108,7 @@ export default {
     1: {
       title: '1840년대 사우스 호바트의 삶',
       transcript: [
-        '1840년대, Cascade 여성 공장은 kunanyi, 즉 웰링턴산 아래 습한 골짜기에 있었습니다.',
+        '1840년대, Cascades 여성 공장은 kunanyi, 즉 웰링턴산 아래 습한 골짜기에 있었습니다.',
         '영국에서 도착한 여성들은 심사와 등급 분류를 거쳐 빨래, 바느질, 낡은 밧줄 풀기 같은 일을 배정받았습니다.',
         '아이들은 젖을 뗄 때까지 담장 안에서 어머니와 함께 지내는 경우가 많았습니다.',
         '오늘날 남아 있는 마당들은 이 여성들의 삶과 강인함을 기억하게 해 줍니다.',
@@ -127,7 +127,7 @@ export default {
       title: '고래잡이 항구의 창고들',
       transcript: [
         '1830년대 이 해안가는 호바트 타운에서 가장 붐비는 곳이었고, 유형수들이 지은 사암 창고들이 늘어서 있었습니다.',
-        '고래기름, 양모, 곡물, 목재가 이 문을 지나 런던과 그 너머로 실려 갔습니다.',
+        '고래기름, 양모, 곡물, 수입품이 이 문을 통해 항구를 드나들었습니다.',
         '거리 이름은 나폴레옹 전쟁 중인 1812년 스페인에서 벌어진 살라망카 전투에서 따왔습니다.',
         '지금은 같은 건물에 갤러리와 카페가 들어서 있고, 유명한 토요 마켓도 열립니다.',
       ],

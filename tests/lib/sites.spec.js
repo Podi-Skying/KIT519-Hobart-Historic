@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SITES, smallVersion } from '@/data/sites'
-import { filterSites, nearestSite, rankByLikes, siteTimeline, walkMinutesFor, yearOf } from '@/lib/sites'
+import { filterSites, nearestAccessibleSite, nearestSite, rankByLikes, siteTimeline, walkMinutesFor, yearOf } from '@/lib/sites'
 import { getSiteById } from '@/data/sites'
 
 describe('filterSites', () => {
@@ -119,5 +119,20 @@ describe('smallVersion', () => {
     expect(smallVersion('https://live.staticflickr.com/3710/11994675884_a727b4dc20.jpg')).toBe(
       'https://live.staticflickr.com/3710/11994675884_a727b4dc20_n.jpg',
     )
+  })
+})
+
+describe('nearestAccessibleSite', () => {
+  const sites = [
+    { id: 'near-steps', accessible: false, km: 0.2 },
+    { id: 'far-flat', accessible: true, km: 2 },
+    { id: 'near-flat', accessible: true, km: 0.5 },
+  ]
+  it('picks the closest step-free site, even when a stepped one is nearer', () => {
+    expect(nearestAccessibleSite(sites, (s) => s.km).id).toBe('near-flat')
+  })
+  it('falls back to the closest site when none is step-free', () => {
+    expect(nearestAccessibleSite([sites[0], { id: 'x', accessible: false, km: 1 }], (s) => s.km).id).toBe('near-steps')
+    expect(nearestAccessibleSite([], (s) => s.km)).toBeUndefined()
   })
 })

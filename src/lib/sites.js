@@ -33,6 +33,19 @@ export function nearestSite(sites) {
 }
 
 /**
+ * Where an accessible walk should go: the closest site with step-free access (any site if none),
+ * by `distanceOf(site)` — km from the walker (or the default origin).
+ * @template {{accessible?: boolean}} S
+ * @param {S[]} sites
+ * @param {(site: S) => number} distanceOf
+ * @returns {S | undefined}
+ */
+export function nearestAccessibleSite(sites, distanceOf) {
+  const pool = sites.some((s) => s.accessible) ? sites.filter((s) => s.accessible) : sites
+  return pool.reduce((best, s) => (!best || distanceOf(s) < distanceOf(best) ? s : best), undefined)
+}
+
+/**
  * Walking minutes for a route type (rounded, never below 1).
  * @param {{walkMinutes:number}} site
  * @param {string} routeTypeKey

@@ -90,8 +90,8 @@ const LICENSE_URLS = {
 const CATALOGUE = [
   {
     id: 1,
-    name: 'Cascade Female Factory',
-    shortName: 'Cascade',
+    name: 'Cascades Female Factory',
+    shortName: 'Cascades',
     category: 'convict',
     categoryLabel: 'Convict Heritage',
     area: 'South Hobart',
@@ -184,9 +184,9 @@ const CATALOGUE = [
     category: 'religious',
     categoryLabel: 'Religious Heritage',
     area: 'Battery Point',
-    builtYear: '1842',
-    coordinates: { lat: -42.89152, lng: 147.3321 },
-    accessible: false,
+    builtYear: '1838', // consecrated 26 May 1838; tower 1841–47, portico 1888 (stgeorgesbatterypoint.org)
+    coordinates: { lat: -42.89137, lng: 147.33236 }, // 30 Cromwell St (Google Maps)
+    accessible: true, // ramp and accessible stairs added 2017
     baseLikes: 196,
     image: landmarkImage('st-georges-main.webp'),
     arImage: landmarkImage('st-georges-main.webp'),
@@ -247,7 +247,7 @@ const CATALOGUE = [
         'https://live.staticflickr.com/2893/10377500943_381b20e2a5_b.jpg',
         'Side windows',
         'Present day',
-        'Trapezoid-headed windows of 1836; the porch window came in 1888.',
+        'Trapezoid-headed windows of the 1830s; the porch window came in 1888.',
         credit('denisbin', 'CC BY-ND 2.0', 'https://www.flickr.com/photos/82134796@N03/10377500943'),
         { detail: true },
       ),
@@ -260,7 +260,7 @@ const CATALOGUE = [
     category: 'waterfront',
     categoryLabel: 'Colonial Commerce',
     area: 'Waterfront',
-    builtYear: '1835–1860',
+    builtYear: '1830s–1840s', // warehouses begun c.1830, most finished by the 1840s
     coordinates: { lat: -42.88696, lng: 147.33244 }, // 45 Salamanca Pl
     accessible: true,
     baseLikes: 181,
@@ -271,7 +271,7 @@ const CATALOGUE = [
       'Rows of sandstone warehouses that once stored whaling and trading goods. Today the precinct hosts markets, galleries and restaurants while keeping its colonial character.',
     gallery: [
       photo('salamanca-gallery-1.webp', 'Salamanca streetscape', '2008', 'The row of convict-built warehouses.', credit('Adam Selwood', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:SalamancaPlace2008.jpg')),
-      photo('salamanca-gallery-2.webp', 'Salamanca Market', '2007', 'Market stalls along the warehouses.', credit('Synyan', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Salamanca_market_in_Hobart.JPG')),
+      photo('salamanca-gallery-2.webp', 'Warehouse corner', '2007', 'Sandstone warehouses on a quiet weekday.', credit('Synyan', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Salamanca_market_in_Hobart.JPG')),
       photo('salamanca-gallery-3.webp', 'Waterfront warehouses', '2005–2006', 'Restored warehouse façades.', credit('Didier B (Sam67fr)', 'CC BY-SA 2.5', 'https://commons.wikimedia.org/wiki/File:Salamanca_Place_-_Hobart.jpg')),
       photo('salamanca-gallery-4.webp', 'Salamanca precinct', '2007', 'The precinct near the waterfront.'),
       openPhoto(
@@ -341,15 +341,15 @@ const CATALOGUE = [
     category: 'convict',
     categoryLabel: 'Convict Heritage',
     area: 'CBD',
-    builtYear: '1831',
-    coordinates: { lat: -42.87732, lng: 147.32753 },
+    builtYear: '1831–1834', // Tasmanian Heritage Register THR12092
+    coordinates: { lat: -42.87724, lng: 147.3268 }, // 98A Campbell St (Google Maps)
     accessible: false,
     baseLikes: 143,
     image: landmarkImage('penitentiary-main.webp'),
     arImage: landmarkImage('penitentiary-main.webp'),
     arApproachImage: landmarkImage('penitentiary-gallery-1.webp'),
     description:
-      "A complex of sandstone buildings — chapel, cells and courts — linked by underground tunnels. One of Hobart's most atmospheric heritage experiences.",
+      "A convict-built chapel (1831–34, designed by John Lee Archer) with cells beneath its floor, linked by tunnels to the criminal courts added later. One of Hobart's most atmospheric heritage experiences.",
     gallery: [
       photo('penitentiary-gallery-1.webp', 'Chapel exterior', '2017', 'The surviving chapel complex.'),
       photo('penitentiary-gallery-2.webp', 'Old Trinity and Penitentiary', 'c.1900', 'An archival view of the precinct.', credit('Tasmanian Archive and Heritage Office', 'No known copyright restrictions', 'https://commons.wikimedia.org/wiki/File:Hobart,_Old_Trinity_and_Penitentiary_from_the_Domain_(c1900)_(11229289114).jpg')),
@@ -387,7 +387,7 @@ const CATALOGUE = [
         'https://live.staticflickr.com/7426/10377290834_d79d88cb81_b.jpg',
         'The tower',
         'Present day',
-        'The chapel tower, begun in 1830.',
+        'Archer’s clock tower of 1833–34.',
         credit('denisbin', 'CC BY-ND 2.0', 'https://www.flickr.com/photos/82134796@N03/10377290834'),
       ),
       openPhoto(
@@ -424,7 +424,7 @@ const CATALOGUE = [
     category: 'colonial',
     categoryLabel: 'Colonial Living',
     area: 'Battery Point',
-    builtYear: '1836',
+    builtYear: '1835–1840', // narryna.com.au
     coordinates: { lat: -42.88929, lng: 147.33155 },
     accessible: true,
     baseLikes: 126,
@@ -432,9 +432,9 @@ const CATALOGUE = [
     arImage: landmarkImage('narryna-main.webp'),
     arApproachImage: landmarkImage('narryna-gallery-3.webp'),
     description:
-      "One of Australia's oldest and most complete colonial merchant houses, with a collection that gives an intimate picture of life in early Van Diemen's Land.",
+      "A Greek Revival merchant's house built in 1835–40 for Captain Andrew Haig. In 1955 it became Australia's first folk museum, and its rooms give an intimate picture of family life in early Van Diemen's Land.",
     gallery: [
-      photo('narryna-gallery-1.webp', "Narryna merchant's house", 'Present day', 'The Georgian façade and fountain.'),
+      photo('narryna-gallery-1.webp', "Narryna merchant's house", 'Present day', 'The Greek Revival façade and fountain.'),
       photo('narryna-gallery-2.webp', 'Narryna courtyard', '2015', 'The working courtyard.'),
       photo('narryna-gallery-3.webp', 'Façade and fountain', 'Present day', 'The formal entrance and carriage loop.'),
       photo('narryna-gallery-4.webp', 'Façade detail', 'Present day', 'Architectural detail of the façade.'),

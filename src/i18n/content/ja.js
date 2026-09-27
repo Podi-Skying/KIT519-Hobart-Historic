@@ -41,7 +41,7 @@ export default {
         { caption: '教会の内部', description: '身廊の会衆席、説教壇、パイプオルガン。' },
         { caption: '彩色ガラスの窓', description: '教会の彩色ガラス窓のひとつ。' },
         { caption: '夜の塔', description: '日没後、Battery Point の上でライトアップされた塔。' },
-        { caption: '側面の窓', description: '1836年の台形の窓。ポーチの窓は1888年に加えられました。' },
+        { caption: '側面の窓', description: '1830年代の台形の窓。ポーチの窓は1888年に加えられました。' },
       ],
     },
     3: {
@@ -50,7 +50,7 @@ export default {
         'かつて捕鯨や交易の品を保管していた砂岩の倉庫群。現在はマーケットやギャラリー、レストランが並び、植民地時代の趣を残しています。',
       gallery: [
         { caption: 'Salamanca の街並み', description: '流刑囚が建てた倉庫の連なり。' },
-        { caption: 'Salamanca マーケット', description: '倉庫沿いに並ぶ市場の屋台。' },
+        { caption: '倉庫の角', description: '平日の静かな砂岩の倉庫。' },
         { caption: '海辺の倉庫', description: '修復された倉庫のファサード。' },
         { caption: 'Salamanca 地区', description: 'ウォーターフロント近くの歴史地区。' },
         { caption: 'Princes Wharf', description: '倉庫のそばの岸壁に停泊する帆船。' },
@@ -66,7 +66,7 @@ export default {
     4: {
       categoryLabel: '流刑囚の遺産',
       description:
-        '礼拝堂・独房・法廷からなる砂岩の建物群で、地下トンネルでつながっています。ホバートで最も雰囲気のある歴史体験のひとつです。',
+        '囚人が建てた礼拝堂（1831–1834年、John Lee Archer 設計）。床下に独房があり、地下通路で後に造られた刑事法廷とつながる、Hobart でも屈指の雰囲気ある史跡です。',
       gallery: [
         { caption: '礼拝堂の外観', description: '現存する礼拝堂の建物群。' },
         { caption: 'Old Trinity と刑務所', description: '刑務所地区の記録写真。' },
@@ -76,7 +76,7 @@ export default {
         { caption: '監獄の壁', description: '旧 Hobart 監獄に残る壁。' },
         { caption: 'れんが造りの礼拝堂', description: '囚人が焼いたれんがの礼拝堂の壁。' },
         { caption: '囚人が建てた建物', description: 'John Lee Archer の設計で囚人が建設。' },
-        { caption: '塔', description: '1830年に着工した礼拝堂の塔。' },
+        { caption: '塔', description: 'Archer が1833–34年に建てた時計塔。' },
         { caption: 'ジョージアン様式の大窓', description: 'John Lee Archer の大窓——上は教会、下は独房。' },
         { caption: '礼拝堂の内部', description: '床の一部が切り取られ、下の独房が見えます。' },
       ],
@@ -88,9 +88,9 @@ export default {
     5: {
       categoryLabel: '植民地時代の暮らし',
       description:
-        'オーストラリアで最も古く、最も完全な形で残る植民地時代の商人の邸宅のひとつ。収蔵品から、初期のヴァン・ディーメンズ・ランドの暮らしを身近に感じられます。',
+        '1835–1840年に Andrew Haig 船長のために建てられたギリシャ復興様式の商人の屋敷。1955年にオーストラリア初の民俗博物館となり、初期のヴァン・ディーメンズ・ランドの家庭生活を伝えています。',
       gallery: [
-        { caption: 'Narryna 商人の館', description: 'ジョージアン様式のファサードと噴水。' },
+        { caption: 'Narryna 商人の屋敷', description: 'ギリシャ復興様式のファサードと噴水。' },
         { caption: 'Narryna の中庭', description: '使用人たちが働いた中庭。' },
         { caption: 'ファサードと噴水', description: '正面玄関と馬車回し。' },
         { caption: 'ファサードの細部', description: 'ファサードの建築装飾。' },
@@ -108,7 +108,7 @@ export default {
     1: {
       title: '1840年代のサウス・ホバートの暮らし',
       transcript: [
-        '1840年代、Cascade 女子工場は kunanyi、つまりウェリントン山のふもとの湿った谷間にありました。',
+        '1840年代、Cascades 女子工場は kunanyi、つまりウェリントン山のふもとの湿った谷間にありました。',
         'イギリスから到着した女性たちは審査と等級分けを受け、洗濯や裁縫、古い縄をほぐす作業などを割り当てられました。',
         '子どもたちは乳離れするまで、母親と一緒に塀の中で暮らすことが多かったのです。',
         '今日、残された中庭は、この女性たちの人生とたくましさを思い起こさせてくれます。',
@@ -127,7 +127,7 @@ export default {
       title: '捕鯨の港の倉庫群',
       transcript: [
         '1830年代、このウォーターフロントはホバート・タウンで最もにぎやかな場所で、流刑囚が建てた砂岩の倉庫が並んでいました。',
-        '鯨油や羊毛、穀物、木材がこの扉を通って、ロンドンやさらに遠くへ運ばれていきました。',
+        '鯨油、羊毛、穀物、輸入品がこれらの扉を通って港を行き来しました。',
         '通りの名前は、ナポレオン戦争中の1812年にスペインで起きたサラマンカの戦いに由来します。',
         '今では同じ建物にギャラリーやカフェが入り、有名な土曜マーケットも開かれています。',
       ],

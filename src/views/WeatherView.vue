@@ -2,8 +2,8 @@
 /**
  * Walking conditions. Numbers come from data/weather.js; all wording is localised.
  * "Now" follows the simulated live weather (stores/weather.js), like the tab icon.
- * The advice card leads straight into planning (Accessible route preselected), so the
- * page isn't a dead end.
+ * The advice card leads straight into a walk: turn-by-turn navigation to the nearest
+ * step-free site with the Accessible route already selected — one tap, no dead end.
  */
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -16,6 +16,10 @@ import SectionHeader from '@/components/base/SectionHeader.vue'
 import { computed } from 'vue'
 import { BEST_COMFORT_SCORE, CONDITIONS, WEATHER } from '@/data/weather'
 import { useTripStore } from '@/stores/trip'
+import { useLocationStore } from '@/stores/location'
+import { useContent } from '@/i18n/content'
+import { distanceKm } from '@/lib/geo'
+import { nearestAccessibleSite } from '@/lib/sites'
 import { useWeatherStore } from '@/stores/weather'
 
 const { bestWindow, hourlyComfort } = WEATHER
@@ -37,10 +41,15 @@ const forecast = computed(() => [
   ...WEATHER.forecast.slice(1),
 ])
 
-/** The route picker shows "Accessible" already selected as soon as a place is chosen. */
+const location = useLocationStore()
+const { sites } = useContent()
+/** Straight into navigation: nearest step-free site from the walker, Accessible route selected. */
 function planAccessibleWalk() {
+  const site = nearestAccessibleSite(sites.value, (s) => distanceKm(location.origin, s.coordinates))
+  if (!site) return router.push({ name: 'map' })
   trip.setRouteType('accessible')
-  router.push({ name: 'map' })
+  trip.setDestination(site.id)
+  router.push({ name: 'navigate-map', params: { id: site.id } })
 }
 </script>
 
