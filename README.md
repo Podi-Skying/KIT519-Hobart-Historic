@@ -16,7 +16,7 @@ Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 - **可收合面板**：Map 選好景點後的路線面板、標準導航的面板，都可以往下拉成只顯示「時間 · 距離」的細條，讓出地圖；往上拉或點一下就展開（`useSnapSheet`：1:1 跟手、依動量決定收合或展開、彈簧收尾）
 - **導航**：按「出發」或景點的「開始路線」直接進入**標準地圖導航**（預設）；導航畫面上的「更改導航方式」按鈕可換成 AR 導航或可列印地圖（含各站重點，可當團體講義）。路線類型在有地圖的畫面上選（Map、標準導航），其他兩條路線會以淡色畫在地圖上，點一下就能切換。路線規劃中，地圖上方顯示「正在尋找步行路線…」轉圈提示。抵達時自動跳出面板，一鍵收聽語音導覽或用 AR 掃描
 - **語音導覽**：以裝置內建語音（Web Speech API，免費、免金鑰）朗讀所選語言的導覽稿
-- **AR**：辨識到地標後**自動播放語音導覽**，點「Listen」泡泡直接暫停／繼續，離開 AR 頁面即停止；照片（AR 相機與 **AR 導航**）可以**傾斜手機**或**拖曳**來環顧四周（照片比畫面大一點；資訊泡泡在較近的一層、移動得比背景多，形成 3D 視差；iPhone 第一次需點 🧭 允許動作感測；減少動態效果時只保留拖曳）；依景點顯示相機畫面與資訊（辨識到的地標名稱顯示在頂部狀態列；「不是這棟建築？」改放在右上角說明裡，可切換地標）；每個景點都有「穿越時光」時間軸，**進入後自動播放**：從最新的照片開始，每張停留約 3 秒，再慢慢溶接到更早的年份，播到最早的照片停止；右上角可暫停／重播，碰照片或滑桿就交給使用者操作：該景點所有照片（今日、相簿、檔案照片）由新到舊排列；照片全螢幕，拖曳下方一條滑桿即可在照片間連續漸變（沿用原本今昔滑桿設計，只是從 2 張延伸到全部照片），精簡資訊卡只顯示年份、標題與兩行說明（`lib/sites.js` `siteTimeline`）
+- **AR**：辨識到地標後**自動播放語音導覽**，點「Listen」泡泡直接暫停／繼續，離開 AR 頁面即停止；照片（AR 相機與 **AR 導航**）可以**傾斜手機**或**拖曳**來環顧四周（照片比畫面大一點；資訊泡泡在較近的一層、移動得比背景多，形成 3D 視差；iPhone 第一次需點 🧭 允許動作感測；減少動態效果時只保留拖曳）；依景點顯示相機畫面與資訊（辨識到的地標名稱顯示在頂部狀態列；「不是這棟建築？」改放在右上角說明裡，可切換地標）；「**穿越時光」直接整合在 AR 畫面**（不用另開頁面）：辨識到地標後，語音導覽和年份進度條一起開始，相機畫面裡的建築從今天**等速**慢慢溶接到最早的照片（每張 6 秒、線性前進，進度條和照片都不會突然跳動，`lib/timeline.js`）；底部卡片顯示年份、標題、一行說明、播放／暫停按鈕和年份進度條，拖動進度條就改為手動、播到最早一張自動停止，再按播放從今天重播。今天那一格用的就是相機畫面，所以看到的是眼前這棟建築慢慢變老（`arTimeline`、`siteTimeline`）
 - **Weather**：步行天氣（含目前天氣圖示）、最佳步行時段、一週預報；一鍵「規劃無障礙步行」。原型以模擬資料每 10 秒切換一次目前天氣，頁面與 tab bar 的天氣圖示會跟著淡入淡出（`stores/weather.js`）
 
 > **KIT519 Assignment 3 設計與評估文件**：[`docs/a3/`](docs/a3/README.md)（personas、user journeys、task flows、site map、RTM、UML、評估計畫與工具、證據與發現）
@@ -170,6 +170,7 @@ hobart-heritage/
 │   │   ├── pageTransition.js  # 換頁轉場判斷（push / pop / fade）
 │   │   ├── routeHighlights.js # 路線特徵點（最陡段、最高點、平緩路段）
 │   │   ├── parallax.js        # AR 環顧：傾斜角度 → 位移
+│   │   ├── timeline.js        # AR 穿越時光：等速播放、照片混合
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
 │   ├── services/googleMaps.js # Google Maps API 載入器（讀取 VITE_ 環境變數）
@@ -188,7 +189,7 @@ hobart-heritage/
 │   ├── composables/           # 可重用的組合式函式
 │   │   ├── useCarousel.js     # 吸附輪播 + 桌機拖曳
 │   │   ├── useSheetDrag.js    # 底部面板拖曳（BottomSheet 與 Map 面板共用）
-│   │   ├── useSwipePager.js   # 相片 1:1 左右滑動（相簿、穿越時光）
+│   │   ├── useSwipePager.js   # 相片 1:1 左右滑動（相簿）
 │   │   ├── useLookAround.js   # AR 照片環顧：陀螺儀 + 拖曳 + 視差
 │   │   ├── usePageTransition.js # 換頁彈簧（可中途反轉）
 │   │   ├── useKeydown.js      # 頁面鍵盤快捷鍵
@@ -215,7 +216,7 @@ hobart-heritage/
 │       ├── HomeView.vue  SiteDetailView.vue  GalleryView.vue  AudioTourView.vue
 │       ├── MapView.vue  StandardNavigationView.vue
 │       ├── ArNavigationView.vue  PrintableMapView.vue
-│       ├── ArCameraView.vue  ArCompareView.vue  WeatherView.vue
+│       ├── ArCameraView.vue  WeatherView.vue
 ├── tests/                     # Vitest 單元測試
 └── archive/v1-single-file/    # 舊版單檔 HTML（僅供參考，可刪除）
 ```
@@ -231,7 +232,7 @@ hobart-heritage/
 | `/map` | MapView | Map |
 | `/navigate/:id` | → 導向 `/navigate/:id/map`（舊網址相容） | Map |
 | `/navigate/:id/map` · `/ar` · `/print` | 標準（預設）／AR／列印導航；在導航畫面用 `NavigationModeSheet` 切換 | Map |
-| `/ar/:id?` · `/ar/:id/compare` | ArCameraView（無 id = 最近的景點）· ArCompareView（所有景點的照片時間軸） | AR |
+| `/ar/:id?` | ArCameraView（無 id = 最近的景點；穿越時光在畫面內播放）· 舊網址 `/ar/:id/compare` 導向這裡 | AR |
 | `/weather` | WeatherView | Weather |
 
 不存在的景點 id 會被 `beforeEnter` 導回 Home；未知路徑一律導回 Home。
@@ -494,7 +495,7 @@ hobart-heritage/
   - 按鈕、方向鍵、縮圖（可跳到不相鄰的照片）走同一個彈簧；滑到一半再點一次，會先完成這一頁再往下。
   - **可中斷**：手指一碰到照片，彈簧就停在原地；拖動會從那裡接著走，只是點一下則從那裡安定到最近的一頁。
   - 照片元素以圖片為 key，鄰居變成目前照片時是同一個元素，不會重新載入或跳一下。只有一張照片時兩端橡皮筋；減少動態效果時改為淡入。
-- **穿越時光**：在照片上拖曳直接連續調整漸變（一個螢幕寬 = 一張照片），放開吸附到動量落點最近的一張；吸附用彈簧（`SPRINGS.sheet`）從手指的速度開始，吸附途中再拖一次會接著目前的畫面。
+- **穿越時光**（AR 畫面內）：播放時位置以固定速度線性前進（`advancePosition`），照片透明度與進度條同步、完全勻速；拖動年份進度條即暫停並跟手。在照片上拖曳則是環顧四周，不是切換年份。
 - **輪播圓點**：整排可以按住左右滑動來切換（像 iOS 的 page control）；選中的膠囊指示條以 transform 滑到目前那一點，圓點按下會變淡。
 
 **材質與空間（Apple：半透明材質表達層級、從哪裡來就回哪裡去）**

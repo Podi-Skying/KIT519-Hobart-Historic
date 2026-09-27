@@ -16,6 +16,7 @@ import ArBubble from '@/components/ar/ArBubble.vue'
 import ArHelpOverlay from '@/components/ar/ArHelpOverlay.vue'
 import { localizeNarration, useContent } from '@/i18n/content'
 import { siteTimeline } from '@/lib/sites'
+import { advancePosition, arTimeline, layerOpacity } from '@/lib/timeline'
 import { usePlayerStore } from '@/stores/player'
 import { useUiStore } from '@/stores/ui'
 import { LOOK_SCALE, useLookAround } from '@/composables/useLookAround'
@@ -43,8 +44,47 @@ const site = computed(() => {
   if (props.id) return siteById(props.id)
   return [...sites.value].sort((a, b) => location.distanceTo(a).km - location.distanceTo(b).km)[0]
 })
-/** Photos in the site's through-time viewer. */
-const photoCount = computed(() => siteTimeline(site.value).length)
+// ---- Through time, right here: the building ages in place while you listen ----
+/** Today (the camera view) → the oldest photo. */
+const timeline = computed(() => arTimeline(siteTimeline(site.value), site.value.arImage))
+const lastIndex = computed(() => timeline.value.length - 1)
+/** 0 = today … lastIndex = oldest; fractional = two photos blended. */
+const position = ref(0)
+const nearest = computed(() => Math.round(position.value))
+const shownPhoto = computed(() => timeline.value[nearest.value])
+const timePlaying = ref(false)
+const yearLabel = (p) => (p.year ? p.year : t('compare.today'))
+let frame = null
+let lastTick = 0
+function tick(now) {
+  const dt = Math.min(64, now - lastTick) // a backgrounded tab must not skip ahead
+  lastTick = now
+  position.value = advancePosition(position.value, dt, lastIndex.value)
+  if (position.value >= lastIndex.value) {
+    timePlaying.value = false // reached the oldest photo
+    frame = null
+    return
+  }
+  frame = requestAnimationFrame(tick)
+}
+function playTime() {
+  if (position.value >= lastIndex.value) position.value = 0 // replay from today
+  timePlaying.value = true
+  lastTick = performance.now()
+  cancelAnimationFrame(frame)
+  frame = requestAnimationFrame(tick)
+}
+function pauseTime() {
+  timePlaying.value = false
+  cancelAnimationFrame(frame)
+  frame = null
+}
+const toggleTime = () => (timePlaying.value ? pauseTime() : playTime())
+/** Dragging the year bar takes over from playback. */
+function scrubTime(value) {
+  pauseTime()
+  position.value = value / 100
+}
 const narration = computed(() => localizeNarration(site.value.id, locale.value))
 
 const detected = ref(false)
@@ -88,6 +128,8 @@ function scan() {
   detected.value = false
   openPanel.value = null
   player.pause() // the previous landmark's tour stops while the new one is found
+  pauseTime()
+  position.value = 0
   Object.assign(positions, structuredClone(DEFAULT_HOTSPOTS))
   scanTimer = setTimeout(() => (detected.value = true), SCAN_DURATION_MS)
 }
@@ -99,10 +141,12 @@ watch(detected, (now) => {
   if (!now) return
   player.load(site.value.id)
   if (!player.playing) player.play()
+  playTime() // …and the building starts to age: listen while you watch it go back in time
 })
 onBeforeUnmount(() => {
   clearTimeout(scanTimer)
   player.pause()
+  cancelAnimationFrame(frame)
 })
 
 function chooseSite(id, dismiss) {
@@ -117,7 +161,20 @@ const exit = () => router.push({ name: 'home' })
   <div ref="stage" class="ar-camera" v-on="look.handlers">
     <div class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
       <Transition name="feed" mode="out-in">
-        <img :key="site.id" class="ar-camera__feed" :src="site.arImage" :alt="t('ar.cameraAlt', { name: site.name })" draggable="false" />
+        <div :key="site.id" class="ar-camera__stack">
+          <!-- stacked from today to oldest; only the two photos either side of `position` show -->
+          <img
+            v-for="(p, i) in timeline"
+            :key="p.image"
+            class="ar-camera__feed"
+            :src="p.image"
+            :alt="i === nearest ? (i === 0 ? t('ar.cameraAlt', { name: site.name }) : t('compare.photoAlt', { name: site.name, year: yearLabel(p) })) : ''"
+            :aria-hidden="i === nearest ? undefined : 'true'"
+            :style="{ opacity: i === 0 ? 1 : layerOpacity(i, position) }"
+            :loading="i < 2 ? 'eager' : 'lazy'"
+            draggable="false"
+          />
+        </div>
       </Transition>
     </div>
     <div class="ar-camera__veil" />
@@ -194,11 +251,46 @@ const exit = () => router.push({ name: 'home' })
       </section>
     </Transition>
 
-    <div class="ar-camera__bottom" data-no-look>
-      <BaseButton block :to="{ name: 'ar-compare', params: { id: site.id } }">
-        <AppIcon name="clock" :size="18" /> {{ t('ar.compare', { n: photoCount }) }}
-      </BaseButton>
-    </div>
+    <!-- Through time: a year bar instead of a separate page -->
+    <section class="ar-camera__bottom timeline text-zoom" data-no-look :aria-label="t('compare.title')">
+      <p class="timeline__head">
+        <b>{{ yearLabel(shownPhoto) }}</b>
+        <span v-if="shownPhoto.archival" class="timeline__tag">{{ t('compare.archival') }}</span>
+        · {{ shownPhoto.title || site.name }}
+      </p>
+      <p class="timeline__text" aria-live="polite">{{ shownPhoto.text }}</p>
+      <div class="timeline__controls">
+        <!-- playback can always be paused (WCAG 2.2.2) -->
+        <button
+          type="button"
+          class="timeline__play pressable"
+          :aria-label="timePlaying ? t('audio.pause') : t('audio.play')"
+          :aria-pressed="timePlaying"
+          @click="toggleTime"
+        >
+          <AppIcon :name="timePlaying ? 'pause' : 'play'" :size="18" :filled="true" />
+        </button>
+        <input
+          class="timeline__slider slider"
+          type="range"
+          min="0"
+          :max="lastIndex * 100"
+          :value="Math.round(position * 100)"
+          :style="{ '--fill': `${lastIndex ? (position / lastIndex) * 100 : 0}%` }"
+          :aria-label="t('compare.timeline', { name: site.name })"
+          :aria-valuetext="`${yearLabel(shownPhoto)} · ${shownPhoto.title || site.name}`"
+          @pointerdown="pauseTime"
+          @input="scrubTime(Number($event.target.value))"
+        />
+      </div>
+      <div class="timeline__ends" aria-hidden="true">
+        <span>{{ yearLabel(timeline[0]) }}</span>
+        <span class="timeline__ticks">
+          <i v-for="(p, i) in timeline" :key="p.image" :class="{ 'is-on': i === nearest }" />
+        </span>
+        <span>{{ yearLabel(timeline[lastIndex]) }}</span>
+      </div>
+    </section>
 
     <!-- "Not this building?" lives in help, keeping the camera view clear -->
     <Transition name="materialize">
@@ -332,7 +424,7 @@ const exit = () => router.push({ name: 'home' })
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: 84px;
+  bottom: 178px; /* above the through-time card */
   z-index: 8;
   max-height: 46%;
   overflow-y: auto;
@@ -364,12 +456,99 @@ const exit = () => router.push({ name: 'home' })
   object-fit: cover;
   border-radius: var(--r-sm);
 }
+.ar-camera__stack {
+  position: absolute;
+  inset: 0;
+}
 .ar-camera__bottom {
   position: absolute;
-  left: var(--gutter);
-  right: var(--gutter);
-  bottom: 18px;
+  left: var(--s-3);
+  right: var(--s-3);
+  bottom: var(--s-3);
   z-index: 7;
+}
+/* ---- through-time card ---- */
+.timeline {
+  padding: var(--s-3) var(--s-4) var(--s-2);
+  border-radius: var(--r-lg);
+  background: var(--cream);
+  box-shadow: var(--e-2);
+}
+.timeline__head {
+  overflow: hidden;
+  font: var(--t-label-sm);
+  color: var(--ink-700);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.timeline__head b {
+  font: var(--t-title);
+  color: var(--ink-900);
+}
+.timeline__tag {
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: var(--brand-50);
+  color: var(--brand-600);
+  font: var(--t-micro);
+  font-weight: 700;
+  letter-spacing: var(--track-caption);
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+.timeline__text {
+  display: -webkit-box;
+  margin-top: 2px;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  font: var(--t-body-sm);
+  color: var(--ink-900);
+}
+.timeline__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.timeline__play {
+  width: var(--hit);
+  height: var(--hit);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: calc(-1 * var(--s-2));
+  border-radius: 50%;
+  color: var(--brand-600);
+}
+.timeline__slider {
+  flex: 1;
+  min-width: 0;
+}
+.timeline__ends {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-top: -6px;
+  font: var(--t-micro);
+  color: var(--ink-700);
+}
+.timeline__ticks {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+.timeline__ticks i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--outline);
+  transition: background var(--dur) var(--ease);
+}
+.timeline__ticks i.is-on {
+  background: var(--brand-600);
 }
 .chooser {
   display: grid;

@@ -109,14 +109,11 @@ const routes = [
     beforeEnter: (to) => (!to.params.id || getSiteById(to.params.id) ? true : { name: 'ar' }),
     meta: { tab: 'ar', status: overCamera },
   },
+  // "Through time" now plays inside the AR camera view; old links land there.
   {
     path: '/ar/:id(\\d+)/compare',
     name: 'ar-compare',
-    component: () => import('@/views/ArCompareView.vue'),
-    props: siteProps,
-    // Every site has a photo timeline (gallery + any archival views).
-    beforeEnter: (to) => (getSiteById(to.params.id) ? true : { name: 'ar' }),
-    meta: { tab: 'ar', status: overCamera },
+    redirect: (to) => ({ name: 'ar', params: { id: to.params.id } }),
   },
 
   // ---- Weather tab ----
