@@ -167,12 +167,14 @@ const exit = () => router.push({ name: 'home' })
     </div>
 
     <!-- "Not this building?" lives in help, keeping the camera view clear -->
-    <ArHelpOverlay
-      v-if="helpOpen"
-      :can-switch="detected"
-      @close="helpOpen = false"
-      @choose="helpOpen = false; chooserOpen = true"
-    />
+    <Transition name="materialize">
+      <ArHelpOverlay
+        v-if="helpOpen"
+        :can-switch="detected"
+        @close="helpOpen = false"
+        @choose="helpOpen = false; chooserOpen = true"
+      />
+    </Transition>
 
     <BottomSheet
       v-if="chooserOpen"

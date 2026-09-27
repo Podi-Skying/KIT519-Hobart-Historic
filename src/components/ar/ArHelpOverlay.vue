@@ -37,6 +37,25 @@ const { t } = useI18n()
   padding: 28px;
   background: var(--scrim);
 }
+.help.materialize-enter-active,
+.help.materialize-leave-active {
+  transition: opacity var(--dur) var(--ease);
+}
+.help.materialize-enter-from,
+.help.materialize-leave-to {
+  opacity: 0;
+}
+/* Materialize (Apple): the card arrives as a surface — scale and blur resolve together — rather
+   than a flat fade. Reduced motion: --motion 0 leaves just the fade. */
+.materialize-enter-active .help__card,
+.materialize-leave-active .help__card {
+  transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease);
+}
+.materialize-enter-from .help__card,
+.materialize-leave-to .help__card {
+  transform: scale(calc(1 - 0.06 * var(--motion)));
+  filter: blur(calc(8px * var(--motion)));
+}
 .help__card {
   padding: var(--s-6);
   border-radius: var(--r-lg);

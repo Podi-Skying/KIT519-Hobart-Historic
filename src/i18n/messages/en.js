@@ -4,6 +4,7 @@
  */
 export default {
   common: {
+    undo: 'Undo',
     back: 'Back',
     close: 'Close',
     done: 'Done',

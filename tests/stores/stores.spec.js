@@ -81,6 +81,17 @@ describe('trip store', () => {
     expect(trip.stopIds).toEqual([])
   })
 
+  it('undo puts a removed stop back in its place in the walking order', () => {
+    const trip = useTripStore()
+    const [a, b, c] = WAYPOINTS.map((w) => w.id)
+    ;[a, b, c].forEach((id) => trip.toggleStop(id))
+    const index = trip.stopIds.indexOf(b)
+    trip.toggleStop(b)
+    expect(trip.restoreStop(b, index)).toBe(true)
+    expect(trip.stopIds).toEqual([a, b, c])
+    expect(trip.restoreStop(b, index)).toBe(false) // already back
+  })
+
   it('ignores unknown route types', () => {
     const trip = useTripStore()
     trip.setRouteType('helicopter')

@@ -1,6 +1,7 @@
 /** 日本語 UI strings — mirrors en.js. */
 export default {
   common: {
+    undo: '取り消す',
     back: '戻る',
     close: '閉じる',
     done: '完了',

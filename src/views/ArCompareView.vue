@@ -7,13 +7,14 @@
  * slider jump a whole photo; dragging on the photo scrubs the blend 1:1 (one screen width =
  * one photo) and a flick carries on to wherever its momentum lands.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
 import { useContent } from '@/i18n/content'
 import { useGoBack } from '@/composables/useGoBack'
 import { siteTimeline } from '@/lib/sites'
 import { useSwipePager } from '@/composables/useSwipePager'
+import { createSpringAnimator, SPRINGS } from '@/lib/spring'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -30,7 +31,6 @@ const last = computed(() => photos.value.length - 1)
 
 /** 0 = newest photo … last × STEP = oldest; values in between blend two neighbours. */
 const blend = ref(0)
-watch(() => props.id, () => (blend.value = 0))
 
 const position = computed(() => blend.value / STEP)
 const nearest = computed(() => Math.round(position.value))
@@ -45,7 +45,29 @@ function opacityOf(i) {
   return 0
 }
 
-const goTo = (i) => (blend.value = Math.min(Math.max(i, 0), last.value) * STEP)
+const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+/** Snaps are a critically damped spring on the blend itself, so they start at the finger's speed
+ *  and a new drag can catch them mid-way. Reduced motion: jump, and let CSS cross-fade (.is-animated). */
+const blendSpring = createSpringAnimator((value) => (blend.value = value))
+onBeforeUnmount(() => blendSpring.stop())
+/** @param {number} velocity blend units per second (from a flick) */
+function goTo(i, velocity = 0) {
+  const target = Math.min(Math.max(i, 0), last.value) * STEP
+  if (reduceMotion()) {
+    blendSpring.stop()
+    blend.value = target
+    return
+  }
+  blendSpring.animate({ from: blend.value, to: target, velocity, spring: SPRINGS.sheet })
+}
+
+watch(
+  () => props.id,
+  () => {
+    blendSpring.stop()
+    blend.value = 0
+  },
+)
 function onKey(e) {
   const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key]
   if (step === undefined) return
@@ -60,12 +82,16 @@ const stage = ref(null)
 let dragStart = 0
 const widthPx = () => stage.value?.clientWidth || 360
 const pager = useSwipePager({
-  onStart: () => (dragStart = blend.value),
+  onStart: () => {
+    blendSpring.stop() // caught mid-snap: carry on from what's on screen
+    dragStart = blend.value
+  },
   onMove(dx) {
     blend.value = Math.min(Math.max(dragStart - (dx / widthPx()) * STEP, 0), last.value * STEP)
   },
-  onRelease({ projected }) {
-    goTo(Math.round((dragStart - (projected / widthPx()) * STEP) / STEP))
+  onRelease({ projected, velocity }) {
+    // px/ms of finger → blend units/s (left = older = up)
+    goTo(Math.round((dragStart - (projected / widthPx()) * STEP) / STEP), (-velocity * 1000 * STEP) / widthPx())
   },
 })
 
@@ -79,7 +105,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
         v-for="(p, i) in photos"
         :key="p.image"
         class="compare__layer"
-        :class="{ 'is-animated': blend % STEP === 0 && !pager.dragging.value }"
+        :class="{ 'is-animated': blend % STEP === 0 && !pager.dragging.value && reduceMotion() }"
         :src="p.image"
         :alt="i === nearest ? t('compare.photoAlt', { name: site.name, year: yearLabel(p) }) : ''"
         :aria-hidden="i === nearest ? undefined : 'true'"
@@ -106,6 +132,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
       <p class="caption-card__text" aria-live="polite">{{ photo.text }}</p>
       <input
         v-model.number="blend"
+        @pointerdown="blendSpring.stop()"
         class="caption-card__slider"
         type="range"
         min="0"

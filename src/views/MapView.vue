@@ -110,15 +110,18 @@ function locate() {
 
 // ---- stops & preferences ----
 function toggleStop(stop) {
+  const index = trip.stopIds.indexOf(stop.id)
   const result = trip.toggleStop(stop.id)
   haptic(stopToggleHaptic(result))
   const name = t(`waypoints.${stop.id}`)
-  const messages = {
-    added: t('map.toast.stopAdded', { name }),
-    removed: t('map.toast.stopRemoved', { name }),
-    full: t('map.toast.stopsFull', { n: MAX_STOPS }),
+  if (result === 'removed') {
+    // Removing is a slip away from losing the walking order you built: offer Undo, not a confirm.
+    ui.showToast(t('map.toast.stopRemoved', { name }), {
+      action: { label: t('common.undo'), run: () => trip.restoreStop(stop.id, index) },
+    })
+    return
   }
-  ui.showToast(messages[result])
+  ui.showToast(result === 'added' ? t('map.toast.stopAdded', { name }) : t('map.toast.stopsFull', { n: MAX_STOPS }))
 }
 
 function toggleVoice() {
@@ -191,7 +194,7 @@ function toggleOffline() {
           <li v-for="stop in trip.stops" :key="stop.id">
             <AppIcon :name="stop.icon" :size="14" />
             {{ t(`waypoints.${stop.id}`) }}
-            <button type="button" class="pressable" :aria-label="t('map.remove', { name: t(`waypoints.${stop.id}`) })" @click="trip.toggleStop(stop.id)">
+            <button type="button" class="pressable" :aria-label="t('map.remove', { name: t(`waypoints.${stop.id}`) })" @click="toggleStop(stop)">
               <AppIcon name="close" :size="12" :stroke-width="2.6" />
             </button>
           </li>

@@ -1,6 +1,7 @@
 /** 한국어 UI strings — mirrors en.js. */
 export default {
   common: {
+    undo: '실행 취소',
     back: '뒤로',
     close: '닫기',
     done: '완료',

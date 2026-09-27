@@ -1,6 +1,7 @@
 /** 繁體中文 UI strings — mirrors en.js. */
 export default {
   common: {
+    undo: '復原',
     back: '返回',
     close: '關閉',
     done: '完成',

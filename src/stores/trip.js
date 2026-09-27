@@ -50,6 +50,16 @@ export const useTripStore = defineStore('trip', {
       this.stopIds = [...this.stopIds, id]
       return 'added'
     },
+    /**
+     * Put a removed stop back where it was (Undo). Order matters: it is the walking order.
+     * @returns {boolean} false if it is already there or the route is full
+     */
+    restoreStop(id, index) {
+      if (this.hasStop(id) || this.isFull) return false
+      const at = Math.max(0, Math.min(index, this.stopIds.length))
+      this.stopIds = [...this.stopIds.slice(0, at), id, ...this.stopIds.slice(at)]
+      return true
+    },
     toggleVoiceGuidance() {
       this.voiceGuidance = !this.voiceGuidance
     },
