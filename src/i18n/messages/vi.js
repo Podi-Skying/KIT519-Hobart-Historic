@@ -229,6 +229,8 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    walkAhead: 'Đi tiếp',
+    noPathAhead: "Street View không đi xa hơn theo hướng này",
     view360None: 'Không có ảnh đường phố 360° tại vị trí của bạn',
     close: 'Đóng dẫn đường AR',
     map: 'Bản đồ',

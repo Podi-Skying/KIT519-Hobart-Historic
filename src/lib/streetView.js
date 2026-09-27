@@ -132,3 +132,21 @@ export function offsetPoint(p, bearingDeg, meters) {
   const dLng = (meters * Math.sin(b)) / (111320 * Math.cos(toRad(p.lat)))
   return { lat: p.lat + dLat, lng: p.lng + dLng }
 }
+
+/** Angular difference in degrees, 0…180. */
+export const angleBetween = (a, b) => Math.abs(((((a - b) % 360) + 540) % 360) - 180)
+
+/**
+ * The Street View link (neighbouring panorama) that best continues in `wantHeading`, or null
+ * when none is within `maxOff` degrees (don't walk sideways into a side street).
+ * @param {{heading:number, pano:string}[]} links  panorama.getLinks()
+ */
+export function bestLink(links, wantHeading, maxOff = 60) {
+  let best = null
+  for (const link of links) {
+    if (!link?.pano || typeof link.heading !== 'number') continue
+    const off = angleBetween(link.heading, wantHeading)
+    if (off <= maxOff && (!best || off < best.off)) best = { ...link, off }
+  }
+  return best
+}

@@ -229,6 +229,8 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    walkAhead: '往前走',
+    noPathAhead: "街景沒辦法再往這個方向前進",
     view360None: '你所在的位置沒有 360° 街景',
     close: '關閉 AR 導航',
     map: '地圖',

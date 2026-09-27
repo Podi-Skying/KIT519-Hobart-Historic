@@ -229,6 +229,8 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    walkAhead: '前に進む',
+    noPathAhead: "この方向にはストリートビューが続いていません",
     view360None: '現在地に 360° ストリートビューがありません',
     close: 'AR ナビを閉じる',
     map: 'マップ',

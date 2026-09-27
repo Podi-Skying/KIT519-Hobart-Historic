@@ -120,6 +120,8 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 
 - **AR navigation map (Live View style).** A dome along the bottom (`.ar-nav__dome`, `clip-path: ellipse(120% 100% at 50% 100%)`) holding a heading-up *vector* map: `SiteMap :follow="{ position, heading }"` → GoogleMap `followCamera()` (moveCamera zoom 18, centre 30 m ahead, heading = bearing to `pointAhead`), blue heading arrow instead of the dot. Vector maps have their own pool (`acquireMap(..., { vector: true })`). Owner's decision (non-commercial project, appearance first): the Street View panorama runs full height *under* the dome, so its own Google strip is hidden; the dome's map keeps Google's logo/Terms visible (bottom 32px clear), and the panorama's image credit (`copyright` from getPanorama) is shown in the dome as "Street View © …". Panorama controls sit above the dome via `bottomInset`. ETA + destination + Simulate sit in a capsule at the top of the dome.
 
+- **Walk ahead in Street View.** AR navigation shows 3D ground chevrons (`.ar-nav__go`, CSS perspective + rotateX, turned by `arrowTurn` = route bearing from the *view's* position − view heading). Tapping calls `StreetView360.stepForward(heading)`: `bestLink(panorama.getLinks(), heading)` (lib/streetView, ≤ 60° off) → dolly-in transition (`.is-stepping`) → `setPano`. The dome map follows the view's position. No link that way → toast.
+
 ## Styling rules
 
 - **Tokens only.** Use `src/styles/tokens.css`; never write hex values in components. Camera/photo surfaces use `--camera-bg`, `--ar-arrow`, `--like-glass`, `--photo-veil-*` (all overridden for high contrast). Glass IconButtons invert to a cream fill when pressed/on. Icons are AppIcon line icons — no emoji.

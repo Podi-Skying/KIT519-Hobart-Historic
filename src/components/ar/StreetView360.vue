@@ -25,7 +25,7 @@ import { requestMotionPermission } from '@/composables/useLookAround'
 import { useUiStore } from '@/stores/ui'
 import { loadStreetView, onGoogleMapsAuthFailure } from '@/services/googleMaps'
 import { acquirePanorama, releasePanorama } from '@/services/googlePool'
-import { LANDMARK_PITCH, PANO_FOLLOW_METERS, PANO_SEARCH_RADIUS_M, approachAngle, facingPov, orientationToPov } from '@/lib/streetView'
+import { LANDMARK_PITCH, PANO_FOLLOW_METERS, PANO_SEARCH_RADIUS_M, approachAngle, bestLink, facingPov, orientationToPov } from '@/lib/streetView'
 import { distanceKm } from '@/lib/geo'
 
 const props = defineProps({
@@ -42,7 +42,7 @@ const props = defineProps({
   /** Camera tilt: up at a building, level down a street */
   pitch: { type: Number, default: LANDMARK_PITCH },
 })
-const emit = defineEmits(['ready', 'unavailable', 'lost', 'credit'])
+const emit = defineEmits(['ready', 'unavailable', 'lost', 'credit', 'view'])
 
 const { t } = useI18n()
 const el = ref(null)
@@ -114,6 +114,39 @@ async function toggleMotion() {
 }
 let alive = true
 let broken = false
+let viewListeners = []
+let viewFrame = 0
+/** Emit { position, heading } of the view, at most once a frame. */
+function reportView() {
+  if (viewFrame) return
+  viewFrame = requestAnimationFrame(() => {
+    viewFrame = 0
+    const ll = panorama?.getPosition()
+    if (!ll) return
+    emit('view', { position: { lat: ll.lat(), lng: ll.lng() }, heading: panorama.getPov().heading })
+  })
+}
+
+// ---- walk forward through Street View ----
+const stepping = ref(false)
+/**
+ * Move to the next panorama along `wantHeading` (the route's direction), with a dolly-in
+ * transition. Returns false when Street View has no link roughly that way.
+ */
+async function stepForward(wantHeading) {
+  if (!panorama || stepping.value) return false
+  const link = bestLink(panorama.getLinks() ?? [], wantHeading)
+  if (!link) return false
+  stepping.value = true // CSS: push in + soften (reduced motion: a quick fade)
+  await new Promise((r) => setTimeout(r, 180))
+  panorama.setPano(link.pano)
+  currentPano = link.pano
+  if (!motion.value) panorama.setPov({ heading: link.heading, pitch: props.pitch })
+  await new Promise((r) => setTimeout(r, 260))
+  stepping.value = false
+  return true
+}
+defineExpose({ stepForward })
 function onContextLost(e) {
   e.preventDefault()
   if (broken) return
@@ -165,6 +198,11 @@ onMounted(async () => {
       motionTrackingControl: false,
     })
     panorama = pooled.instance
+    // report where the view stands and looks (AR arrows are drawn relative to it)
+    viewListeners = [
+      panorama.addListener('pov_changed', reportView),
+      panorama.addListener('position_changed', reportView),
+    ]
     // iPhones can drop the panorama's GPU context under memory pressure (it would freeze on a
     // black frame). Throw that instance away and let the parent mount a fresh one.
     pooled.element.addEventListener('webglcontextlost', onContextLost, true)
@@ -215,6 +253,8 @@ watch(
 // Leaving: stop listening, stop the gyro and park the panorama for the next 360° view.
 onBeforeUnmount(() => {
   alive = false
+  viewListeners.forEach((l) => l.remove())
+  cancelAnimationFrame(viewFrame)
   stopTracking()
   clearTimeout(hintTimer)
   stopAuthWatch()
@@ -226,7 +266,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="street-view" :class="{ 'is-ready': ready }" :style="{ '--sv-inset': `${bottomInset}px` }">
+  <div class="street-view" :class="{ 'is-ready': ready, 'is-stepping': stepping }" :style="{ '--sv-inset': `${bottomInset}px` }">
     <div ref="el" class="street-view__pano" />
     <Transition name="hint">
       <span v-if="motionHint" class="street-view__hint" aria-hidden="true">{{ t('ar.motion') }}</span>
@@ -264,6 +304,16 @@ onBeforeUnmount(() => {
   z-index: 0;
 }
 /* Same glass button as the AR top bar; pressed = motion on (charcoal, like other toggles) */
+/* Stepping forward: the view pushes in and softens as the next panorama loads, then settles —
+   reads as walking into the scene. Reduced motion: a short dip in opacity only. */
+.street-view__pano {
+  transition: transform 260ms var(--ease), filter 260ms var(--ease), opacity 260ms var(--ease);
+}
+.street-view.is-stepping .street-view__pano {
+  transform: scale(calc(1 + 0.18 * var(--motion)));
+  filter: blur(calc(3px * var(--motion)));
+  opacity: 0.85;
+}
 .street-view__motion {
   position: absolute;
   right: var(--gutter);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LANDMARK_PITCH, approachAngle, bearing, facingPov, offsetPoint, orientationToPov, pointAhead } from '@/lib/streetView'
+import { LANDMARK_PITCH, angleBetween, approachAngle, bearing, bestLink, facingPov, offsetPoint, orientationToPov, pointAhead } from '@/lib/streetView'
 import { getSiteById } from '@/data/sites'
 
 describe('bearing', () => {
@@ -86,5 +86,25 @@ describe('offsetPoint', () => {
     expect(north.lng).toBeCloseTo(147.33, 6)
     const east = offsetPoint(p, 90, 100)
     expect(bearing(p, east)).toBeCloseTo(90, 0)
+  })
+})
+
+describe('bestLink (walk forward through Street View)', () => {
+  const links = [
+    { heading: 10, pano: 'north' },
+    { heading: 185, pano: 'south' },
+    { heading: 95, pano: 'east' },
+  ]
+  it('picks the neighbour closest to the route direction, across 0°/360°', () => {
+    expect(bestLink(links, 350).pano).toBe('north')
+    expect(bestLink(links, 120).pano).toBe('east')
+  })
+  it('refuses to turn into a side street', () => {
+    expect(bestLink(links, 270)).toBeNull()
+    expect(bestLink([], 0)).toBeNull()
+  })
+  it('measures angles the short way round', () => {
+    expect(angleBetween(350, 10)).toBe(20)
+    expect(angleBetween(90, 270)).toBe(180)
   })
 })

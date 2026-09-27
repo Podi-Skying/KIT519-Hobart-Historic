@@ -232,6 +232,8 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    walkAhead: 'Walk ahead',
+    noPathAhead: "Street View doesn't go further this way",
     view360None: 'No 360° street view where you are',
     close: 'Close AR navigation',
     map: 'Map',

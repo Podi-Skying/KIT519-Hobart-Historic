@@ -20,6 +20,7 @@ import { useGoBack } from '@/composables/useGoBack'
 import { useVoiceGuidance } from '@/composables/useVoiceGuidance'
 import { LOOK_SCALE, useLookAround } from '@/composables/useLookAround'
 import { useUiStore } from '@/stores/ui'
+import { haptic } from '@/services/haptics'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -98,7 +99,34 @@ onBeforeUnmount(() => domeObserver?.disconnect())
 const routeHeading = computed(() =>
   distanceKm(here.value, ahead.value) * 1000 > 3 ? bearing(here.value, ahead.value) : 0,
 )
-const follow = computed(() => ({ position: here.value, heading: routeHeading.value }))
+
+// ---- walk ahead through Street View, guided by 3D arrows on the ground ----
+const sv = ref(null)
+/** Where the panorama stands and looks ({ position, heading }), reported by StreetView360. */
+const panoView = ref(null)
+/** Direction of the route from where the *view* stands (it may have walked ahead of the walker). */
+const guideHeading = computed(() => {
+  const at = panoView.value?.position
+  if (!at) return routeHeading.value
+  const next = pointAhead(walk.path.value, at) ?? site.value.coordinates
+  return distanceKm(at, next) * 1000 > 3 ? bearing(at, next) : routeHeading.value
+})
+/** Arrow turn on the ground, relative to where the view looks (−180…180°). */
+const arrowTurn = computed(() => {
+  const d = guideHeading.value - (panoView.value?.heading ?? guideHeading.value)
+  return ((((d % 360) + 540) % 360) - 180)
+})
+/** The dome map follows the view: after walking ahead in Street View it shows where you "are". */
+const follow = computed(() => ({ position: panoView.value?.position ?? here.value, heading: guideHeading.value }))
+const going = ref(false)
+async function walkAhead() {
+  if (going.value) return
+  going.value = true // arrows surge forward while the view steps
+  const moved = await sv.value?.stepForward(guideHeading.value)
+  if (moved) haptic('selection')
+  else ui.showToast(t('arNav.noPathAhead'), { duration: 2600 })
+  setTimeout(() => (going.value = false), 350)
+}
 </script>
 
 <template>
@@ -113,6 +141,7 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
     <Transition name="pano-fade">
       <StreetView360
         v-if="view360"
+        ref="sv"
         :key="panoKey"
         data-no-look
         :at="here"
@@ -120,6 +149,7 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
         :pitch="0"
         :bottom-inset="summaryHeight"
         @credit="(c) => (panoCredit = c)"
+        @view="(v) => (panoView = v)"
         @ready="onPanoReady"
         @unavailable="onPanoUnavailable"
         @lost="onPanoLost"
@@ -143,6 +173,24 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
     </div>
 
     <ArStatusPill data-toast-below :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
+
+    <!-- 360°: 3D arrows lie on the ground and point along the route; tap to walk ahead -->
+    <button
+      v-if="pano === 'ready'"
+      type="button"
+      class="ar-nav__go"
+      :class="{ 'is-going': going }"
+      data-no-look
+      :aria-label="t('arNav.walkAhead')"
+      @click="walkAhead"
+    >
+      <span class="ar-nav__floor" :style="{ '--turn': `${arrowTurn}deg` }" aria-hidden="true">
+        <svg v-for="n in 3" :key="n" class="ar-nav__chev" :style="{ '--i': n - 1 }" viewBox="0 0 90 56">
+          <path d="M6 50 L45 8 L84 50 L45 32 Z" />
+        </svg>
+      </span>
+      <span class="ar-nav__go-label">{{ t('arNav.walkAhead') }}</span>
+    </button>
 
     <!-- the painted arrows belong to the fallback photo; in 360° the street itself (turned ahead) shows the way -->
     <div v-if="pano === 'none'" v-look="1.4" class="ar-nav__near" aria-hidden="true">
@@ -334,6 +382,81 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
   font: var(--t-strong);
   letter-spacing: var(--track-h1);
   color: var(--success-600);
+}
+/* ---- 3D ground arrows (360°) ---- */
+.ar-nav__go {
+  position: absolute;
+  left: 50%;
+  bottom: calc(40% + var(--s-2));
+  z-index: 2;
+  width: 220px;
+  height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+  background: none;
+  transform: translateX(-50%);
+  perspective: 520px;
+}
+.ar-nav__floor {
+  position: relative;
+  width: 120px;
+  height: 150px;
+  transform-style: preserve-3d;
+  /* laid on the ground, turned toward the route */
+  transform: rotateX(58deg) rotateZ(var(--turn, 0deg));
+  transition: transform var(--dur-page) var(--ease);
+}
+.ar-nav__chev {
+  position: absolute;
+  left: 15px;
+  bottom: calc(var(--i) * 44px);
+  width: 90px;
+  height: 56px;
+  overflow: visible;
+  /* white face, blue rim, a darker blue extrusion under it = a solid 3D chevron */
+  filter: drop-shadow(0 7px 0 var(--info-600)) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.35));
+  animation: chev-flow 1.5s var(--ease) infinite;
+  animation-delay: calc(var(--i) * 0.18s);
+}
+.ar-nav__chev path {
+  fill: var(--paper);
+  stroke: var(--info-600);
+  stroke-width: 5;
+  stroke-linejoin: round;
+}
+.ar-nav__go-label {
+  margin-top: -6px;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  color: var(--cream);
+  font: var(--t-label-sm);
+}
+.ar-nav__go:active .ar-nav__floor {
+  scale: var(--press-scale);
+}
+/* tapped: the arrows surge forward with the view */
+.ar-nav__go.is-going .ar-nav__chev {
+  animation: chev-surge 0.35s var(--ease) both;
+}
+@keyframes chev-flow {
+  0% { opacity: 0.35; translate: 0 18px; }
+  45% { opacity: 1; }
+  100% { opacity: 0.35; translate: 0 -18px; }
+}
+@keyframes chev-surge {
+  to { opacity: 0; translate: 0 -70px; scale: 1.15; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-nav__chev,
+  .ar-nav__go.is-going .ar-nav__chev {
+    animation: none;
+  }
 }
 .pano-fade-enter-active,
 .pano-fade-leave-active {

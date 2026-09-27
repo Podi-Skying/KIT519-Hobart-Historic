@@ -229,6 +229,8 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    walkAhead: '앞으로 가기',
+    noPathAhead: "이 방향으로는 스트리트 뷰가 더 없습니다",
     view360None: '현재 위치에 360° 스트리트 뷰가 없습니다',
     close: 'AR 길 안내 닫기',
     map: '지도',
