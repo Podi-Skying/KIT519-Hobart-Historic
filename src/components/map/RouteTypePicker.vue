@@ -1,7 +1,9 @@
 <script setup>
 /**
- * Normal / Accessible / Steep choice. Shows each option's real walking time and,
- * for the selected one, why you'd pick it plus its measured climb and steepest slope.
+ * Normal / Accessible / Steep choice. Every option shows its real walking time, climb and
+ * steepest slope side by side, so the difference is visible at a glance (user feedback: "I can't
+ * tell what's different"). The selected one also explains why you'd pick it. While routes are
+ * being worked out each option shows a spinner — never a blank that looks broken.
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,12 +14,21 @@ const props = defineProps({
   /** { normal|accessible|steep: {minutes, climbMeters, maxGrade, via, sameAsNormal} } from useWalkingRoute */
   summaries: { type: Object, required: true },
   loading: { type: Boolean, default: false },
+  /** Just the three options (navigation screen, where the map shows the rest). */
+  compact: { type: Boolean, default: false },
 })
 const model = defineModel({ type: String, required: true })
 const { t } = useI18n()
 
 const ICONS = { normal: 'navigate', accessible: 'accessible', steep: 'mountain' }
 const selected = computed(() => props.summaries[model.value])
+/** "↑ 12 m · 8%" for one option, or "= Normal" when it's the same route. */
+function terrainOf(key) {
+  const s = props.summaries[key]
+  if (!s || s.climbMeters == null) return ''
+  if (s.sameAsNormal) return t('routeTypes.sameShort')
+  return `↑${s.climbMeters} m · ${Math.round(s.maxGrade * 100)}%`
+}
 const stats = computed(() => {
   const s = selected.value
   if (!s || s.climbMeters == null) return []
@@ -45,11 +56,17 @@ const stats = computed(() => {
         {{ t(`routeTypes.${type.key}.label`) }}
         <!-- While routes load, rough factor estimates would contradict the real times (e.g. Steep
              "faster" than Normal), so show a placeholder; "Checking slopes…" explains it below -->
-        <small>{{ loading ? '…' : t('common.minutes', { n: summaries[type.key].minutes }) }}</small>
+        <small v-if="loading" class="route-type__loading">
+          <span class="spinner" aria-hidden="true" /><span class="sr-only">{{ t('routeTypes.checking') }}</span>
+        </small>
+        <template v-else>
+          <small>{{ t('common.minutes', { n: summaries[type.key].minutes }) }}</small>
+          <small v-if="terrainOf(type.key)" class="route-type__terrain">{{ terrainOf(type.key) }}</small>
+        </template>
       </button>
     </div>
 
-    <Transition name="fade" mode="out-in">
+    <Transition v-if="!compact" name="fade" mode="out-in">
       <div :key="model" class="route-info" :class="`route-info--${model}`" aria-live="polite">
         <span class="route-info__icon"><AppIcon :name="ICONS[model]" :size="18" /></span>
         <div class="route-info__text">
@@ -85,6 +102,29 @@ const stats = computed(() => {
   font: var(--t-meta);
   font-weight: 500;
   color: var(--ink-500);
+}
+.route-type__terrain {
+  font: var(--t-micro) !important;
+  font-weight: 600 !important;
+}
+.route-type__loading {
+  display: flex !important;
+  justify-content: center;
+  height: 16px;
+  align-items: center;
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--outline);
+  border-top-color: var(--brand-600);
+  animation: route-spin 0.8s linear infinite;
+}
+@keyframes route-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .route-type.is-selected {
   border-color: var(--brand-600);

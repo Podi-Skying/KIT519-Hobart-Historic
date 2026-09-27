@@ -33,6 +33,7 @@ export default {
     highContrastHint: 'Chữ đậm hơn, viền rõ hơn',
   },
   splash: {
+    chooseLanguage: 'Chọn ngôn ngữ',
     location: 'Hobart, Tasmania',
     script1: 'Small city,',
     script2: 'big stories',
@@ -138,6 +139,7 @@ export default {
     },
   },
   routeTypes: {
+    sameShort: '= Thông thường',
     normal: {
       label: 'Thông thường',
       description: 'Đường ngắn và thẳng nhất — đến nơi nhanh nhất.',
@@ -156,6 +158,13 @@ export default {
     sameAsNormal: 'Khu vực này không có đường bằng phẳng hơn hay nhiều dốc hơn — giống lộ trình thông thường',
     checking: 'Đang kiểm tra độ dốc…',
     note: 'Độ dốc được ước tính từ dữ liệu địa hình và có thể có bậc thang — hãy kiểm tra thực tế.',
+  },
+  routeHighlights: {
+    steepestUp: 'Đoạn lên dốc nhất · {pct}%',
+    steepestDown: 'Đoạn xuống dốc nhất · {pct}%',
+    summit: 'Điểm cao nhất · {m} m',
+    viaFlat: 'Đường bằng phẳng · {place}',
+    viaScenic: 'Điểm ngắm cảnh · {place}',
   },
   navModes: {
     to: 'Đến {name}',
@@ -244,6 +253,8 @@ export default {
       'Các con phố ở Battery Point dốc và lát đá — nếu đi xe lăn hoặc đẩy xe em bé, hãy chọn lộ trình “Dễ đi”. Mang theo áo khoác: gió từ kunanyi có thể làm nhiệt độ giảm nhanh.',
   },
   ar: {
+    lookAround: 'Nghiêng điện thoại hoặc kéo ảnh để nhìn xung quanh',
+    motion: 'Nghiêng điện thoại để nhìn xung quanh',
     exit: 'Thoát',
     help: 'Cách dùng chế độ AR',
     scanning: 'Đang quét địa danh',

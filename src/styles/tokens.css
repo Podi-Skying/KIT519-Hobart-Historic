@@ -108,7 +108,13 @@
   --s-6: 1.5rem;
   --s-8: 2rem;
   --gutter: 1.25rem;
-  --safe-top: 44px; /* status bar height */
+  /* Top/bottom chrome. On a real phone the app is full-bleed: the OS draws its own status bar,
+     so we only keep clear of the notch (safe-area insets). The simulated status bar (44px) and
+     home-indicator gap exist only inside the desktop phone mock-up — see the query below. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  /* where floating controls (back buttons, map controls) sit below the top edge */
+  --chrome-top: calc(env(safe-area-inset-top, 0px) + 12px);
 
   /* ---- Radius ---- */
   --r-xs: 4px; /* tiny marks: reticle corners, chart bars, map labels */
@@ -143,6 +149,16 @@
   --hit: 44px; /* minimum touch target */
   --focus-ring: 0 0 0 3px rgba(125, 48, 69, 0.35);
   --text-zoom: 1; /* scale of `.text-zoom` surfaces, see Larger text below */
+}
+
+/* Desktop / laptop (wide screen with a mouse): the app sits in a phone mock-up with a simulated
+   status bar. Must match DeviceFrame.vue and StatusBar.vue. */
+@media (min-width: 601px) and (hover: hover) and (pointer: fine) {
+  :root {
+    --safe-top: 44px;
+    --safe-bottom: 14px;
+    --chrome-top: 50px;
+  }
 }
 
 /* ==========================================================================

@@ -49,7 +49,7 @@ const activeIndex = computed(() => TABS.findIndex((tab) => tab.key === route.met
 .tab-bar {
   flex-shrink: 0;
   display: flex;
-  padding-bottom: 14px;
+  padding-bottom: var(--safe-bottom); /* home-indicator gap: real inset on phones, 14px in the mock-up */
   background: var(--paper);
   border-top: 1px solid var(--sand);
 }

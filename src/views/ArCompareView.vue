@@ -15,6 +15,7 @@ import { useGoBack } from '@/composables/useGoBack'
 import { siteTimeline } from '@/lib/sites'
 import { useSwipePager } from '@/composables/useSwipePager'
 import { createSpringAnimator, SPRINGS } from '@/lib/spring'
+import { LOOK_SCALE, useLookAround } from '@/composables/useLookAround'
 
 const props = defineProps({
   id: { type: Number, required: true },
@@ -94,12 +95,16 @@ const pager = useSwipePager({
   },
 })
 
+// Tilt the phone to look around the photo (horizontal drags already move through time, so no drag here).
+const look = useLookAround({ frame: () => stage.value, drag: false })
+
 const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
 </script>
 
 <template>
   <div class="compare">
     <div ref="stage" class="compare__stage" v-on="pager.handlers">
+      <div class="compare__world" :style="look.layer(1, LOOK_SCALE)">
       <img
         v-for="(p, i) in photos"
         :key="p.image"
@@ -110,6 +115,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
         :aria-hidden="i === nearest ? undefined : 'true'"
         :style="{ opacity: opacityOf(i) }"
       />
+      </div>
     </div>
     <div class="compare__veil" />
 
@@ -163,6 +169,11 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
   inset: 0;
   touch-action: pan-y; /* horizontal swipes step through time */
 }
+.compare__world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
 .compare__layer {
   position: absolute;
   inset: 0;
@@ -185,7 +196,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
 }
 .compare__top {
   position: absolute;
-  top: 50px;
+  top: var(--chrome-top);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 3;

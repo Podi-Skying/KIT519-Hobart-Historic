@@ -5,15 +5,16 @@
 以 AR 探索 Hobart（nipaluna）歷史建築的步行導覽 App 原型。
 Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 
-- **Leading page** → 點 *Tap to start* 進入 Home
+- **Leading page** → 點 *Tap to start* → 立刻選擇語言 → 進入 Home。每次開啟或**重新整理**網頁都會先回到 Leading page，之後一律進入 Home（不會直接跳到其他頁面）
+- **手機／電腦顯示**：用手機（或平板）開啟時畫面滿版貼合螢幕，不顯示模擬的時間、訊號、電量（手機自己會顯示）；只有在電腦（寬螢幕＋滑鼠）上才有手機外框、外框外的背景，以及模擬狀態列
 - **5 種語言**：English／繁體中文／日本語／한국어／Tiếng Việt，介面、景點內容、語音導覽、Google 路線指示全部跟著切換
 - **顯示設定**：「語言與顯示」面板可開啟放大文字、高對比（年長者／低視力）
 - **Home**：Top 5 輪播、景點清單（可收合搜尋＋分類篩選）、按讚、語言切換
 - **景點詳情**：資訊、步行路線、語音導覽、歷年相簿
 - **Map**：Google Maps 顯示各景點實際座標與使用者即時定位；路線類型（一般／無障礙／陡坡）、最多 4 個停靠點
-- **導航**：標準地圖／AR 導航／可列印地圖（含各站重點，可當團體講義）；抵達時自動跳出面板，一鍵收聽語音導覽或用 AR 掃描
+- **導航**：按「出發」或景點的「開始路線」直接進入**標準地圖導航**（預設）；導航畫面上的「更改導航方式」按鈕可換成 AR 導航或可列印地圖（含各站重點，可當團體講義）。路線類型在有地圖的畫面上選（Map、標準導航），其他兩條路線會以淡色畫在地圖上，點一下就能切換。路線規劃中，地圖上方顯示「正在尋找步行路線…」轉圈提示。抵達時自動跳出面板，一鍵收聽語音導覽或用 AR 掃描
 - **語音導覽**：以裝置內建語音（Web Speech API，免費、免金鑰）朗讀所選語言的導覽稿
-- **AR**：依景點顯示相機畫面與資訊（辨識到的地標名稱顯示在頂部狀態列；「不是這棟建築？」改放在右上角說明裡，可切換地標）；每個景點都有「穿越時光」時間軸：該景點所有照片（今日、相簿、檔案照片）由新到舊排列；照片全螢幕，拖曳下方一條滑桿即可在照片間連續漸變（沿用原本今昔滑桿設計，只是從 2 張延伸到全部照片），精簡資訊卡只顯示年份、標題與兩行說明（`lib/sites.js` `siteTimeline`）
+- **AR**：照片可以**傾斜手機**或**拖曳**來環顧四周（照片比畫面大一點；資訊泡泡在較近的一層、移動得比背景多，形成 3D 視差；iPhone 第一次需點 🧭 允許動作感測；減少動態效果時只保留拖曳）；依景點顯示相機畫面與資訊（辨識到的地標名稱顯示在頂部狀態列；「不是這棟建築？」改放在右上角說明裡，可切換地標）；每個景點都有「穿越時光」時間軸：該景點所有照片（今日、相簿、檔案照片）由新到舊排列；照片全螢幕，拖曳下方一條滑桿即可在照片間連續漸變（沿用原本今昔滑桿設計，只是從 2 張延伸到全部照片），精簡資訊卡只顯示年份、標題與兩行說明（`lib/sites.js` `siteTimeline`）
 - **Weather**：步行天氣（含目前天氣圖示）、最佳步行時段、一週預報；一鍵「規劃無障礙步行」。原型以模擬資料每 10 秒切換一次目前天氣，頁面與 tab bar 的天氣圖示會跟著淡入淡出（`stores/weather.js`）
 
 > **KIT519 Assignment 3 設計與評估文件**：[`docs/a3/`](docs/a3/README.md)（personas、user journeys、task flows、site map、RTM、UML、評估計畫與工具、證據與發現）
@@ -74,8 +75,13 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 1. 取得 Google 最快路線與替代路線；
 2. 另外強制經過低地的海濱／溪谷途經點（Franklin Wharf、Parliament House Gardens、Hobart Rivulet Park）與坡頂公園（Princes Park、Arthur Circus），只保留繞路 ≤ 60% 的候選；
 3. 用 **Open-Meteo Elevation API**（免費、免金鑰）量測每條候選的總爬升與最大坡度；
-4. Normal = 最快；Accessible = 坡度最緩、爬升最少（時間 ≤ 1.6 倍）；Steep = 爬升最多（時間 ≤ 1.9 倍）。
-步行時間依 Naismith 法則每爬升 10 m 加 1 分鐘。畫面會顯示每種路線的說明與實測「↑ 爬升 · 最大坡度 · 經由」。
+4. Normal = 最快；Accessible = 坡度最緩、爬升最少（時間 ≤ 1.6 倍）；Steep = **值得走的爬坡路線**：必須比 Normal 至少多爬 15 m 或最大坡度高 2%（否則顯示「與 Normal 相同」），並選「每多花一分鐘能多爬最多坡」的那條（陡的捷徑勝過繞一大圈），經過坡頂觀景點的路線額外加分（`steepValue`，時間 ≤ 1.9 倍）。
+步行時間依 Naismith 法則每爬升 10 m 加 1 分鐘。
+
+**讓使用者看得出路線差異**（使用者回饋：「不知道不同路線差在哪」）：
+- 路線選擇器的三個選項**並排顯示**時間、爬升、最大坡度（`↑12 m · 8%`），一眼就能比較。
+- 地圖上以**特徵點**標出差異（`lib/routeHighlights.js`，最多 3 個，不重疊）：Normal 標出最陡的一段（≥ 8% 才標）；Accessible 標出經過的平緩路段（例如海濱）與任何 ≥ 5% 的坡；Steep 標出最高點（景觀）與最陡的上坡。位置來自地形取樣（`profileWithPlaces`）。
+- 另外兩條路線以淡色畫在地圖上，點一下就切換。
 
 **步行路線**：所有地圖畫面（Map、標準導航、AR 導航小地圖、可列印地圖）都用 Google Routes API（`travelMode: WALK`）規劃沿實際道路的路線，並依即時位置顯示下一個轉彎與距離。
 - 使用者加入的景點停靠點（Salamanca、St George's、Narryna）會成為真正的途經點；廁所、咖啡、圖書館等不改變路線，但會以圖示標在路線上（原型沒有設施資料，位置沿路線穩定地隨機產生，見 `lib/geo.js` `placeAlongPath`）。
@@ -160,6 +166,8 @@ hobart-heritage/
 │   │   ├── gesture.js         # 手勢物理：動量投射、橡皮筋、速度追蹤、放開速度接續動畫
 │   │   ├── spring.js          # 彈簧（damping ratio + response，Apple 參數）與 rAF 驅動器
 │   │   ├── pageTransition.js  # 換頁轉場判斷（push / pop / fade）
+│   │   ├── routeHighlights.js # 路線特徵點（最陡段、最高點、平緩路段）
+│   │   ├── parallax.js        # AR 環顧：傾斜角度 → 位移
 │   │   └── storage.js         # 不會丟錯的 localStorage 包裝
 │   ├── plugins/persist.js     # Pinia 持久化 plugin（含版本號）
 │   ├── services/googleMaps.js # Google Maps API 載入器（讀取 VITE_ 環境變數）
@@ -179,6 +187,8 @@ hobart-heritage/
 │   │   ├── useCarousel.js     # 吸附輪播 + 桌機拖曳
 │   │   ├── useSheetDrag.js    # 底部面板拖曳（BottomSheet 與 Map 面板共用）
 │   │   ├── useSwipePager.js   # 相片 1:1 左右滑動（相簿、穿越時光）
+│   │   ├── useLookAround.js   # AR 照片環顧：陀螺儀 + 拖曳 + 視差
+│   │   ├── usePageTransition.js # 換頁彈簧（可中途反轉）
 │   │   ├── useKeydown.js      # 頁面鍵盤快捷鍵
 │   │   ├── useGoBack.js       # 返回（沒有歷史紀錄時走 fallback）
 │   │   └── useWalkingRoute.js # 目前位置 → 景點的步行路線（所有導航畫面共用）
@@ -201,7 +211,7 @@ hobart-heritage/
 │   │   └── ar/                # ArBubble、ArStatusPill、ArHelpOverlay
 │   └── views/                 # 一個路由 = 一個 View（皆為 lazy-load）
 │       ├── HomeView.vue  SiteDetailView.vue  GalleryView.vue  AudioTourView.vue
-│       ├── MapView.vue  NavigationModesView.vue  StandardNavigationView.vue
+│       ├── MapView.vue  StandardNavigationView.vue
 │       ├── ArNavigationView.vue  PrintableMapView.vue
 │       ├── ArCameraView.vue  ArCompareView.vue  WeatherView.vue
 ├── tests/                     # Vitest 單元測試
@@ -217,8 +227,8 @@ hobart-heritage/
 | `/sites/:id/gallery/:index?` | GalleryView | Home |
 | `/sites/:id/audio` | AudioTourView | Home |
 | `/map` | MapView | Map |
-| `/navigate/:id` | NavigationModesView | Map |
-| `/navigate/:id/map` · `/ar` · `/print` | 標準／AR／列印導航 | Map |
+| `/navigate/:id` | → 導向 `/navigate/:id/map`（舊網址相容） | Map |
+| `/navigate/:id/map` · `/ar` · `/print` | 標準（預設）／AR／列印導航；在導航畫面用 `NavigationModeSheet` 切換 | Map |
 | `/ar/:id?` · `/ar/:id/compare` | ArCameraView（無 id = 最近的景點）· ArCompareView（所有景點的照片時間軸） | AR |
 | `/weather` | WeatherView | Weather |
 

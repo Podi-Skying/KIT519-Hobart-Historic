@@ -28,7 +28,8 @@ import { useFavoritesStore } from '@/stores/favorites'
 defineOptions({ name: 'HomeView' })
 
 const TOP_COUNT = 5
-const STATUS_BAR = 44
+/** Height of the status-bar strip: 44px in the desktop mock-up, the notch inset (often 0) on phones. */
+const statusBar = ref(44)
 
 const route = useRoute()
 const router = useRouter()
@@ -86,10 +87,11 @@ const toolbarStuck = ref(false)
 let observer
 
 onMounted(() => {
+  statusBar.value = document.querySelector('.status-bar')?.offsetHeight ?? 0
   headerHeight.value = header.value?.offsetHeight ?? headerHeight.value
   observer = new IntersectionObserver(([entry]) => (toolbarStuck.value = !entry.isIntersecting), {
     root: page.value?.scroller,
-    rootMargin: `-${STATUS_BAR}px 0px 0px 0px`,
+    rootMargin: `-${statusBar.value}px 0px 0px 0px`,
   })
   if (sentinel.value) observer.observe(sentinel.value)
 })
@@ -97,7 +99,7 @@ onBeforeUnmount(() => observer?.disconnect())
 </script>
 
 <template>
-  <AppPage ref="page" :safe-top="false" :solid-after="headerHeight - STATUS_BAR">
+  <AppPage ref="page" :safe-top="false" :solid-after="headerHeight - statusBar">
     <header ref="header" class="home-header">
       <div>
         <p class="home-header__eyebrow">{{ t('home.eyebrow') }}</p>
@@ -157,7 +159,7 @@ onBeforeUnmount(() => observer?.disconnect())
   justify-content: space-between;
   align-items: center;
   gap: var(--s-3);
-  padding: 54px var(--gutter) var(--s-2);
+  padding: calc(var(--chrome-top) + 4px) var(--gutter) var(--s-2);
   background: var(--paper);
 }
 .home-header__eyebrow {

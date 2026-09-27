@@ -3,7 +3,7 @@
  * Turn-by-turn navigation on Google Maps: the real walking route (Routes API),
  * the next manoeuvre from the walker's live position, zoom / recentre controls.
  */
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -12,6 +12,9 @@ import BaseButton from '@/components/base/BaseButton.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import WaypointSheet from '@/components/map/WaypointSheet.vue'
 import ArrivalSheet from '@/components/map/ArrivalSheet.vue'
+import RouteTypePicker from '@/components/map/RouteTypePicker.vue'
+import MapLoading from '@/components/map/MapLoading.vue'
+import NavigationModeSheet from '@/components/map/NavigationModeSheet.vue'
 import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
 import { maneuverIcon, nextGuidance } from '@/lib/guidance'
@@ -29,7 +32,15 @@ const { siteById } = useContent()
 const trip = useTripStore()
 const location = useLocationStore()
 const site = computed(() => siteById(props.id))
+// Navigation starts here directly (from Map › Go or a site's "Start route").
+watchEffect(() => trip.setDestination(props.id))
 const walk = useWalkingRoute(site)
+const modesOpen = ref(false)
+/** Route type is chosen here, where the map shows each route (the others drawn faint). */
+const routeType = computed({
+  get: () => trip.routeType,
+  set: (key) => trip.setRouteType(key),
+})
 const map = ref(null)
 const stopsOpen = ref(false)
 const arrived = ref(false)
@@ -74,12 +85,16 @@ const endRoute = () => router.push({ name: 'map' })
       :route-type="trip.routeTypeConfig"
       :real-route="walk.isRealRoute.value"
       :amenities="walk.amenityMarkers.value"
+      :highlights="walk.highlights.value"
+      :alternatives="walk.alternatives.value"
       :user="user"
       :start="location.origin"
       fit="route"
-      :padding="{ top: 170, right: 76, bottom: 200, left: 40 }"
-      :box="{ x: [12, 84], y: [26, 70] }"
+      :padding="{ top: 170, right: 76, bottom: 290, left: 40 }"
+      :box="{ x: [12, 84], y: [26, 62] }"
+      @select-route="trip.setRouteType"
     />
+    <MapLoading class="nav-view__loading" :show="walk.pending.value" :label="t('navigation.finding')" />
 
     <div class="instruction" role="status" aria-live="polite">
       <span class="instruction__icon"><AppIcon :name="maneuverIcon(guidance.maneuver)" :size="24" /></span>
@@ -120,16 +135,18 @@ const endRoute = () => router.push({ name: 'map' })
           <BaseButton variant="secondary" size="sm" @click="endRoute">{{ t('navigation.end') }}</BaseButton>
         </div>
       </div>
+      <RouteTypePicker v-model="routeType" class="summary__routes" :summaries="walk.summaries.value" :loading="walk.pending.value" compact />
       <div class="summary__actions">
         <BaseButton variant="secondary" icon="plus" :aria-haspopup="'dialog'" @click="stopsOpen = true">
           {{ t('navigation.addStop') }}<span v-if="trip.stops.length" class="summary__count">{{ trip.stops.length }}</span>
         </BaseButton>
-        <BaseButton :to="{ name: 'navigate', params: { id } }">{{ t('navigation.changeMode') }}</BaseButton>
+        <BaseButton icon="compass" aria-haspopup="dialog" @click="modesOpen = true">{{ t('navigation.changeMode') }}</BaseButton>
       </div>
     </section>
 
     <WaypointSheet v-if="stopsOpen" :destination-id="site.id" @close="stopsOpen = false" />
     <ArrivalSheet v-if="arrived" :site="site" @close="arrived = false" />
+    <NavigationModeSheet v-if="modesOpen" :site-id="site.id" current="navigate-map" @close="modesOpen = false" />
   </div>
 </template>
 
@@ -141,7 +158,7 @@ const endRoute = () => router.push({ name: 'map' })
 }
 .instruction {
   position: absolute;
-  top: 52px;
+  top: calc(var(--chrome-top) + 2px);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 3;
@@ -234,6 +251,12 @@ const endRoute = () => router.push({ name: 'map' })
   font: var(--t-metric);
   letter-spacing: var(--track-h1);
   color: var(--success-600);
+}
+.summary__routes {
+  margin-bottom: var(--s-3);
+}
+.nav-view__loading {
+  top: calc(var(--chrome-top) + 96px);
 }
 .summary__actions {
   display: grid;

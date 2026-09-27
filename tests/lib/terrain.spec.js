@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { elevationProfile, samplePath } from '@/services/elevation'
-import { chooseOptions, difficultyScore, routeMinutes, viaCandidates } from '@/services/routeOptions'
+import { elevationProfile, profileWithPlaces, samplePath } from '@/services/elevation'
+import { chooseOptions, difficultyScore, routeMinutes, steepValue, viaCandidates } from '@/services/routeOptions'
 import { distanceKm } from '@/lib/geo'
 import { DEFAULT_ORIGIN } from '@/data/navigation'
 import { getSiteById } from '@/data/sites'
@@ -31,6 +31,16 @@ describe('elevationProfile', () => {
     const p = elevationProfile(points, [0, 11.1, 11.1, 11.1], 80)
     expect(p.maxGrade).toBeCloseTo(0.1, 2)
   })
+  it('records where the steepest stretch and the high point are (for map highlights)', () => {
+    const p = elevationProfile(points, [0, 11.1, 11.1, 30], 80)
+    expect(p.highest).toBe(3)
+    expect(p.lowest).toBe(0)
+    expect(p.steepest.uphill).toBe(true)
+    const placed = profileWithPlaces(points, [0, 11.1, 11.1, 30])
+    expect(placed.highestAt).toEqual(points[3])
+    expect(placed.highestM).toBe(30)
+    expect(placed.steepestAt.lat).toBeLessThan(points[0].lat)
+  })
 })
 
 describe('chooseOptions', () => {
@@ -53,6 +63,24 @@ describe('chooseOptions', () => {
     const o = chooseOptions([normalSteeper, gentleDetour])
     expect(o.accessible.name).toBe('gentle detour')
     expect(o.steep.name).toBe('normal') // nothing harder exists → same as Normal
+  })
+  it('Steep prefers a steep shortcut over a long hilly detour', () => {
+    const normal = route('normal', 10, 10, 0.04)
+    const shortcut = { ...route('shortcut up the hill', 11, 35, 0.12) }
+    const detour = { ...route('long detour', 18, 60, 0.1) }
+    expect(chooseOptions([normal, shortcut, detour]).steep.name).toBe('shortcut up the hill')
+  })
+  it('Steep must be noticeably hillier than Normal, otherwise it says "same as Normal"', () => {
+    const normal = route('normal', 10, 20, 0.06)
+    const barely = route('barely hillier', 11, 26, 0.07)
+    expect(chooseOptions([normal, barely]).steep.name).toBe('normal')
+    expect(steepValue(barely, normal)).toBe(-Infinity)
+  })
+  it('a hill-top viewpoint route earns a bonus', () => {
+    const normal = route('normal', 10, 10, 0.04)
+    const plain = route('plain hill', 13, 40, 0.08)
+    const view = { ...route('viewpoint', 13, 38, 0.08), viaKind: 'scenic' }
+    expect(chooseOptions([normal, plain, view]).steep.name).toBe('viewpoint')
   })
   it('ignores candidates that take far longer than Normal', () => {
     expect(chooseOptions([fastest, tooSlow]).accessible.name).toBe('fastest')

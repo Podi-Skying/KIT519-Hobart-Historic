@@ -67,13 +67,12 @@ const routes = [
     component: () => import('@/views/MapView.vue'),
     meta: { tab: 'map', status: { tone: 'dark' } },
   },
+  // Navigating starts straight on the standard map; AR / printable are an option there
+  // (NavigationModeSheet). Old links to the former "how would you like to navigate?" page land there too.
   {
     path: '/navigate/:id(\\d+)',
     name: 'navigate',
-    component: () => import('@/views/NavigationModesView.vue'),
-    props: siteProps,
-    beforeEnter: requireSite,
-    meta: { tab: 'map', status: onCream },
+    redirect: (to) => ({ name: 'navigate-map', params: to.params }),
   },
   {
     path: '/navigate/:id(\\d+)/map',
@@ -135,6 +134,18 @@ export const router = createRouter({
   // Hash history: works on any static host (GitHub Pages etc.) without rewrites.
   history: createWebHashHistory(),
   routes,
+})
+
+/**
+ * Every launch or refresh starts at the leading page (App.vue) and continues to Home, whatever
+ * URL was open — the splash and language choice lead into Home only, never into a deep page.
+ * Home's own filters (?category=&q=) are kept.
+ */
+let firstNavigation = true
+router.beforeEach((to) => {
+  if (!firstNavigation) return true
+  firstNavigation = false
+  return to.name === 'home' ? true : { name: 'home', replace: true }
 })
 
 router.afterEach((to, from) => {

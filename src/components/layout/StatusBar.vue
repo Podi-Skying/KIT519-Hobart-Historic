@@ -1,5 +1,9 @@
 <script setup>
-/** Simulated iOS status bar. Floats over content so pages can run full-bleed. */
+/**
+ * Status-bar strip. On desktop it is a simulated iOS status bar (time, signal, battery) inside the
+ * phone mock-up; on a real phone the OS shows its own, so only the strip remains — as tall as the
+ * notch area (0 in a browser tab) — to carry the scrolled-page material behind the real status bar.
+ */
 defineProps({
   tone: { type: String, default: 'dark', validator: (v) => ['dark', 'light'].includes(v) },
   background: { type: String, default: 'transparent' },
@@ -13,8 +17,8 @@ defineProps({
     :style="{ background }"
     aria-hidden="true"
   >
-    <span>9:41</span>
-    <span class="status-bar__icons">
+    <span class="status-bar__sim">9:41</span>
+    <span class="status-bar__icons status-bar__sim">
       <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor">
         <rect x="0" y="7" width="3" height="4" rx="1" />
         <rect x="4.5" y="5" width="3" height="6" rx="1" />
@@ -54,6 +58,17 @@ defineProps({
 }
 .status-bar--light {
   color: var(--paper);
+}
+.status-bar__sim {
+  display: none;
+}
+@media (min-width: 601px) and (hover: hover) and (pointer: fine) {
+  .status-bar__sim {
+    display: inline;
+  }
+  .status-bar__icons.status-bar__sim {
+    display: flex;
+  }
 }
 .status-bar__icons {
   display: flex;

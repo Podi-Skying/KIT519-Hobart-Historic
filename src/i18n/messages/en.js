@@ -36,6 +36,7 @@ export default {
     highContrastHint: 'Darker text and stronger outlines',
   },
   splash: {
+    chooseLanguage: 'Choose your language',
     location: 'Hobart, Tasmania',
     script1: 'Small city,',
     script2: 'big stories',
@@ -141,6 +142,7 @@ export default {
     },
   },
   routeTypes: {
+    sameShort: '= Normal',
     normal: {
       label: 'Normal',
       description: 'The most direct way — quickest to get there.',
@@ -159,6 +161,13 @@ export default {
     sameAsNormal: 'No flatter or hillier street route exists here — same as Normal',
     checking: 'Checking slopes…',
     note: 'Slopes are estimated from terrain data and may include steps — check local conditions.',
+  },
+  routeHighlights: {
+    steepestUp: 'Steepest climb · {pct}%',
+    steepestDown: 'Steepest descent · {pct}%',
+    summit: 'Top of the walk · {m} m',
+    viaFlat: 'Flat way · {place}',
+    viaScenic: 'Viewpoint · {place}',
   },
   navModes: {
     to: 'To {name}',
@@ -247,6 +256,8 @@ export default {
       'Battery Point streets are steep and cobbled — choose the Accessible route with a wheelchair or pram. Bring a layer: wind off kunanyi can drop the temperature quickly.',
   },
   ar: {
+    lookAround: 'Tilt your phone or drag the photo to look around',
+    motion: 'Look around by tilting your phone',
     exit: 'Exit',
     help: 'How AR mode works',
     scanning: 'Scanning for landmarks',

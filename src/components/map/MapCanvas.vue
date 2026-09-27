@@ -20,6 +20,10 @@ const props = defineProps({
   realRoute: { type: Boolean, default: false },
   /** Amenity stops on the route: { id, icon, label, position }. */
   amenities: { type: Array, default: () => [] },
+  /** Labelled route feature points: { id, icon, label, position }. */
+  highlights: { type: Array, default: () => [] },
+  /** Other route types, drawn faint and tappable: { key, path, color, label }. */
+  alternatives: { type: Array, default: () => [] },
   user: { type: Object, default: null },
   start: { type: Object, default: null },
   /** 'all' = Hobart overview; 'route' = zoomed to the route. */
@@ -28,7 +32,7 @@ const props = defineProps({
   box: { type: Object, default: () => FALLBACK_MAP_BOX },
   interactive: { type: Boolean, default: true },
 })
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'select-route'])
 const { t } = useI18n()
 
 const bounds = computed(() =>
@@ -40,6 +44,16 @@ const pins = computed(() => props.sites.map((site) => ({ site, pos: project(site
 const amenityPins = computed(() =>
   props.amenities.map((amenity) => ({ amenity, pos: project(amenity.position) })).filter((p) => p.pos),
 )
+const highlightPins = computed(() =>
+  props.highlights.map((h) => ({ h, pos: project(h.position) })).filter((p) => p.pos),
+)
+const pointsOf = (path) =>
+  path
+    .map(project)
+    .filter(Boolean)
+    .map((p) => `${p.x},${p.y}`)
+    .join(' ')
+const alternativeLines = computed(() => props.alternatives.map((alt) => ({ ...alt, points: pointsOf(alt.path) })))
 const userPos = computed(() => project(props.user))
 const startPos = computed(() => (props.user ? null : project(props.start)))
 const routePoints = computed(() =>
@@ -59,6 +73,31 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
     <MapBackdrop />
 
     <svg v-if="routePoints" class="map-canvas__route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <!-- other route types, faint; tap to switch -->
+      <polyline
+        v-for="alt in alternativeLines"
+        :key="alt.key"
+        class="map-canvas__alt"
+        :points="alt.points"
+        fill="none"
+        :stroke="alt.color"
+        stroke-width="10"
+        stroke-opacity="0.001"
+        vector-effect="non-scaling-stroke"
+        @click="interactive && emit('select-route', alt.key)"
+      />
+      <polyline
+        v-for="alt in alternativeLines"
+        :key="`${alt.key}-line`"
+        :points="alt.points"
+        fill="none"
+        :stroke="alt.color"
+        stroke-opacity="0.4"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
+      />
       <polyline
         :points="routePoints"
         fill="none"
@@ -81,6 +120,17 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
       :title="amenity.label"
     >
       <AppIcon :name="amenity.icon" :size="16" />
+    </span>
+
+    <span
+      v-for="{ h, pos } in highlightPins"
+      :key="h.id"
+      class="map-canvas__highlight"
+      :style="{ left: `${pos.x}%`, top: `${pos.y}%` }"
+      role="img"
+      :aria-label="h.label"
+    >
+      <AppIcon :name="h.icon" :size="14" :stroke-width="2.2" />{{ h.label }}
     </span>
 
     <span v-if="userPos" class="map-canvas__dot map-canvas__dot--user" :style="{ left: `${userPos.x}%`, top: `${userPos.y}%` }" role="img" :aria-label="t('map.yourLocation')" />
@@ -124,6 +174,25 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   height: 18px;
   border-radius: 50%;
   border: 3px solid var(--paper);
+  transform: translate(-50%, -50%);
+}
+.map-canvas__alt {
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.map-canvas__highlight {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 7px;
+  border-radius: var(--r-pill);
+  background: var(--ink-900);
+  color: var(--cream);
+  font: var(--t-micro);
+  white-space: nowrap;
+  box-shadow: var(--e-1);
   transform: translate(-50%, -50%);
 }
 .map-canvas__amenity {

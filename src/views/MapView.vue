@@ -14,6 +14,7 @@ import BaseButton from '@/components/base/BaseButton.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import StopPicker from '@/components/map/StopPicker.vue'
 import RouteTypePicker from '@/components/map/RouteTypePicker.vue'
+import MapLoading from '@/components/map/MapLoading.vue'
 import { useContent } from '@/i18n/content'
 import { MAX_STOPS } from '@/data/navigation'
 import { formatMeters } from '@/lib/format'
@@ -147,12 +148,16 @@ function toggleOffline() {
         :route-type="trip.routeTypeConfig"
         :real-route="walk.isRealRoute.value"
         :amenities="selected ? walk.amenityMarkers.value : []"
+        :highlights="selected ? walk.highlights.value : []"
+        :alternatives="selected ? walk.alternatives.value : []"
         :user="userCoords"
         :start="selected ? location.origin : null"
         :fit="selected ? 'route' : 'all'"
         :box="{ x: [10, 86], y: [14, 86] }"
         @select="trip.setDestination"
+        @select-route="trip.setRouteType"
       />
+      <MapLoading class="map-view__loading" :show="Boolean(selected) && walk.pending.value" :label="t('navigation.finding')" />
     </div>
 
     <div class="map-view__controls">
@@ -188,7 +193,7 @@ function toggleOffline() {
         </div>
 
         <p class="t-caption panel__label">{{ t('map.routeType') }}</p>
-        <RouteTypePicker v-model="routeType" :summaries="walk.summaries.value" :loading="walk.status.value === 'loading'" />
+        <RouteTypePicker v-model="routeType" :summaries="walk.summaries.value" :loading="walk.pending.value" />
 
         <ul v-if="trip.stops.length" class="stop-chips" :aria-label="t('map.stopsOnRoute')">
           <li v-for="stop in trip.stops" :key="stop.id">
@@ -202,7 +207,7 @@ function toggleOffline() {
 
         <div class="panel__actions">
           <BaseButton variant="secondary" :to="{ name: 'site', params: { id: selected.id } }">{{ t('common.details') }}</BaseButton>
-          <BaseButton icon="navigate" :to="{ name: 'navigate', params: { id: selected.id } }">{{ t('common.go') }}</BaseButton>
+          <BaseButton icon="navigate" :to="{ name: 'navigate-map', params: { id: selected.id } }">{{ t('common.go') }}</BaseButton>
         </div>
       </section>
 
@@ -256,9 +261,12 @@ function toggleOffline() {
   /* No transition on `bottom`: animating it would re-lay-out the map every frame. It resizes
      once, underneath the opaque panel, while the panel itself animates with transform. */
 }
+.map-view__loading {
+  top: calc(var(--chrome-top) + 4px);
+}
 .map-view__controls {
   position: absolute;
-  top: 52px;
+  top: calc(var(--chrome-top) + 2px);
   right: var(--gutter);
   z-index: 3;
   display: flex;

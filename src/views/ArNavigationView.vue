@@ -36,7 +36,7 @@ onMounted(() => location.start())
 const arrived = ref(false)
 // Reaching the destination opens the arrival sheet by itself (location-triggered content).
 watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))
-const close = useGoBack({ name: 'navigate', params: { id: props.id } })
+const close = useGoBack({ name: 'navigate-map', params: { id: props.id } })
 </script>
 
 <template>
@@ -109,7 +109,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 }
 .ar-nav__top {
   position: absolute;
-  top: 50px;
+  top: var(--chrome-top);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 2;
@@ -119,7 +119,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 }
 .ar-nav__instruction {
   position: absolute;
-  top: 108px;
+  top: calc(var(--chrome-top) + 58px);
   left: 50%;
   z-index: 2;
   width: max-content;

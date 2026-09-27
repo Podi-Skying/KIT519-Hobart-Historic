@@ -62,31 +62,69 @@ export function samplePath(path, spacingM = SAMPLE_SPACING_M, maxSamples = MAX_S
  * Climb and steepness of a series of (point, elevation) samples.
  * Grades are measured over stretches of at least `minRunM`: the terrain model has
  * ~90 m cells, so shorter windows turn a single cell edge into a fake cliff.
- * @returns {{climbMeters:number, descentMeters:number, maxGrade:number}}  maxGrade as a fraction (0.08 = 8 %)
+ * Also records *where* things happen, so the map can point at them (route highlights):
+ * the steepest stretch (sample indices) and the highest / lowest samples.
+ * @returns {{climbMeters:number, descentMeters:number, maxGrade:number,
+ *   steepest: {from:number, to:number, uphill:boolean} | null, highest:number, lowest:number}}
+ *   maxGrade as a fraction (0.08 = 8 %); steepest/highest/lowest are sample indices
  */
 export function elevationProfile(points, elevations, minRunM = 150) {
   let climb = 0
   let descent = 0
   let maxGrade = 0
+  let steepest = null
   let anchor = 0
   let run = 0
+  let highest = 0
+  let lowest = 0
   for (let i = 1; i < points.length; i++) {
     const dh = elevations[i] - elevations[i - 1]
     if (dh > 0) climb += dh
     else descent -= dh
+    if (elevations[i] > elevations[highest]) highest = i
+    if (elevations[i] < elevations[lowest]) lowest = i
     run += distanceKm(points[i - 1], points[i]) * 1000
     if (run >= minRunM) {
-      maxGrade = Math.max(maxGrade, Math.abs(elevations[i] - elevations[anchor]) / run)
+      const grade = Math.abs(elevations[i] - elevations[anchor]) / run
+      if (grade > maxGrade) {
+        maxGrade = grade
+        steepest = { from: anchor, to: i, uphill: elevations[i] > elevations[anchor] }
+      }
       anchor = i
       run = 0
     }
   }
-  return { climbMeters: Math.round(climb), descentMeters: Math.round(descent), maxGrade: Math.round(maxGrade * 1000) / 1000 }
+  return {
+    climbMeters: Math.round(climb),
+    descentMeters: Math.round(descent),
+    maxGrade: Math.round(maxGrade * 1000) / 1000,
+    steepest,
+    highest,
+    lowest,
+  }
 }
 
-/** Fetch terrain along a route path and summarise it. */
+const midpoint = (a, b) => ({ lat: (a.lat + b.lat) / 2, lng: (a.lng + b.lng) / 2 })
+
+/**
+ * Fetch terrain along a route path and summarise it, with map positions for the highlights:
+ * steepestAt (middle of the steepest stretch), highestAt / highestM.
+ */
 export async function routeProfile(path) {
   const samples = samplePath(path)
   const elevations = await fetchElevations(samples)
-  return elevationProfile(samples, elevations)
+  return profileWithPlaces(samples, elevations)
+}
+
+/** elevationProfile + positions (pure; exported for tests). */
+export function profileWithPlaces(samples, elevations) {
+  const { steepest, highest, lowest, ...profile } = elevationProfile(samples, elevations)
+  return {
+    ...profile,
+    steepestAt: steepest ? midpoint(samples[steepest.from], samples[steepest.to]) : null,
+    steepestUphill: steepest?.uphill ?? null,
+    highestAt: samples[highest] ?? null,
+    highestM: Math.round(elevations[highest] ?? 0),
+    lowestM: Math.round(elevations[lowest] ?? 0),
+  }
 }

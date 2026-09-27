@@ -31,7 +31,7 @@ const liked = computed(() => favorites.isLiked(props.id))
 
 function startRoute() {
   trip.setDestination(props.id)
-  router.push({ name: 'navigate', params: { id: props.id } })
+  router.push({ name: 'navigate-map', params: { id: props.id } })
 }
 </script>
 
@@ -100,7 +100,7 @@ function startRoute() {
 }
 .hero__bar {
   position: absolute;
-  top: 50px;
+  top: var(--chrome-top);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 1;

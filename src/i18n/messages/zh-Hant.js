@@ -33,6 +33,7 @@ export default {
     highContrastHint: '文字更深、外框更明顯',
   },
   splash: {
+    chooseLanguage: '選擇語言',
     location: '塔斯馬尼亞 · 荷伯特',
     script1: 'Small city,',
     script2: 'big stories',
@@ -138,6 +139,7 @@ export default {
     },
   },
   routeTypes: {
+    sameShort: '= 一般',
     normal: {
       label: '一般',
       description: '最直接的路線，最快抵達。',
@@ -156,6 +158,13 @@ export default {
     sameAsNormal: '這段路沒有更平緩或更多坡的街道可選，與一般路線相同',
     checking: '正在分析坡度…',
     note: '坡度依地形資料估算，可能包含階梯，請以現場狀況為準。',
+  },
+  routeHighlights: {
+    steepestUp: '最陡上坡 · {pct}%',
+    steepestDown: '最陡下坡 · {pct}%',
+    summit: '最高點 · {m} 公尺',
+    viaFlat: '平緩路段 · {place}',
+    viaScenic: '景觀點 · {place}',
   },
   navModes: {
     to: '前往 {name}',
@@ -244,6 +253,8 @@ export default {
       'Battery Point 的街道陡峭且鋪有石塊，推輪椅或嬰兒車請選「無障礙」路線。記得多帶一件外套：從 kunanyi 吹來的風可能讓氣溫快速下降。',
   },
   ar: {
+    lookAround: '傾斜手機或拖曳照片，環顧四周',
+    motion: '傾斜手機來環顧四周',
     exit: '離開',
     help: 'AR 模式怎麼用',
     scanning: '正在掃描地標',

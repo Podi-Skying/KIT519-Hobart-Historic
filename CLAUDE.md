@@ -50,7 +50,10 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 `components/base` must not import stores, router or `data/`.
 
 **App shell and routing**
-- **Shell.** `App.vue` wraps everything in `DeviceFrame` (StatusBar, routed view, TabBar, Toast). `SplashScreen` overlays it on every launch.
+- **Shell.** `App.vue` wraps everything in `DeviceFrame` (StatusBar, routed view, TabBar, `#sheet-layer`, Toast). `SplashScreen` overlays it on every launch: Tap to start → choose language (`setLocale`) → Home.
+- **Phone vs desktop.** The phone mock-up, the backdrop around it and the simulated status bar (time / signal / battery) exist only on desktops — `(min-width: 601px) and (hover: hover) and (pointer: fine)`, used in `tokens.css`, `DeviceFrame.vue` and `StatusBar.vue`. Phones/tablets are full-bleed; `--safe-top` / `--safe-bottom` are the notch insets there. Place floating controls with `var(--chrome-top)`, never a fixed `top: 50px`.
+- **Launch / refresh.** A router guard sends the first navigation to Home whatever the URL (the leading page never leads anywhere else); Home's query filters are kept.
+- **Navigation flow.** "Go" / "Start route" open `navigate-map` directly (the default); `/navigate/:id` is only a redirect. AR / printable are offered by `NavigationModeSheet` on the navigation screen. Route type is picked only where a map shows the routes (Map, standard navigation).
 - **Router.** It uses hash history, and Vite uses `base: './'`, so `dist/` runs from any static sub-path.
 - **Route `meta` drives the chrome:**
   - `tab`: the active tab-bar item.
@@ -84,7 +87,8 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 3. **Choice.** `chooseOptions` is pure and unit-tested:
    - Normal is the fastest route.
    - Accessible has the lowest `difficultyScore` among routes within 1.6× Normal's time.
-   - Steep has the highest `difficultyScore` within 1.9× Normal's time, and is never the Accessible pick.
+   - Steep maximises `steepValue` within 1.9× Normal's time: it must beat Normal by ≥ 15 m climb or ≥ 2 % max slope (else it equals Normal), then wins on extra difficulty per extra minute, with a bonus for scenic (hill-top) via-points. Never the Accessible pick.
+   - `routeProfile` / `profileWithPlaces` also return where the steepest stretch and the highest point are; `lib/routeHighlights.js` turns those into ≤ 3 labelled map pins per route type, and `useWalkingRoute` exposes `highlights`, `alternatives` (the other routes, drawn faint) and `pending` (spinner).
 
 - **No alternative.** If no route differs, the UI says "same as Normal" instead of inventing one.
 - **Minutes and caching.** Minutes add Naismith's rule (+1 min per 10 m climbed). Results are cached per points and language, and the composable re-routes only after 50 m of movement.

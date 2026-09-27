@@ -1,5 +1,8 @@
 <script setup>
-/** Phone mock-up on desktop; full-bleed on real phones (≤ 430px wide). */
+/**
+ * Phone mock-up only on desktops/laptops (wide screen + mouse). Phones and tablets get the app
+ * full-bleed at the screen's own size — same query as tokens.css (--safe-top) and StatusBar.vue.
+ */
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -40,7 +43,7 @@ const { t } = useI18n()
   font-weight: 500;
   color: #8c826f;
 }
-@media (max-width: 430px) {
+@media not all and (min-width: 601px) and (hover: hover) and (pointer: fine) {
   .stage {
     padding: 0;
   }

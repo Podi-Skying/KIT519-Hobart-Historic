@@ -33,6 +33,7 @@ export default {
     highContrastHint: '더 진한 글자와 뚜렷한 테두리',
   },
   splash: {
+    chooseLanguage: '언어를 선택하세요',
     location: '태즈메이니아 · 호바트',
     script1: 'Small city,',
     script2: 'big stories',
@@ -138,6 +139,7 @@ export default {
     },
   },
   routeTypes: {
+    sameShort: '= 일반',
     normal: {
       label: '일반',
       description: '가장 직선적인 경로로 가장 빨리 도착합니다.',
@@ -156,6 +158,13 @@ export default {
     sameAsNormal: '이 구간에는 더 평탄하거나 더 가파른 길이 없어 일반 경로와 같습니다',
     checking: '경사 확인 중…',
     note: '경사는 지형 데이터로 추정한 값이며 계단이 포함될 수 있습니다. 현장 상황을 확인하세요.',
+  },
+  routeHighlights: {
+    steepestUp: '가장 가파른 오르막 · {pct}%',
+    steepestDown: '가장 가파른 내리막 · {pct}%',
+    summit: '가장 높은 지점 · {m}m',
+    viaFlat: '평탄한 길 · {place}',
+    viaScenic: '전망 지점 · {place}',
   },
   navModes: {
     to: '{name}(으)로',
@@ -244,6 +253,8 @@ export default {
       'Battery Point 거리는 가파르고 자갈이 깔려 있으니, 휠체어나 유모차를 이용한다면 “무장애” 경로를 선택하세요. kunanyi에서 불어오는 바람에 기온이 금방 떨어질 수 있으니 겉옷을 챙기세요.',
   },
   ar: {
+    lookAround: '휴대폰을 기울이거나 사진을 드래그해 둘러보세요',
+    motion: '휴대폰을 기울여 둘러보기',
     exit: '나가기',
     help: 'AR 모드 사용법',
     scanning: '랜드마크 스캔 중',

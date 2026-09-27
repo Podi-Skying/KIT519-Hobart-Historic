@@ -17,6 +17,8 @@ import ArHelpOverlay from '@/components/ar/ArHelpOverlay.vue'
 import { localizeNarration, useContent } from '@/i18n/content'
 import { siteTimeline } from '@/lib/sites'
 import { usePlayerStore } from '@/stores/player'
+import { useUiStore } from '@/stores/ui'
+import { LOOK_SCALE, useLookAround } from '@/composables/useLookAround'
 import { useLocationStore } from '@/stores/location'
 
 const props = defineProps({
@@ -46,6 +48,17 @@ const photoCount = computed(() => siteTimeline(site.value).length)
 const narration = computed(() => localizeNarration(site.value.id, locale.value))
 
 const detected = ref(false)
+
+// ---- look around: tilt the phone or drag the photo; bubbles sit on a closer layer (parallax) ----
+const stage = ref(null)
+const look = useLookAround({ frame: () => stage.value })
+const ui = useUiStore()
+let hinted = false
+watch(detected, (now) => {
+  if (!now || hinted) return
+  hinted = true // once per visit
+  ui.showToast(t('ar.lookAround'), { duration: 2600 })
+})
 const helpOpen = ref(false)
 const chooserOpen = ref(false)
 const openPanel = ref(null) // 'info' | 'audio' | 'photos' | null
@@ -87,25 +100,31 @@ const exit = () => router.push({ name: 'home' })
 </script>
 
 <template>
-  <div class="ar-camera">
-    <Transition name="feed" mode="out-in">
-      <img :key="site.id" class="ar-camera__feed" :src="site.arImage" :alt="t('ar.cameraAlt', { name: site.name })" />
-    </Transition>
+  <div ref="stage" class="ar-camera" v-on="look.handlers">
+    <div class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
+      <Transition name="feed" mode="out-in">
+        <img :key="site.id" class="ar-camera__feed" :src="site.arImage" :alt="t('ar.cameraAlt', { name: site.name })" draggable="false" />
+      </Transition>
+    </div>
     <div class="ar-camera__veil" />
 
     <div class="reticle" aria-hidden="true"><i /><i /><i /><i /></div>
     <div v-if="!detected" class="scanline" aria-hidden="true" />
 
-    <div class="ar-camera__top">
+    <div class="ar-camera__top" data-no-look>
       <BaseButton variant="secondary" size="sm" icon="back" @click="exit">{{ t('ar.exit') }}</BaseButton>
-      <IconButton variant="glass" icon="help" :label="t('ar.help')" @click="helpOpen = true" />
+      <span class="ar-camera__actions">
+        <!-- iOS asks before sharing motion; elsewhere tilt works straight away -->
+        <IconButton v-if="look.canAskMotion.value" variant="glass" icon="compass" :label="t('ar.motion')" @click="look.enableMotion()" />
+        <IconButton variant="glass" icon="help" :label="t('ar.help')" @click="helpOpen = true" />
+      </span>
     </div>
 
     <ArStatusPill class="ar-camera__status" :tone="detected ? 'success' : 'default'" :spinner="!detected">
       {{ detected ? `${t('ar.detected')} · ${site.shortName}` : t('ar.scanning') }}
     </ArStatusPill>
 
-    <template v-if="detected">
+    <div v-if="detected" class="ar-camera__hotspots" :style="look.layer(1.35)">
       <ArBubble
         v-for="spot in hotspots"
         :key="spot.key"
@@ -116,12 +135,13 @@ const exit = () => router.push({ name: 'home' })
         @select="togglePanel(spot.key)"
         @move="(p) => (positions[spot.key] = p)"
       />
-    </template>
+    </div>
 
     <Transition name="sheet">
       <section
         v-if="openPanel"
         class="panel"
+        data-no-look
         :style="{ '--origin-x': `${positions[openPanel].x}%` }"
         :aria-label="hotspots.find((h) => h.key === openPanel)?.label"
       >
@@ -160,7 +180,7 @@ const exit = () => router.push({ name: 'home' })
       </section>
     </Transition>
 
-    <div class="ar-camera__bottom">
+    <div class="ar-camera__bottom" data-no-look>
       <BaseButton block :to="{ name: 'ar-compare', params: { id: site.id } }">
         <AppIcon name="clock" :size="18" /> {{ t('ar.compare', { n: photoCount }) }}
       </BaseButton>
@@ -214,12 +234,27 @@ const exit = () => router.push({ name: 'home' })
   background: #000;
   touch-action: none;
 }
+.ar-camera__world,
+.ar-camera__hotspots {
+  position: absolute;
+  inset: 0;
+  will-change: transform; /* moved every frame by tilt / drag */
+}
+.ar-camera__hotspots {
+  z-index: 4;
+}
 .ar-camera__feed {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.ar-camera__actions {
+  display: flex;
+  gap: var(--s-2);
 }
 .ar-camera__veil {
   position: absolute;
@@ -264,7 +299,7 @@ const exit = () => router.push({ name: 'home' })
 }
 .ar-camera__top {
   position: absolute;
-  top: 50px;
+  top: var(--chrome-top);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 5;
@@ -274,7 +309,7 @@ const exit = () => router.push({ name: 'home' })
 }
 .ar-camera__status {
   position: absolute;
-  top: 108px;
+  top: calc(var(--chrome-top) + 58px);
   left: 50%;
   z-index: 5;
   transform: translateX(-50%);

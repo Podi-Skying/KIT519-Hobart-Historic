@@ -40,7 +40,7 @@ const print = () => window.print()
 
 <template>
   <AppPage>
-    <PageHeader :fallback="{ name: 'navigate', params: { id } }" />
+    <PageHeader :fallback="{ name: 'navigate-map', params: { id } }" />
     <div class="content">
       <p class="t-caption">{{ t('print.eyebrow') }}</p>
       <h1 class="t-display content__title">{{ t('print.title') }}</h1>

@@ -22,7 +22,7 @@ const ui = useUiStore()
 <style scoped>
 .toast-region {
   position: absolute;
-  top: 104px;
+  top: calc(var(--chrome-top) + 54px);
   left: 0;
   right: 0;
   z-index: 60;

@@ -19,6 +19,10 @@ defineProps({
   realRoute: { type: Boolean, default: false },
   /** Amenity stops on the route: { id, icon, label, position }. */
   amenities: { type: Array, default: () => [] },
+  /** Labelled route feature points (steepest stretch, high point…). */
+  highlights: { type: Array, default: () => [] },
+  /** Other route types drawn faint; tapping one emits select-route. */
+  alternatives: { type: Array, default: () => [] },
   user: { type: Object, default: null },
   start: { type: Object, default: null },
   fit: { type: String, default: 'all' },
@@ -29,7 +33,7 @@ defineProps({
   /** Illustration: percent area pins may occupy. */
   box: { type: Object, default: undefined },
 })
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'select-route'])
 
 const useGoogle = ref(isGoogleMapsConfigured())
 const inner = ref(null)
@@ -58,6 +62,8 @@ defineExpose({
     :route-color="routeType.hex"
     :real-route="realRoute"
     :amenities="amenities"
+    :highlights="highlights"
+    :alternatives="alternatives"
     :user="user"
     :start="start"
     :fit="fit"
@@ -65,6 +71,7 @@ defineExpose({
     :show-labels="showLabels"
     v-bind="padding ? { padding } : {}"
     @select="(id) => emit('select', id)"
+    @select-route="(key) => emit('select-route', key)"
     @error="fallBack"
   />
   <MapCanvas
@@ -76,11 +83,14 @@ defineExpose({
     :route-color="routeType.color"
     :real-route="realRoute"
     :amenities="amenities"
+    :highlights="highlights"
+    :alternatives="alternatives"
     :user="user"
     :start="start"
     :fit="fit"
     :interactive="interactive"
     v-bind="box ? { box } : {}"
     @select="(id) => emit('select', id)"
+    @select-route="(key) => emit('select-route', key)"
   />
 </template>

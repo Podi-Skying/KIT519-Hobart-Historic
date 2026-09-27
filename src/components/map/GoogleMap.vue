@@ -23,6 +23,10 @@ const props = defineProps({
   realRoute: { type: Boolean, default: false },
   /** Amenity stops on the route: { id, icon, label, position }. */
   amenities: { type: Array, default: () => [] },
+  /** Labelled feature points of the route (steepest stretch, high point…): { id, icon, label, position }. */
+  highlights: { type: Array, default: () => [] },
+  /** Other route types drawn faint so the difference shows; tap to switch: { key, path, hex, label }. */
+  alternatives: { type: Array, default: () => [] },
   /** Live walker position (blue dot), or null. */
   user: { type: Object, default: null },
   /** Route start marker, shown when there is no live walker position. */
@@ -34,7 +38,7 @@ const props = defineProps({
   /** Map padding (px) around fitted content — keep pins clear of overlays. */
   padding: { type: Object, default: () => ({ top: 96, right: 72, bottom: 32, left: 32 }) },
 })
-const emit = defineEmits(['select', 'error', 'ready'])
+const emit = defineEmits(['select', 'select-route', 'error', 'ready'])
 
 const { t } = useI18n()
 const container = ref(null)
@@ -45,6 +49,8 @@ let startMarker = null
 let routeLine = null
 const pins = new Map() // siteId → { marker, element }
 let amenityPins = []
+let highlightPins = []
+let alternativeLines = []
 let offAuthFailure = () => {}
 
 // ---------- marker DOM ----------
@@ -70,6 +76,16 @@ function amenityElement(amenity) {
   const el = document.createElement('div')
   el.className = 'gm-amenity'
   el.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[amenity.icon] ?? ''}</svg>`
+  return el
+}
+/** Labelled chip for a route feature point (icon markup from the trusted static registry, label as text). */
+function highlightElement(highlight) {
+  const el = document.createElement('div')
+  el.className = 'gm-highlight'
+  el.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[highlight.icon] ?? ''}</svg>`
+  const text = document.createElement('span')
+  text.textContent = highlight.label
+  el.append(text)
   return el
 }
 const dotElement = (className) => {
@@ -126,12 +142,47 @@ function syncRoute() {
     strokeColor: color,
     strokeWeight: props.realRoute ? 5 : 4,
     strokeOpacity: props.realRoute ? 0.9 : 0,
+    zIndex: 2,
     icons: props.realRoute
       ? []
       : [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: color, scale: 3 }, offset: '0', repeat: '12px' }],
   })
 }
 
+function syncAlternatives() {
+  alternativeLines.forEach((line) => line.setMap(null))
+  alternativeLines = []
+  if (!map.value) return
+  alternativeLines = props.alternatives.map((alt) => {
+    const line = new api.Polyline({
+      map: map.value,
+      path: alt.path,
+      geodesic: true,
+      strokeColor: alt.hex,
+      strokeOpacity: 0.4,
+      strokeWeight: 4,
+      zIndex: 1,
+      clickable: props.interactive,
+    })
+    if (props.interactive) line.addListener('click', () => emit('select-route', alt.key))
+    return line
+  })
+}
+function syncHighlights() {
+  highlightPins.forEach((marker) => (marker.map = null))
+  highlightPins = []
+  if (!map.value) return
+  highlightPins = props.highlights.map(
+    (h) =>
+      new api.AdvancedMarkerElement({
+        map: map.value,
+        position: h.position,
+        content: highlightElement(h),
+        title: h.label,
+        zIndex: 6,
+      }),
+  )
+}
 function syncAmenities() {
   amenityPins.forEach((marker) => (marker.map = null))
   amenityPins = []
@@ -204,8 +255,10 @@ onMounted(async () => {
 
   syncPeople()
   syncSelection()
+  syncAlternatives()
   syncRoute()
   syncAmenities()
+  syncHighlights()
   recenter()
   emit('ready')
 })
@@ -219,6 +272,8 @@ watch(
   },
 )
 watch(() => props.amenities, syncAmenities)
+watch(() => props.highlights, syncHighlights)
+watch(() => props.alternatives, syncAlternatives)
 watch(() => [props.user?.lat, props.user?.lng, props.start?.lat, props.start?.lng], syncPeople)
 
 /** Run a teardown step without letting a Google-side failure (e.g. after an auth error) block unmounting. */
@@ -237,6 +292,8 @@ onBeforeUnmount(() => {
   safely(() => startMarker && (startMarker.map = null))
   pins.forEach(({ marker }) => safely(() => (marker.map = null)))
   amenityPins.forEach((marker) => safely(() => (marker.map = null)))
+  highlightPins.forEach((marker) => safely(() => (marker.map = null)))
+  alternativeLines.forEach((line) => safely(() => line.setMap(null)))
   pins.clear()
 })
 
@@ -334,6 +391,19 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   color: var(--ink-900);
   box-shadow: var(--e-1);
   transform: translateY(50%); /* centre the badge on the route point */
+}
+.gm-highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 7px;
+  border-radius: var(--r-pill);
+  background: var(--ink-900);
+  color: var(--cream);
+  font: var(--t-micro);
+  white-space: nowrap;
+  box-shadow: var(--e-1);
+  transform: translateY(50%); /* centre the chip on the route point */
 }
 .gm-user,
 .gm-start {

@@ -6,6 +6,7 @@ import { getSiteById } from '@/data/sites'
 import { ROUTE_TYPES } from '@/data/navigation'
 import { distanceKm, placeAlongPath, walkingMinutes } from '@/lib/geo'
 import { walkMinutesFor } from '@/lib/sites'
+import { routeHighlights } from '@/lib/routeHighlights'
 import { useLocationStore } from '@/stores/location'
 import { useTripStore } from '@/stores/trip'
 
@@ -30,6 +31,8 @@ export function useWalkingRoute(siteSource) {
 
   const options = ref(null)
   const status = ref('idle')
+  /** True while any request is in flight (first plan or a re-plan after stops / language change). */
+  const pending = ref(false)
   const error = ref(null)
   let lastOrigin = null
   let requestId = 0
@@ -57,6 +60,7 @@ export function useWalkingRoute(siteSource) {
 
     const id = ++requestId
     if (!options.value) status.value = 'loading'
+    pending.value = true
     try {
       const result = await planRouteOptions({
         origin: origin.value,
@@ -74,6 +78,8 @@ export function useWalkingRoute(siteSource) {
       error.value = e
       status.value = 'fallback'
       if (import.meta.env.DEV) console.warn('[useWalkingRoute] using straight-line fallback:', e.message)
+    } finally {
+      if (id === requestId) pending.value = false
     }
   }
 
@@ -137,8 +143,28 @@ export function useWalkingRoute(siteSource) {
     ).map(({ stop, position }) => ({ id: stop.id, icon: stop.icon, label: t(`waypoints.${stop.id}`), position })),
   )
 
+  /** Feature points of the selected route (steepest stretch, high point, flat corridor…), labelled. */
+  const highlights = computed(() =>
+    routeHighlights(trip.routeType, route.value).map((h) => ({ ...h, label: t(h.message, h.params) })),
+  )
+
+  /** The other route types, drawn faint on the map so the difference is visible (tap one to switch). */
+  const alternatives = computed(() => {
+    if (!options.value || !route.value) return []
+    const seen = new Set([route.value])
+    return ROUTE_TYPES.filter((type) => {
+      const option = options.value[type.key]
+      if (!option || seen.has(option)) return false
+      seen.add(option)
+      return true
+    }).map((type) => ({ key: type.key, path: options.value[type.key].path, hex: type.hex, color: type.color, label: t(`routeTypes.${type.key}.label`) }))
+  })
+
   return {
     options,
+    pending,
+    highlights,
+    alternatives,
     route,
     status,
     error,

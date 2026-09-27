@@ -33,6 +33,7 @@ export default {
     highContrastHint: '文字を濃く、枠線をはっきり',
   },
   splash: {
+    chooseLanguage: '言語を選択',
     location: 'タスマニア · ホバート',
     script1: 'Small city,',
     script2: 'big stories',
@@ -138,6 +139,7 @@ export default {
     },
   },
   routeTypes: {
+    sameShort: '= 通常',
     normal: {
       label: '通常',
       description: '最も直接的なルート。いちばん早く着きます。',
@@ -156,6 +158,13 @@ export default {
     sameAsNormal: 'このあたりには、より平坦な道も坂の多い道もないため、通常ルートと同じです',
     checking: '勾配を確認中…',
     note: '勾配は地形データからの推定で、階段を含む場合があります。現地の状況をご確認ください。',
+  },
+  routeHighlights: {
+    steepestUp: '最も急な上り · {pct}%',
+    steepestDown: '最も急な下り · {pct}%',
+    summit: '最高地点 · {m} m',
+    viaFlat: '平坦な道 · {place}',
+    viaScenic: '眺望スポット · {place}',
   },
   navModes: {
     to: '{name}へ',
@@ -244,6 +253,8 @@ export default {
       'Battery Point の通りは急な石畳です。車いすやベビーカーの方は「バリアフリー」ルートを選んでください。kunanyi からの風で急に冷えることがあるので、羽織るものをお持ちください。',
   },
   ar: {
+    lookAround: 'スマホを傾けるか写真をドラッグして見回せます',
+    motion: 'スマホを傾けて見回す',
     exit: '終了',
     help: 'AR モードの使い方',
     scanning: 'ランドマークをスキャン中',
