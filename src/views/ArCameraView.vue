@@ -22,6 +22,7 @@ import { advancePosition, arTimeline, layerOpacity } from '@/lib/timeline'
 import { usePlayerStore } from '@/stores/player'
 import { useUiStore } from '@/stores/ui'
 import { LOOK_SCALE, useLookAround } from '@/composables/useLookAround'
+import { frameDirective } from '@/composables/frameDirective'
 import { useLocationStore } from '@/stores/location'
 
 const props = defineProps({
@@ -56,8 +57,20 @@ const nearest = computed(() => Math.round(position.value))
 const shownPhoto = computed(() => timeline.value[nearest.value])
 const timePlaying = ref(false)
 const yearLabel = (p) => (p.year ? p.year : t('compare.today'))
+/**
+ * The playhead moves every frame while the building ages, so nothing in the template reads
+ * `position` directly (that re-rendered this whole screen 60×/s). Only `windowStart` and
+ * `nearest` — which change once per photo — are rendered; opacity and the slider are written
+ * by frame directives.
+ */
+const windowStart = computed(() => Math.floor(position.value))
 /** Photos kept in the DOM: today's view, the pair being blended, and the next one (preloading). */
-const inWindow = (i) => i === 0 || (i >= Math.floor(position.value) && i <= Math.ceil(position.value) + 1)
+const inWindow = (i) => i === 0 || (i >= windowStart.value && i <= windowStart.value + 2)
+const vFade = frameDirective((el, i) => (el.style.opacity = i === 0 ? 1 : layerOpacity(i, position.value)))
+const vPlayhead = frameDirective((el) => {
+  el.value = String(Math.round(position.value * 100))
+  el.style.setProperty('--fill', `${lastIndex.value ? (position.value / lastIndex.value) * 100 : 0}%`)
+})
 let frame = null
 let lastTick = 0
 function tick(now) {
@@ -204,7 +217,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
             :src="p.image"
             :alt="i === nearest ? (i === 0 ? t('ar.cameraAlt', { name: site.name }) : t('compare.photoAlt', { name: site.name, year: yearLabel(p) })) : ''"
             :aria-hidden="i === nearest ? undefined : 'true'"
-            :style="{ opacity: i === 0 ? 1 : layerOpacity(i, position) }"
+            v-fade="i"
             draggable="false"
           />
           </template>
@@ -336,8 +349,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
           type="range"
           min="0"
           :max="lastIndex * 100"
-          :value="Math.round(position * 100)"
-          :style="{ '--fill': `${lastIndex ? (position / lastIndex) * 100 : 0}%` }"
+          v-playhead
           :aria-label="t('compare.timeline', { name: site.name })"
           :aria-valuetext="`${yearLabel(shownPhoto)} · ${shownPhoto.title || site.name}`"
           @pointerdown="pauseTime"
