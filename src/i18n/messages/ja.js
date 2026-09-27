@@ -108,6 +108,8 @@ export default {
     defaultPlace: 'Centenary Building',
   },
   map: {
+    showDetails: 'ルートの詳細を表示',
+    hideDetails: 'ルートの詳細を隠す',
     ariaMap: 'ホバートの歴史遺産マップ',
     yourLocation: '現在地',
     routeStart: 'ルートの出発点',
@@ -165,6 +167,19 @@ export default {
     summit: '最高地点 · {m} m',
     viaFlat: '平坦な道 · {place}',
     viaScenic: '眺望スポット · {place}',
+  },
+  voice: {
+    label: '音声案内',
+    on: '音声案内オン',
+    off: '音声案内オフ',
+    start: '出発しましょう。{instruction}。',
+    inDistance: '約{distance}先、{instruction}。',
+    now: 'まもなく、{instruction}。',
+    metres: '{n}メートル',
+    km: '{n}キロメートル',
+    arrive: '{name}に到着しました。ごゆっくりお楽しみください。',
+    almostThere: 'もうすぐです。{name}は約{distance}先です。',
+    headTo: '{name}の方向へ進んでください。',
   },
   navModes: {
     to: '{name}へ',

@@ -108,6 +108,8 @@ export default {
     defaultPlace: 'Centenary Building',
   },
   map: {
+    showDetails: 'Hiện chi tiết tuyến đường',
+    hideDetails: 'Ẩn chi tiết tuyến đường',
     ariaMap: 'Bản đồ di sản Hobart',
     yourLocation: 'Vị trí của bạn',
     routeStart: 'Điểm xuất phát',
@@ -165,6 +167,19 @@ export default {
     summit: 'Điểm cao nhất · {m} m',
     viaFlat: 'Đường bằng phẳng · {place}',
     viaScenic: 'Điểm ngắm cảnh · {place}',
+  },
+  voice: {
+    label: 'Chỉ đường bằng giọng nói',
+    on: 'Đã bật chỉ đường bằng giọng nói',
+    off: 'Đã tắt chỉ đường bằng giọng nói',
+    start: 'Đi thôi — {instruction}.',
+    inDistance: 'Khoảng {distance} nữa, {instruction}.',
+    now: 'Bây giờ, {instruction}.',
+    metres: '{n} mét',
+    km: '{n} ki-lô-mét',
+    arrive: 'Bạn đã đến {name}. Chúc bạn tham quan vui vẻ!',
+    almostThere: 'Sắp đến rồi — {name} ở phía trước khoảng {distance}.',
+    headTo: 'Hãy đi về phía {name}.',
   },
   navModes: {
     to: 'Đến {name}',

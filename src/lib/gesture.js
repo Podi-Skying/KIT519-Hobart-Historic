@@ -84,3 +84,16 @@ export function pagerStep(offset, velocity, width) {
   if (Math.abs(projected) <= width / 2) return 0
   return projected < 0 ? 1 : -1
 }
+
+/**
+ * Two-position panel (expanded / collapsed): where a release should settle. Decided from the
+ * momentum projection, so a flick down collapses it even from near the top, and a flick up
+ * reopens it even from near the bottom.
+ * @param {number} offset px pulled down from expanded (0 … max)
+ * @param {number} velocity px/ms at release (+ = downward)
+ * @param {number} max px from expanded to collapsed
+ * @returns {0 | number} 0 = expanded, max = collapsed
+ */
+export function snapPoint(offset, velocity, max) {
+  return offset + project(velocity) > max / 2 ? max : 0
+}

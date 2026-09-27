@@ -28,6 +28,8 @@ defineProps({
   fit: { type: String, default: 'all' },
   interactive: { type: Boolean, default: true },
   showLabels: { type: Boolean, default: true },
+  /** Hover previews (photo + name) on landmark pins — Map tab. */
+  previews: { type: Boolean, default: false },
   /** Google Maps fit padding (px). */
   padding: { type: Object, default: undefined },
   /** Illustration: percent area pins may occupy. */
@@ -68,6 +70,7 @@ defineExpose({
     :start="start"
     :fit="fit"
     :interactive="interactive"
+    :previews="previews"
     :show-labels="showLabels"
     v-bind="padding ? { padding } : {}"
     @select="(id) => emit('select', id)"
@@ -89,6 +92,7 @@ defineExpose({
     :start="start"
     :fit="fit"
     :interactive="interactive"
+    :previews="previews"
     v-bind="box ? { box } : {}"
     @select="(id) => emit('select', id)"
     @select-route="(key) => emit('select-route', key)"

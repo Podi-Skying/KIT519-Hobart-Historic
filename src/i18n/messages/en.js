@@ -111,6 +111,8 @@ export default {
     defaultPlace: 'Centenary Building',
   },
   map: {
+    showDetails: 'Show route details',
+    hideDetails: 'Hide route details',
     ariaMap: 'Map of Hobart heritage sites',
     yourLocation: 'Your location',
     routeStart: 'Route start',
@@ -168,6 +170,19 @@ export default {
     summit: 'Top of the walk · {m} m',
     viaFlat: 'Flat way · {place}',
     viaScenic: 'Viewpoint · {place}',
+  },
+  voice: {
+    label: 'Voice directions',
+    on: 'Voice directions on',
+    off: 'Voice directions off',
+    start: "Let's go — {instruction}.",
+    inDistance: 'In about {distance}, {instruction}.',
+    now: 'Now, {instruction}.',
+    metres: '{n} metres',
+    km: '{n} kilometres',
+    arrive: "You've arrived at {name}. Enjoy your visit!",
+    almostThere: 'Almost there — {name} is about {distance} ahead.',
+    headTo: 'Head towards {name}.',
   },
   navModes: {
     to: 'To {name}',

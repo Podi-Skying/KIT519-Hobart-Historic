@@ -66,12 +66,14 @@ const positions = reactive(structuredClone(DEFAULT_HOTSPOTS))
 
 const hotspots = computed(() => [
   { key: 'info', label: t('ar.about'), icon: 'info' },
-  { key: 'audio', label: t('ar.listen'), icon: isNarrating.value ? 'pause' : 'headphones' },
+  { key: 'audio', label: isNarrating.value ? t('audio.pause') : t('ar.listen'), icon: isNarrating.value ? 'pause' : 'headphones' },
   { key: 'photos', label: t('ar.photos'), icon: 'image' },
 ])
 const isNarrating = computed(() => player.playing && player.siteId === site.value.id)
 
 function togglePanel(key) {
+  // Listen is a play/pause control, not a card: one tap pauses (or resumes) the narration.
+  if (key === 'audio') return toggleNarration()
   openPanel.value = openPanel.value === key ? null : key
 }
 function toggleNarration() {
@@ -85,11 +87,23 @@ function scan() {
   clearTimeout(scanTimer)
   detected.value = false
   openPanel.value = null
+  player.pause() // the previous landmark's tour stops while the new one is found
   Object.assign(positions, structuredClone(DEFAULT_HOTSPOTS))
   scanTimer = setTimeout(() => (detected.value = true), SCAN_DURATION_MS)
 }
 watch(() => site.value.id, scan, { immediate: true })
-onBeforeUnmount(() => clearTimeout(scanTimer))
+
+// Once the landmark is recognised, its audio tour starts by itself; Listen pauses it (WCAG 1.4.2:
+// sound that starts on its own must be easy to stop). Leaving AR stops it.
+watch(detected, (now) => {
+  if (!now) return
+  player.load(site.value.id)
+  if (!player.playing) player.play()
+})
+onBeforeUnmount(() => {
+  clearTimeout(scanTimer)
+  player.pause()
+})
 
 function chooseSite(id, dismiss) {
   dismiss()

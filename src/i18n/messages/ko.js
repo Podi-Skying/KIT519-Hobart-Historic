@@ -108,6 +108,8 @@ export default {
     defaultPlace: 'Centenary Building',
   },
   map: {
+    showDetails: '경로 세부 정보 보기',
+    hideDetails: '경로 세부 정보 숨기기',
     ariaMap: '호바트 문화유산 지도',
     yourLocation: '내 위치',
     routeStart: '경로 출발지',
@@ -165,6 +167,19 @@ export default {
     summit: '가장 높은 지점 · {m}m',
     viaFlat: '평탄한 길 · {place}',
     viaScenic: '전망 지점 · {place}',
+  },
+  voice: {
+    label: '음성 안내',
+    on: '음성 안내 켜짐',
+    off: '음성 안내 꺼짐',
+    start: '출발합니다. {instruction}.',
+    inDistance: '약 {distance} 앞에서 {instruction}.',
+    now: '지금 {instruction}.',
+    metres: '{n}미터',
+    km: '{n}킬로미터',
+    arrive: '{name}에 도착했습니다. 즐거운 관람 되세요!',
+    almostThere: '거의 다 왔어요. {name}까지 약 {distance} 남았습니다.',
+    headTo: '{name} 방향으로 가세요.',
   },
   navModes: {
     to: '{name}(으)로',

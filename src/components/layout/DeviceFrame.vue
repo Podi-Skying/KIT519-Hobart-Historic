@@ -45,11 +45,17 @@ const { t } = useI18n()
 }
 @media not all and (min-width: 601px) and (hover: hover) and (pointer: fine) {
   .stage {
+    /* 100vh is taller than the visible area while the browser bar shows → the app got centred
+       with dark strips above/below. Match the device to the dynamic viewport exactly. */
+    min-height: 100dvh;
     padding: 0;
+    gap: 0;
+    background: var(--cream);
   }
   .device {
-    width: 100vw;
+    width: 100%;
     height: 100dvh;
+    box-shadow: none;
     aspect-ratio: auto;
     border-radius: 0;
   }

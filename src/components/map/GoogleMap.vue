@@ -35,6 +35,8 @@ const props = defineProps({
   fit: { type: String, default: 'all', validator: (v) => ['all', 'route'].includes(v) },
   interactive: { type: Boolean, default: true },
   showLabels: { type: Boolean, default: true },
+  /** Map tab: hovering (or focusing) a landmark pops up its photo and name above the pin. */
+  previews: { type: Boolean, default: false },
   /** Map padding (px) around fitted content — keep pins clear of overlays. */
   padding: { type: Object, default: () => ({ top: 96, right: 72, bottom: 32, left: 32 }) },
 })
@@ -63,6 +65,20 @@ function pinElement(site) {
   num.textContent = String(site.id)
   head.append(num)
   el.append(head)
+  if (props.previews) {
+    const card = document.createElement('span')
+    card.className = 'gm-pin__preview'
+    const img = document.createElement('img')
+    img.src = site.image
+    img.alt = ''
+    img.loading = 'lazy'
+    img.decoding = 'async'
+    const name = document.createElement('span')
+    name.textContent = site.name
+    card.append(img, name)
+    el.append(card)
+    el.classList.add('has-preview')
+  }
   if (props.showLabels) {
     const label = document.createElement('span')
     label.className = 'gm-pin__label'
@@ -250,6 +266,11 @@ onMounted(async () => {
       gmpClickable: props.interactive,
     })
     if (props.interactive) marker.addListener('click', () => emit('select', site.id))
+    if (props.previews) {
+      // the hovered landmark (and its card) rises above its neighbours
+      element.addEventListener('mouseenter', () => (marker.zIndex = 50))
+      element.addEventListener('mouseleave', () => (marker.zIndex = site.id === props.selectedId ? 10 : 1))
+    }
     pins.set(site.id, { marker, element })
   }
 
@@ -373,7 +394,49 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   opacity: 1;
   transform: none;
 }
+.gm-pin__preview {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 3;
+  width: 168px;
+  padding: 6px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--e-2);
+  opacity: 0;
+  translate: -50% 0;
+  scale: calc(1 - 0.12 * var(--motion));
+  transform-origin: 50% 100%; /* grows out of the pin */
+  filter: blur(calc(4px * var(--motion)));
+  transition: opacity var(--dur-fast) var(--ease), scale var(--dur) var(--ease), filter var(--dur) var(--ease);
+  pointer-events: none;
+}
+.gm-pin__preview img {
+  display: block;
+  width: 100%;
+  height: 92px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--sand);
+}
+.gm-pin__preview span {
+  display: block;
+  padding: 6px 4px 2px;
+  font: var(--t-label);
+  color: var(--ink-900);
+  white-space: normal;
+  text-align: center;
+}
 @media (hover: hover) {
+  .gm-pin:hover .gm-pin__preview {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+  }
+  .gm-pin.has-preview:hover .gm-pin__label {
+    opacity: 0; /* the card already names it */
+  }
   .gm-pin:hover .gm-pin__label {
     opacity: 1;
     transform: none;

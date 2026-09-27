@@ -19,6 +19,9 @@ import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
 import { maneuverIcon, nextGuidance } from '@/lib/guidance'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
+import { useVoiceGuidance } from '@/composables/useVoiceGuidance'
+import { useSnapSheet } from '@/composables/useSnapSheet'
+import { useUiStore } from '@/stores/ui'
 import { useTripStore } from '@/stores/trip'
 import { useLocationStore } from '@/stores/location'
 
@@ -64,6 +67,22 @@ const guidanceText = computed(() => {
 })
 
 onMounted(() => location.start())
+
+// Pull the panel down to a slim "time · distance" bar so the map is free
+const summaryEl = ref(null)
+const peekBar = ref(null)
+const snap = useSnapSheet({
+  element: () => summaryEl.value,
+  peek: () => (peekBar.value ? peekBar.value.offsetTop + peekBar.value.offsetHeight + 10 : 72),
+})
+
+// Spoken directions while navigating (the voice toggle lives here, not on the Map tab)
+const ui = useUiStore()
+useVoiceGuidance({ guidance, siteName: () => site.value.name, enabled: () => trip.voiceGuidance, arrived })
+function toggleVoice() {
+  trip.toggleVoiceGuidance()
+  ui.showToast(t(trip.voiceGuidance ? 'voice.on' : 'voice.off'))
+}
 // Same as AR navigation: reaching the destination opens the arrival sheet.
 watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))
 
@@ -116,6 +135,13 @@ const endRoute = () => router.push({ name: 'map' })
     </div>
 
     <div class="zoom">
+      <IconButton
+        variant="float"
+        :icon="trip.voiceGuidance ? 'volume' : 'mute'"
+        :label="t('voice.label')"
+        :pressed="trip.voiceGuidance"
+        @click="toggleVoice"
+      />
       <IconButton variant="float" icon="plus" :label="t('navigation.zoomIn')" @click="map?.zoomIn()" />
       <IconButton variant="float" icon="minus" :label="t('navigation.zoomOut')" @click="map?.zoomOut()" />
       <IconButton variant="float" icon="locate" :label="user ? t('navigation.follow') : t('navigation.showRoute')" @click="recenter" />
@@ -124,12 +150,25 @@ const endRoute = () => router.push({ name: 'map' })
       </RouterLink>
     </div>
 
-    <section class="summary text-zoom" :aria-label="t('navigation.summary')">
+    <section ref="summaryEl" class="summary text-zoom" :style="snap.style.value" :aria-label="t('navigation.summary')">
+      <!-- Handle: drag or tap. Collapsed, only time · distance stays on screen. -->
+      <div ref="peekBar" class="summary__peek" v-on="snap.handlers" @click.capture="snap.swallowClick">
+        <button
+          type="button"
+          class="summary__grip pressable-dim"
+          :aria-expanded="!snap.collapsed.value"
+          :aria-label="snap.collapsed.value ? t('map.showDetails') : t('map.hideDetails')"
+          @click="snap.toggle()"
+        >
+          <span aria-hidden="true" />
+        </button>
+        <p class="summary__eta">
+          {{ t('common.minutes', { n: walk.minutes.value }) }}
+          <span class="summary__distance">· {{ formatMeters(walk.distanceMeters.value) }}</span>
+        </p>
+      </div>
       <div class="summary__row">
-        <div>
-          <p class="summary__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
-          <p class="t-small muted">{{ formatMeters(walk.distanceMeters.value) }} · {{ routeLine }}</p>
-        </div>
+        <p class="t-small muted">{{ routeLine }}</p>
         <div class="summary__buttons">
           <BaseButton variant="quiet" size="sm" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
           <BaseButton variant="secondary" size="sm" @click="endRoute">{{ t('navigation.end') }}</BaseButton>
@@ -235,7 +274,8 @@ const endRoute = () => router.push({ name: 'map' })
   padding: 18px var(--gutter) var(--s-6);
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   background: var(--cream);
-  box-shadow: var(--e-3);
+  /* 2nd shadow = cream skirt below, so a bounce past the top never shows a gap */
+  box-shadow: var(--e-3), 0 160px 0 0 var(--cream);
 }
 .summary__row {
   display: flex;
@@ -251,6 +291,30 @@ const endRoute = () => router.push({ name: 'map' })
   font: var(--t-metric);
   letter-spacing: var(--track-h1);
   color: var(--success-600);
+}
+.summary__peek {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.summary__grip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 24px;
+  margin-top: -10px;
+}
+.summary__grip span {
+  display: block;
+  width: 40px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sand-dark);
+}
+.summary__distance {
+  font: var(--t-title);
+  color: var(--ink-700);
 }
 .summary__routes {
   margin-bottom: var(--s-3);

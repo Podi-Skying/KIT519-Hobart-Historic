@@ -52,6 +52,9 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 **App shell and routing**
 - **Shell.** `App.vue` wraps everything in `DeviceFrame` (StatusBar, routed view, TabBar, `#sheet-layer`, Toast). `SplashScreen` overlays it on every launch: Tap to start → choose language (`setLocale`) → Home.
 - **Phone vs desktop.** The phone mock-up, the backdrop around it and the simulated status bar (time / signal / battery) exist only on desktops — `(min-width: 601px) and (hover: hover) and (pointer: fine)`, used in `tokens.css`, `DeviceFrame.vue` and `StatusBar.vue`. Phones/tablets are full-bleed; `--safe-top` / `--safe-bottom` are the notch insets there. Place floating controls with `var(--chrome-top)`, never a fixed `top: 50px`.
+- **Voice directions.** `composables/useVoiceGuidance` (standard + AR navigation only — the Map tab has no voice toggle) speaks `lib/voicePrompt` prompts via `services/speech`; phrasing lives in `voice.*` messages.
+- **Collapsible panels.** Map's route panel and the standard-navigation summary use `composables/useSnapSheet` (expanded ↔ "time · distance" bar).
+- **AR audio.** ArCameraView auto-plays the site's narration once the landmark is detected; the Listen bubble toggles play/pause; leaving pauses it. Through time autoplays newest → oldest with a pause button.
 - **Launch / refresh.** A router guard sends the first navigation to Home whatever the URL (the leading page never leads anywhere else); Home's query filters are kept.
 - **Navigation flow.** "Go" / "Start route" open `navigate-map` directly (the default); `/navigate/:id` is only a redirect. AR / printable are offered by `NavigationModeSheet` on the navigation screen. Route type is picked only where a map shows the routes (Map, standard navigation).
 - **Router.** It uses hash history, and Vite uses `base: './'`, so `dist/` runs from any static sub-path.

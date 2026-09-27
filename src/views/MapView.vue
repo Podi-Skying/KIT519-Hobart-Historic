@@ -20,6 +20,7 @@ import { MAX_STOPS } from '@/data/navigation'
 import { formatMeters } from '@/lib/format'
 import { useWalkingRoute } from '@/composables/useWalkingRoute'
 import { useSheetDrag } from '@/composables/useSheetDrag'
+import { useSnapSheet } from '@/composables/useSnapSheet'
 import { useTripStore } from '@/stores/trip'
 import { useUiStore } from '@/stores/ui'
 import { useLocationStore } from '@/stores/location'
@@ -57,6 +58,19 @@ onMounted(() => {
   if (panel.value) resizeObserver.observe(panel.value)
 })
 onBeforeUnmount(() => resizeObserver?.disconnect())
+
+/** The map fills everything above the visible part of the panel (just the bar when collapsed). */
+const mapBottom = computed(() => (selected.value && snap.collapsed.value ? peekHeight() : panelHeight.value))
+
+// ---- route panel: pull it down to a slim "time · distance" bar so the map is free ----
+const peekBar = ref(null)
+const peekHeight = () => (peekBar.value ? peekBar.value.offsetTop + peekBar.value.offsetHeight + 8 : 64)
+const snap = useSnapSheet({ element: () => panel.value, peek: peekHeight })
+// choosing another landmark (or clearing it) brings the full panel back
+watch(
+  () => trip.destinationId,
+  () => snap.collapsed.value && snap.expand(),
+)
 
 // ---- browse panel: drag down to tuck it away; tap or drag the tab up to bring it back ----
 const PEEK_RAISE = 16
@@ -125,11 +139,6 @@ function toggleStop(stop) {
   ui.showToast(result === 'added' ? t('map.toast.stopAdded', { name }) : t('map.toast.stopsFull', { n: MAX_STOPS }))
 }
 
-function toggleVoice() {
-  trip.toggleVoiceGuidance()
-  ui.showToast(t(trip.voiceGuidance ? 'map.toast.voiceOn' : 'map.toast.voiceOff'))
-}
-
 function toggleOffline() {
   trip.toggleOfflineMap()
   ui.showToast(t(trip.offlineMap ? 'map.toast.offlineOn' : 'map.toast.offlineOff'))
@@ -139,7 +148,7 @@ function toggleOffline() {
 <template>
   <div class="map-view">
     <!-- Map sits above the bottom panel so Google's logo and attribution stay visible -->
-    <div class="map-view__map" :style="{ bottom: `${Math.max(0, panelHeight - 8)}px` }">
+    <div class="map-view__map" :style="{ bottom: `${Math.max(0, mapBottom - 8)}px` }">
       <SiteMap
         ref="siteMap"
         :sites="SITES"
@@ -153,6 +162,7 @@ function toggleOffline() {
         :user="userCoords"
         :start="selected ? location.origin : null"
         :fit="selected ? 'route' : 'all'"
+        previews
         :box="{ x: [10, 86], y: [14, 86] }"
         @select="trip.setDestination"
         @select-route="trip.setRouteType"
@@ -161,7 +171,6 @@ function toggleOffline() {
     </div>
 
     <div class="map-view__controls">
-      <IconButton variant="float" :icon="trip.voiceGuidance ? 'volume' : 'mute'" :label="t('map.voice')" :pressed="trip.voiceGuidance" @click="toggleVoice" />
       <IconButton variant="float" :icon="trip.offlineMap ? 'download' : 'wifi'" :label="t('map.offline')" :pressed="trip.offlineMap" @click="toggleOffline" />
       <IconButton
         variant="float"
@@ -176,10 +185,27 @@ function toggleOffline() {
       ref="panel"
       class="panel"
       :class="{ 'is-dragging': sheetDrag.dragging.value }"
-      :style="selected ? null : sheetDrag.style.value"
+      :style="selected ? snap.style.value : sheetDrag.style.value"
     >
       <!-- Selected destination -->
       <section v-if="selected" class="panel__selected text-zoom" :aria-label="t('map.selected')">
+        <!-- Handle: drag or tap. Collapsed, only this bar (time · distance) stays on screen. -->
+        <div ref="peekBar" class="panel__peek" v-on="snap.handlers" @click.capture="snap.swallowClick">
+          <button
+            type="button"
+            class="panel__grip-btn pressable-dim"
+            :aria-expanded="!snap.collapsed.value"
+            :aria-label="snap.collapsed.value ? t('map.showDetails') : t('map.hideDetails')"
+            @click="snap.toggle()"
+          >
+            <span class="panel__grip" aria-hidden="true" />
+          </button>
+          <p class="panel__peek-text">
+            <b>{{ t('common.minutes', { n: walk.minutes.value }) }}</b>
+            · {{ formatMeters(walk.distanceMeters.value) }}
+            <span class="panel__peek-name">· {{ selected.shortName }}</span>
+          </p>
+        </div>
         <div class="selected">
           <img :src="selected.image" :alt="selected.name" class="selected__thumb img-placeholder" />
           <div class="selected__text">
@@ -296,7 +322,7 @@ function toggleOffline() {
   display: none;
 }
 .panel__selected {
-  padding: var(--s-5) var(--gutter);
+  padding: var(--s-1) var(--gutter) var(--s-5);
   animation: slide-up var(--dur-slow) var(--ease);
 }
 .panel__browse {
@@ -310,6 +336,34 @@ function toggleOffline() {
 }
 .panel__browse.is-reopened {
   animation: slide-up var(--dur-slow) var(--ease);
+}
+.panel__peek {
+  touch-action: none; /* vertical drags move the panel */
+  cursor: grab;
+  user-select: none;
+}
+.panel__grip-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 28px;
+}
+.panel__grip-btn .panel__grip {
+  margin: 0;
+}
+.panel__peek-text {
+  margin-bottom: var(--s-3);
+  font: var(--t-body);
+  color: var(--ink-700);
+  text-align: center;
+}
+.panel__peek-text b {
+  font: var(--t-title);
+  color: var(--success-600);
+}
+.panel__peek-name {
+  color: var(--ink-500);
 }
 .peek {
   width: 100%;

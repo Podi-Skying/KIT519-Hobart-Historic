@@ -108,6 +108,8 @@ export default {
     defaultPlace: 'Centenary Building',
   },
   map: {
+    showDetails: '顯示路線詳情',
+    hideDetails: '收起路線詳情',
     ariaMap: '荷伯特文化遺產地圖',
     yourLocation: '你的位置',
     routeStart: '路線起點',
@@ -165,6 +167,19 @@ export default {
     summit: '最高點 · {m} 公尺',
     viaFlat: '平緩路段 · {place}',
     viaScenic: '景觀點 · {place}',
+  },
+  voice: {
+    label: '語音導航',
+    on: '語音導航已開啟',
+    off: '語音導航已關閉',
+    start: '出發囉！{instruction}。',
+    inDistance: '大約{distance}後，{instruction}。',
+    now: '現在，{instruction}。',
+    metres: '{n} 公尺',
+    km: '{n} 公里',
+    arrive: '您已抵達{name}，祝您參觀愉快！',
+    almostThere: '快到了，{name}就在前方約{distance}。',
+    headTo: '請往{name}的方向走。',
   },
   navModes: {
     to: '前往 {name}',

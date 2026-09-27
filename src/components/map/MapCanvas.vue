@@ -31,6 +31,8 @@ const props = defineProps({
   /** Percent area of the canvas that pins may occupy (avoid overlays). */
   box: { type: Object, default: () => FALLBACK_MAP_BOX },
   interactive: { type: Boolean, default: true },
+  /** Map tab: hovering (or focusing) a landmark pops up its photo and name above the pin. */
+  previews: { type: Boolean, default: false },
 })
 const emit = defineEmits(['select', 'select-route'])
 const { t } = useI18n()
@@ -148,6 +150,10 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
       :disabled="!interactive"
       @click="emit('select', site.id)"
     >
+      <span v-if="previews" class="pin__preview" aria-hidden="true">
+        <img :src="site.image" alt="" loading="lazy" decoding="async" />
+        <span>{{ site.name }}</span>
+      </span>
       <span class="pin__head"><b>{{ site.id }}</b></span>
       <span v-if="site.id === selectedId" class="pin__label">{{ site.shortName }}</span>
     </button>
@@ -231,6 +237,54 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   width: var(--hit);
   height: var(--hit);
   transform: translateX(-50%); /* invisible 44×44 touch area around a smaller visual (Apple HIG minimum) */
+}
+.pin__preview {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 3;
+  width: 168px;
+  padding: 6px;
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--e-2);
+  opacity: 0;
+  translate: -50% 0;
+  scale: calc(1 - 0.12 * var(--motion));
+  transform-origin: 50% 100%; /* grows out of the pin */
+  filter: blur(calc(4px * var(--motion)));
+  transition: opacity var(--dur-fast) var(--ease), scale var(--dur) var(--ease), filter var(--dur) var(--ease);
+  pointer-events: none;
+}
+.pin__preview img {
+  display: block;
+  width: 100%;
+  height: 92px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--sand);
+}
+.pin__preview span {
+  display: block;
+  padding: 6px 4px 2px;
+  font: var(--t-label);
+  color: var(--ink-900);
+  text-align: center;
+}
+.pin:focus-visible .pin__preview {
+  opacity: 1;
+  scale: 1;
+  filter: none;
+}
+@media (hover: hover) {
+  .pin:hover {
+    z-index: 5;
+  }
+  .pin:hover .pin__preview {
+    opacity: 1;
+    scale: 1;
+    filter: none;
+  }
 }
 .pin:disabled {
   cursor: default;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createVelocityTracker, pagerStep, project, releaseEasing, rubberband } from '@/lib/gesture'
+import { createVelocityTracker, pagerStep, project, releaseEasing, rubberband, snapPoint } from '@/lib/gesture'
 
 describe('project', () => {
   it('matches Apple’s exponential-decay projection', () => {
@@ -59,5 +59,14 @@ describe('pagerStep', () => {
     expect(pagerStep(40, 1.5, 360)).toBe(-1) // flick right → previous
     expect(pagerStep(-150, 0, 360)).toBe(0) // slow, under half → back
     expect(pagerStep(-200, 0, 360)).toBe(1) // dragged past half → next
+  })
+})
+
+describe('snapPoint', () => {
+  it('settles on the side the momentum is heading to', () => {
+    expect(snapPoint(40, 1.2, 300)).toBe(300) // short flick down → collapse
+    expect(snapPoint(260, -1.2, 300)).toBe(0) // short flick up → expand
+    expect(snapPoint(200, 0, 300)).toBe(300) // slow, past halfway → collapse
+    expect(snapPoint(100, 0, 300)).toBe(0) // slow, not halfway → back up
   })
 })

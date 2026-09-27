@@ -51,28 +51,68 @@ const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(pref
  *  and a new drag can catch them mid-way. Reduced motion: jump, and let CSS cross-fade (.is-animated). */
 const blendSpring = createSpringAnimator((value) => (blend.value = value), { epsilon: 0.1 }) // 100 units ≈ one screen
 onBeforeUnmount(() => blendSpring.stop())
-/** @param {number} velocity blend units per second (from a flick) */
-function goTo(i, velocity = 0) {
+/**
+ * @param {number} velocity blend units per second (from a flick)
+ * @param {{ spring?: object, done?: () => void }} [options]
+ */
+function goTo(i, velocity = 0, { spring = SPRINGS.sheet, done = null } = {}) {
   const target = Math.min(Math.max(i, 0), last.value) * STEP
   if (reduceMotion()) {
     blendSpring.stop()
     blend.value = target
+    if (done) setTimeout(done, 500) // after the CSS cross-fade
     return
   }
-  blendSpring.animate({ from: blend.value, to: target, velocity, spring: SPRINGS.sheet })
+  blendSpring.animate({ from: blend.value, to: target, velocity, spring, done })
 }
+
+// ---- Autoplay: newest → oldest, resting on each year, then a slow dissolve to the next ----
+/** Slow, critically damped dissolve between two photos. */
+const GLIDE = { dampingRatio: 1, response: 1.6 }
+/** Time to look at each photo before moving on. */
+const DWELL_MS = 2800
+const playing = ref(false)
+let dwellTimer = null
+function playNext() {
+  clearTimeout(dwellTimer)
+  if (!playing.value) return
+  if (nearest.value >= last.value) {
+    playing.value = false // reached the oldest photo: stop there
+    return
+  }
+  dwellTimer = setTimeout(() => goTo(nearest.value + 1, 0, { spring: GLIDE, done: playNext }), DWELL_MS)
+}
+function play() {
+  if (nearest.value >= last.value) {
+    // at the end: start again from today
+    blendSpring.stop()
+    blend.value = 0
+  }
+  playing.value = true
+  playNext()
+}
+/** Any hands-on control takes over from autoplay. */
+function stopAutoplay() {
+  playing.value = false
+  clearTimeout(dwellTimer)
+}
+const togglePlay = () => (playing.value ? (stopAutoplay(), blendSpring.stop(), goTo(Math.round(blend.value / STEP))) : play())
+onBeforeUnmount(() => clearTimeout(dwellTimer))
 
 watch(
   () => props.id,
   () => {
     blendSpring.stop()
     blend.value = 0
+    play()
   },
+  { immediate: true },
 )
 function onKey(e) {
   const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key]
   if (step === undefined) return
   e.preventDefault()
+  stopAutoplay()
   goTo(nearest.value + step)
 }
 
@@ -83,7 +123,10 @@ const stage = ref(null)
 let dragStart = 0
 const widthPx = () => stage.value?.clientWidth || 360
 const pager = useSwipePager({
-  onPress: () => blendSpring.stop(), // touch-down catches a snap mid-way
+  onPress: () => {
+    stopAutoplay()
+    blendSpring.stop() // touch-down catches a snap (or the autoplay dissolve) mid-way
+  },
   onStart: () => (dragStart = blend.value),
   onSettle: () => blend.value % STEP !== 0 && goTo(Math.round(blend.value / STEP)),
   onMove(dx) {
@@ -126,6 +169,14 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
         <b>{{ site.shortName }}</b>
       </p>
       <span class="compare__count">{{ t('compare.counter', { n: nearest + 1, total: photos.length }) }}</span>
+      <!-- Autoplay can always be paused (WCAG 2.2.2) -->
+      <IconButton
+        variant="glass"
+        :icon="playing ? 'pause' : 'play'"
+        :label="playing ? t('audio.pause') : t('audio.play')"
+        :pressed="playing"
+        @click="togglePlay"
+      />
     </header>
 
     <section class="caption-card text-zoom">
@@ -137,7 +188,7 @@ const goBack = useGoBack({ name: 'ar', params: { id: props.id } })
       <p class="caption-card__text" aria-live="polite">{{ photo.text }}</p>
       <input
         v-model.number="blend"
-        @pointerdown="blendSpring.stop()"
+        @pointerdown="stopAutoplay(); blendSpring.stop()"
         class="caption-card__slider slider"
         :style="{ '--fill': `${last ? (blend / (last * STEP)) * 100 : 0}%` }"
         type="range"
