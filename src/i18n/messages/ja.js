@@ -1,6 +1,8 @@
 /** 日本語 UI strings — mirrors en.js. */
 export default {
   common: {
+    newVersion: '新しいバージョンがあります',
+    reload: '再読み込み',
     undo: '取り消す',
     back: '戻る',
     close: '閉じる',

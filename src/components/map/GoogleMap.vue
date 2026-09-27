@@ -148,9 +148,11 @@ function syncHeadingArrow() {
   const position = props.follow?.position ?? null
   headingMarker = syncMarker(headingMarker, position, 'gm-heading', t('map.yourLocation'))
   if (!headingMarker) return
-  // a vector map already turned heading-up (arrow points up); a raster fallback stays
-  // north-up, so the arrow itself turns to the heading
-  const turn = (props.follow.heading ?? 0) - (map.value.getHeading?.() ?? 0)
+  // a vector map turns heading-up (arrow points up); a raster fallback stays north-up, so the
+  // arrow itself turns. Read the rendering type, not getHeading(): right after moveCamera the
+  // heading can still read 0 and the arrow ended up skewed by the route's bearing.
+  const vector = map.value.getRenderingType?.() === 'VECTOR'
+  const turn = vector ? 0 : props.follow.heading ?? 0
   headingMarker.content.style.setProperty('--turn', `${turn}deg`)
 }
 
@@ -290,6 +292,7 @@ onMounted(async () => {
     keyboardShortcuts: false,
   }, { vector: Boolean(props.follow) })
   map.value = pooled.instance
+  if (props.follow) map.value.addListener('renderingtype_changed', syncHeadingArrow) // vector becomes ready
 
   for (const site of props.sites) {
     const element = pinElement(site)

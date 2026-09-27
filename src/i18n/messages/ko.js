@@ -1,6 +1,8 @@
 /** 한국어 UI strings — mirrors en.js. */
 export default {
   common: {
+    newVersion: '새 버전이 있습니다',
+    reload: '새로고침',
     undo: '실행 취소',
     back: '뒤로',
     close: '닫기',

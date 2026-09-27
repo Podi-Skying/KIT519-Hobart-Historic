@@ -1,6 +1,8 @@
 /** 繁體中文 UI strings — mirrors en.js. */
 export default {
   common: {
+    newVersion: '有新版本',
+    reload: '重新載入',
     undo: '復原',
     back: '返回',
     close: '關閉',

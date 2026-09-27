@@ -4,6 +4,8 @@
  */
 export default {
   common: {
+    newVersion: 'A new version is ready',
+    reload: 'Reload',
     undo: 'Undo',
     back: 'Back',
     close: 'Close',

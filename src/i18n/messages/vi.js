@@ -1,6 +1,8 @@
 /** Tiếng Việt UI strings — mirrors en.js. */
 export default {
   common: {
+    newVersion: 'Đã có phiên bản mới',
+    reload: 'Tải lại',
     undo: 'Hoàn tác',
     back: 'Quay lại',
     close: 'Đóng',
