@@ -58,7 +58,6 @@ function startRoute() {
 
       <ul class="facts" :aria-label="t('site.keyFacts')">
         <li><BaseBadge icon="clock">{{ t('common.built', { year: site.builtYear }) }}</BaseBadge></li>
-        <li><BaseBadge icon="walk">{{ t('common.minWalk', { n: site.walkMinutes }) }}</BaseBadge></li>
         <li v-if="site.accessible"><BaseBadge tone="success" icon="accessible">{{ t('common.accessible') }}</BaseBadge></li>
         <li>
           <BaseBadge tone="brand" icon="heart" icon-filled>{{ t('common.likes', { n: favorites.likeCount(site) }) }}</BaseBadge>

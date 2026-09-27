@@ -188,7 +188,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 
 <template>
   <div ref="stage" class="ar-camera" v-on="look.handlers">
-    <div v-show="!view360" class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
+    <div v-show="!view360 || pano !== 'ready'" class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
       <Transition name="feed" mode="out-in">
         <div :key="site.id" class="ar-camera__stack">
           <!-- stacked from today to oldest; only the two photos either side of `position` show -->
@@ -206,15 +206,18 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
         </div>
       </Transition>
     </div>
-    <StreetView360
-      v-if="view360"
-      :key="site.id"
-      data-no-look
-      :target="site.coordinates"
-      @ready="onPanoReady"
-      @unavailable="onPanoUnavailable"
-    />
-    <template v-else>
+    <!-- fades in over the photo once loaded, fades out back to it -->
+    <Transition name="feed">
+      <StreetView360
+        v-if="view360"
+        :key="site.id"
+        data-no-look
+        :target="site.coordinates"
+        @ready="onPanoReady"
+        @unavailable="onPanoUnavailable"
+      />
+    </Transition>
+    <template v-if="!view360">
       <div class="ar-camera__veil" />
       <div class="reticle" aria-hidden="true"><i /><i /><i /><i /></div>
       <div v-if="!detected" class="scanline" aria-hidden="true" />
@@ -257,6 +260,8 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
       />
     </div>
 
+    <!-- Bottom dock: the info card stacks on the through-time card, so larger text never overlaps -->
+    <div class="ar-camera__dock">
     <Transition name="sheet">
       <section
         v-if="openPanel"
@@ -290,6 +295,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
             <RouterLink
               v-for="(photo, i) in site.gallery"
               :key="photo.image"
+              class="panel__thumb pressable-card"
               :to="{ name: 'gallery', params: { id: site.id, index: i } }"
               :aria-label="photo.caption"
             >
@@ -300,8 +306,9 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
       </section>
     </Transition>
 
-    <!-- Through time: a year bar instead of a separate page -->
-    <section v-show="!view360" class="ar-camera__bottom timeline text-zoom" data-no-look :aria-label="t('compare.title')">
+    <!-- Through time: a year bar instead of a separate page. Leaves downward for 360°, returns the same way. -->
+    <Transition name="dock-card">
+    <section v-show="!view360" class="timeline text-zoom" data-no-look :aria-label="t('compare.title')">
       <p class="timeline__head">
         <b>{{ yearLabel(shownPhoto) }}</b>
         <span v-if="shownPhoto.archival" class="timeline__tag">{{ t('compare.archival') }}</span>
@@ -340,6 +347,8 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
         <span>{{ yearLabel(timeline[lastIndex]) }}</span>
       </div>
     </section>
+    </Transition>
+    </div>
 
     <!-- "Not this building?" lives in help, keeping the camera view clear -->
     <Transition name="materialize">
@@ -371,7 +380,8 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
               <img :src="option.image" alt="" loading="lazy" />
               <span>
                 <b>{{ option.name }}</b>
-                <small>{{ option.area }} · {{ t('common.minWalk', { n: location.distanceTo(option).minutes }) }}</small>
+                <!-- say where the time is measured from: the walker, or the default origin -->
+                <small>{{ option.area }} · {{ t('common.minWalk', { n: location.distanceTo(option).minutes }) }} {{ t(location.originLabelKey) }}</small>
               </span>
               <AppIcon v-if="option.id === site.id" name="check" :size="18" :stroke-width="2.6" />
             </button>
@@ -386,7 +396,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 .ar-camera {
   position: relative;
   overflow: hidden;
-  background: #000;
+  background: var(--camera-bg);
   touch-action: none;
 }
 .ar-camera__world,
@@ -414,7 +424,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 .ar-camera__veil {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, var(--photo-veil-top), transparent 26%, transparent 72%, rgba(44, 36, 23, 0.55));
+  background: linear-gradient(to bottom, var(--photo-veil-top), transparent 26%, transparent 72%, var(--photo-veil-top));
   pointer-events: none;
 }
 .reticle {
@@ -469,13 +479,26 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
   z-index: 5;
   transform: translateX(-50%);
 }
-.panel {
+.ar-camera__dock {
   position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 178px; /* above the through-time card */
-  z-index: 8;
-  max-height: 46%;
+  top: calc(var(--chrome-top) + 110px); /* below the status pill: the card shrinks to fit, then scrolls */
+  left: var(--s-3);
+  right: var(--s-3);
+  bottom: var(--s-3);
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--s-3);
+  pointer-events: none; /* the empty space above the cards still looks around */
+}
+.ar-camera__dock > * {
+  pointer-events: auto;
+}
+.panel {
+  position: relative;
+  min-height: 0;
+  flex-shrink: 1;
   overflow-y: auto;
   padding: var(--s-5);
   border-radius: var(--r-lg);
@@ -499,6 +522,11 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
   grid-template-columns: repeat(4, 1fr);
   gap: var(--s-2);
 }
+.panel__thumb {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+}
 .panel__thumbs img {
   width: 100%;
   aspect-ratio: 1;
@@ -509,15 +537,9 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
   position: absolute;
   inset: 0;
 }
-.ar-camera__bottom {
-  position: absolute;
-  left: var(--s-3);
-  right: var(--s-3);
-  bottom: var(--s-3);
-  z-index: 7;
-}
 /* ---- through-time card ---- */
 .timeline {
+  flex-shrink: 0;
   padding: var(--s-3) var(--s-4) var(--s-2);
   border-radius: var(--r-lg);
   background: var(--cream);
@@ -663,6 +685,15 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 .sheet-leave-to {
   opacity: 0;
   transform: translateY(calc(-16px * var(--motion))) scale(calc(1 - 0.12 * var(--motion)));
+}
+.dock-card-enter-active,
+.dock-card-leave-active {
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.dock-card-enter-from,
+.dock-card-leave-to {
+  opacity: 0;
+  transform: translateY(calc(100% * var(--motion))); /* slides out below the screen edge, back up the same path */
 }
 @media (prefers-reduced-motion: reduce) {
   .scanline {

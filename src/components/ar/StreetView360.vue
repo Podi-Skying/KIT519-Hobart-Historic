@@ -32,6 +32,8 @@ const canMotion =
   'DeviceOrientationEvent' in window &&
   window.matchMedia?.('(pointer: coarse)').matches
 const motion = ref(false)
+/** Hidden until the panorama is on screen: the AR photo stays visible underneath while it loads. */
+const ready = ref(false)
 function setMotion(on) {
   motion.value = on
   panorama?.setMotionTracking(on)
@@ -73,6 +75,7 @@ onMounted(async () => {
       motionTrackingControl: false, // replaced by the toggle below
     })
     motion.value = panorama.getMotionTracking?.() ?? false
+    ready.value = true
     emit('ready')
   } catch {
     if (alive) emit('unavailable') // no key, no panorama nearby (ZERO_RESULTS) or network error
@@ -88,7 +91,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="street-view">
+  <div class="street-view" :class="{ 'is-ready': ready }">
     <div ref="el" class="street-view__pano" />
     <IconButton
       v-if="canMotion"
@@ -110,7 +113,14 @@ onBeforeUnmount(() => {
 }
 .street-view {
   z-index: 1; /* own stacking context: Google's high z-indexes stay under the app's top bar */
-  background: var(--ink-900);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-page) var(--ease);
+}
+.street-view.is-ready {
+  opacity: 1; /* fades in over the photo — materializes instead of popping */
+  pointer-events: auto;
+  background: var(--camera-bg);
 }
 .street-view__pano {
   z-index: 0;

@@ -82,7 +82,7 @@ const look = useLookAround({ frame: () => stage.value })
     <div class="ar-nav__near" :style="look.layer(1.4)" aria-hidden="true">
     <div class="ar-nav__arrows">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
-        <path d="M4 40 L36 6 L68 40 L36 27 Z" fill="rgba(56,189,248,.9)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round" />
+        <path class="ar-nav__arrow" d="M4 40 L36 6 L68 40 L36 27 Z" stroke-width="2.5" stroke-linejoin="round" />
       </svg>
     </div>
     </div>
@@ -121,8 +121,12 @@ const look = useLookAround({ frame: () => stage.value })
 .ar-nav {
   position: relative;
   overflow: hidden;
-  background: #000;
+  background: var(--camera-bg);
   touch-action: none; /* drags look around instead of scrolling the page */
+}
+.ar-nav__arrow {
+  fill: var(--ar-arrow);
+  stroke: var(--paper);
 }
 .ar-nav__world,
 .ar-nav__near {

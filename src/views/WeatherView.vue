@@ -95,7 +95,7 @@ function planAccessibleWalk() {
     <ul class="forecast" tabindex="0" :aria-label="t('weather.week')">
       <li v-for="(day, i) in forecast" :key="day.day" :class="{ 'is-today': i === 0 }">
         {{ t(`weather.days.${day.day.toLowerCase()}`) }}
-        <span class="forecast__icon" aria-hidden="true">{{ CONDITIONS[day.condition].emoji }}</span>
+        <AppIcon class="forecast__icon" :name="CONDITIONS[day.condition].icon" :size="22" />
         <span class="sr-only">{{ t(`weather.conditions.${day.condition}`) }}</span>
         <b>{{ day.high }}°</b>
       </li>
@@ -238,8 +238,11 @@ function planAccessibleWalk() {
 }
 .forecast__icon {
   display: block;
-  margin-top: 6px;
-  font-size: 20px;
+  margin: 6px auto 0;
+  color: var(--ink-700); /* same line icons as the tab bar and the big condition icon */
+}
+.forecast li.is-today .forecast__icon {
+  color: var(--brand-600);
 }
 .forecast b {
   display: block;

@@ -37,6 +37,10 @@
   --success-50: #e8efe6;
   --info-600: #2f6fed; /* "you are here" */
   --ar-400: #38bdf8; /* digital AR layer — camera views only */
+  --ar-arrow: rgba(56, 189, 248, 0.9); /* AR direction arrows (slightly see-through over the street) */
+  --camera-bg: #000; /* behind camera / Street View imagery while it loads */
+  --like-glass: rgba(125, 48, 69, 0.88); /* like counter over a photo (brand-600, lets the photo tint it) */
+  --stage-text: #8c826f; /* desktop backdrop credit, on the dark stage only */
 
   /* ---- Overlays ---- */
   --scrim: rgba(44, 36, 23, 0.55); /* modal backdrop */
@@ -182,6 +186,8 @@
   --glass: rgba(28, 22, 14, 0.82);
   --photo-veil-top: rgba(28, 22, 14, 0.7);
   --photo-veil-bottom: rgba(28, 22, 14, 0.88);
+  --like-glass: #7d3045; /* solid: no photo showing through behind the count */
+  --ar-arrow: #38bdf8;
   --focus-ring: 0 0 0 3px #2c2417;
   --outline: #6e6352;
   --material-bar: var(--cream); /* solid chrome: nothing shows through behind text */
@@ -214,6 +220,8 @@
     --glass: rgba(28, 22, 14, 0.82);
     --photo-veil-top: rgba(28, 22, 14, 0.7);
     --photo-veil-bottom: rgba(28, 22, 14, 0.88);
+    --like-glass: #7d3045;
+    --ar-arrow: #38bdf8;
     --focus-ring: 0 0 0 3px #2c2417;
     --outline: #6e6352;
     --material-bar: var(--cream);

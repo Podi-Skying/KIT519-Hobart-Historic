@@ -82,7 +82,7 @@ const likes = computed(() => favorites.likeCount(props.site))
   height: 26px;
   padding: 0 10px;
   border-radius: var(--r-pill);
-  background: rgba(125, 48, 69, 0.88);
+  background: var(--like-glass);
   color: var(--paper);
   font: var(--t-micro);
   font-weight: 700;

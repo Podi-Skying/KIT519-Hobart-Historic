@@ -41,7 +41,7 @@ const { t } = useI18n()
 .stage__credit {
   font: var(--t-meta);
   font-weight: 500;
-  color: #8c826f;
+  color: var(--stage-text);
 }
 @media not all and (min-width: 601px) and (hover: hover) and (pointer: fine) {
   .stage {

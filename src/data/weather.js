@@ -17,7 +17,7 @@ export const WEATHER = {
     { hour: '4', score: 45 },
     { hour: '5', score: 30 },
   ],
-  /** `condition` picks the emoji (CONDITIONS) and the spoken text (weather.conditions.*). */
+  /** `condition` picks the icon (CONDITIONS) and the spoken text (weather.conditions.*). */
   forecast: [
     { day: 'Now', condition: 'partlyCloudy', high: 14 },
     { day: 'Mon', condition: 'sunny', high: 16 },
@@ -33,13 +33,13 @@ export const WEATHER = {
 
 export const BEST_COMFORT_SCORE = 80
 
-/** Icon (AppIcon name) and forecast emoji for each condition (text: weather.conditions.*). */
+/** Icon (AppIcon name) for each condition (text: weather.conditions.*). */
 export const CONDITIONS = {
-  sunny: { icon: 'sun', emoji: '☀️' },
-  partlyCloudy: { icon: 'weather', emoji: '⛅' },
-  cloudy: { icon: 'cloud', emoji: '☁️' },
-  rain: { icon: 'rain', emoji: '🌧️' },
-  windy: { icon: 'wind', emoji: '💨' },
+  sunny: { icon: 'sun' },
+  partlyCloudy: { icon: 'weather' },
+  cloudy: { icon: 'cloud' },
+  rain: { icon: 'rain' },
+  windy: { icon: 'wind' },
 }
 
 /**

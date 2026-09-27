@@ -73,4 +73,9 @@ defineProps({
   background: var(--ink-900);
   color: var(--cream);
 }
+/* Over photos the glass is already charcoal, so "on" inverts to a light fill (iOS toggled glass). */
+.icon-btn--glass.is-active {
+  background: var(--cream);
+  color: var(--ink-900);
+}
 </style>
