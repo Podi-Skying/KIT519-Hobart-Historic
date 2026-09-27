@@ -10,16 +10,19 @@ const SLOP = 10
  * rubber-band); on release `onRelease` gets the offset, the recent velocity (px/ms) and where
  * the momentum would carry it (`projected`), so the view can pick the target from the
  * projection and hand the velocity on to its animation.
- * Presses that start on a button are left alone (arrows, close…).
+ * Presses that start on a button are left alone (arrows, close…). `onPress` fires on touch-down
+ * (catch a moving photo), `onSettle` when a press ends without becoming a swipe.
  *
  * @param {{
  *   resist?: (dx: number) => number,
+ *   onPress?: () => void,
  *   onStart?: () => void,
+ *   onSettle?: () => void,
  *   onMove?: (dx: number) => void,
  *   onRelease: (gesture: { offset: number, velocity: number, projected: number }) => void,
  * }} options
  */
-export function useSwipePager({ resist = (dx) => dx, onStart, onMove, onRelease }) {
+export function useSwipePager({ resist = (dx) => dx, onPress, onStart, onMove, onRelease, onSettle }) {
   const offset = ref(0)
   const dragging = ref(false)
   const tracker = createVelocityTracker()
@@ -32,7 +35,10 @@ export function useSwipePager({ resist = (dx) => dx, onStart, onMove, onRelease 
     const wasDragging = dragging.value
     start = null
     dragging.value = false
-    if (!wasDragging) return
+    if (!wasDragging) {
+      onSettle?.() // pressed (maybe catching a moving photo) but never dragged: let it settle
+      return
+    }
     try {
       e.currentTarget?.releasePointerCapture?.(e.pointerId)
     } catch {
@@ -47,6 +53,7 @@ export function useSwipePager({ resist = (dx) => dx, onStart, onMove, onRelease 
       if (e.button !== 0 || e.target?.closest?.('button')) return
       start = { id: e.pointerId, x: e.clientX, y: e.clientY }
       tracker.reset(now(), 0)
+      onPress?.() // touch-down: stop anything in flight right where it is (interruptible)
     },
     pointermove(e) {
       if (!start || e.pointerId !== start.id) return
@@ -55,6 +62,7 @@ export function useSwipePager({ resist = (dx) => dx, onStart, onMove, onRelease 
         const dy = e.clientY - start.y
         if (Math.abs(dy) > SLOP && Math.abs(dy) > Math.abs(dx)) {
           start = null // vertical: let the page scroll
+          onSettle?.()
           return
         }
         if (Math.abs(dx) < SLOP) return

@@ -48,7 +48,7 @@ function opacityOf(i) {
 const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
 /** Snaps are a critically damped spring on the blend itself, so they start at the finger's speed
  *  and a new drag can catch them mid-way. Reduced motion: jump, and let CSS cross-fade (.is-animated). */
-const blendSpring = createSpringAnimator((value) => (blend.value = value))
+const blendSpring = createSpringAnimator((value) => (blend.value = value), { epsilon: 0.1 }) // 100 units ≈ one screen
 onBeforeUnmount(() => blendSpring.stop())
 /** @param {number} velocity blend units per second (from a flick) */
 function goTo(i, velocity = 0) {
@@ -82,10 +82,9 @@ const stage = ref(null)
 let dragStart = 0
 const widthPx = () => stage.value?.clientWidth || 360
 const pager = useSwipePager({
-  onStart: () => {
-    blendSpring.stop() // caught mid-snap: carry on from what's on screen
-    dragStart = blend.value
-  },
+  onPress: () => blendSpring.stop(), // touch-down catches a snap mid-way
+  onStart: () => (dragStart = blend.value),
+  onSettle: () => blend.value % STEP !== 0 && goTo(Math.round(blend.value / STEP)),
   onMove(dx) {
     blend.value = Math.min(Math.max(dragStart - (dx / widthPx()) * STEP, 0), last.value * STEP)
   },

@@ -12,6 +12,7 @@ export const SPRINGS = Object.freeze({
   default: { dampingRatio: 1, response: 0.4 }, // move / reposition
   sheet: { dampingRatio: 1, response: 0.3 }, // drawer settling after a slow release
   flick: { dampingRatio: 0.8, response: 0.3 }, // drawer after a flick: momentum earns a little bounce
+  page: { dampingRatio: 1, response: 0.42 }, // page push / pop, photo pager: large travel, no bounce
 })
 
 /**
@@ -54,8 +55,10 @@ export function isSettled({ value, velocity }, target, epsilon = 0.5) {
  * Drive a spring on the display clock (requestAnimationFrame; setTimeout where there is none,
  * e.g. unit tests with fake timers). Returns a controller; `retarget` keeps the live velocity.
  * @param {(value: number) => void} onFrame
+ * @param {{ epsilon?: number }} [options] "at rest" threshold in the value's own units
+ *   (0.5 for px; use a much smaller one for fractions, e.g. page widths)
  */
-export function createSpringAnimator(onFrame) {
+export function createSpringAnimator(onFrame, { epsilon = 0.5 } = {}) {
   let state = { value: 0, velocity: 0 }
   let target = 0
   let params = SPRINGS.default
@@ -73,7 +76,7 @@ export function createSpringAnimator(onFrame) {
     const dt = Math.min(0.064, Math.max(0.001, (t - last) / 1000))
     last = t
     state = stepSpring(state, target, params, dt)
-    if (isSettled(state, target)) {
+    if (isSettled(state, target, epsilon)) {
       state = { value: target, velocity: 0 }
       handle = null
       onFrame(target)
@@ -106,6 +109,13 @@ export function createSpringAnimator(onFrame) {
     },
     get running() {
       return handle !== null
+    },
+    /** Live value and velocity (px/s) — hand them to the next animation on a reversal. */
+    get value() {
+      return state.value
+    },
+    get velocity() {
+      return handle !== null ? state.velocity : 0
     },
   }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import DeviceFrame from '@/components/layout/DeviceFrame.vue'
 import StatusBar from '@/components/layout/StatusBar.vue'
@@ -9,6 +9,7 @@ import SplashScreen from '@/components/splash/SplashScreen.vue'
 import { useUiStore } from '@/stores/ui'
 import { usePrefsStore } from '@/stores/prefs'
 import { useWeatherStore } from '@/stores/weather'
+import { usePageTransition } from '@/composables/usePageTransition'
 
 const route = useRoute()
 const ui = useUiStore()
@@ -21,6 +22,18 @@ useWeatherStore().start()
 watchEffect(() => {
   document.documentElement.dataset.text = prefs.largeText ? 'large' : 'default'
   document.documentElement.dataset.contrast = prefs.highContrast ? 'high' : 'default'
+})
+
+// Route transitions are spring-driven and reversible mid-way (composables/usePageTransition).
+let previousPath = route.path
+watch(
+  () => route.path,
+  (_, old) => (previousPath = old),
+)
+const pageMotion = usePageTransition({
+  kind: () => route.meta.transition ?? 'none',
+  path: () => route.path,
+  previousPath: () => previousPath,
 })
 
 /** Leading page shows on every launch, above whichever route was opened. */
@@ -41,8 +54,9 @@ const statusBar = computed(() => {
 
     <div class="viewport">
       <RouterView v-slot="{ Component }">
-        <!-- No out-in: old and new page animate together, so a tap never waits on an exit. -->
-        <Transition :name="`page-${route.meta.transition ?? 'none'}`" :css="(route.meta.transition ?? 'none') !== 'none'">
+        <!-- No out-in: old and new page animate together, so a tap never waits on an exit.
+             JS hooks (springs), not CSS classes, so a push can be reversed mid-way. -->
+        <Transition :css="false" @enter="pageMotion.onEnter" @leave="pageMotion.onLeave">
           <KeepAlive include="HomeView">
             <component :is="Component" />
           </KeepAlive>

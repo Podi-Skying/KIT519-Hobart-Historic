@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createVelocityTracker, project, releaseEasing, rubberband } from '@/lib/gesture'
+import { createVelocityTracker, pagerStep, project, releaseEasing, rubberband } from '@/lib/gesture'
 
 describe('project', () => {
   it('matches Apple’s exponential-decay projection', () => {
@@ -50,5 +50,14 @@ describe('releaseEasing', () => {
   it('starts at the finger’s speed (slope = v·T/d), capped so it never overshoots', () => {
     expect(releaseEasing(0.5, 220, 220)).toBe('cubic-bezier(0.25, 0.125, 0.3, 1)')
     expect(releaseEasing(10, 50, 220)).toBe('cubic-bezier(0.25, 1, 0.3, 1)')
+  })
+})
+
+describe('pagerStep', () => {
+  it('turns the page on a short quick flick, not on a slow drag short of halfway', () => {
+    expect(pagerStep(-40, -1.5, 360)).toBe(1) // flick left → next
+    expect(pagerStep(40, 1.5, 360)).toBe(-1) // flick right → previous
+    expect(pagerStep(-150, 0, 360)).toBe(0) // slow, under half → back
+    expect(pagerStep(-200, 0, 360)).toBe(1) // dragged past half → next
   })
 })

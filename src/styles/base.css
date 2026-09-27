@@ -137,53 +137,9 @@ a {
   transition-duration: 0ms;
 }
 
-/* ---- Route transitions (router/index.js sets `meta.transition` via lib/pageTransition.js) ----
-   push  drill down: new page slides in from the right over the old one, which drifts left and dims
-   pop   back up: the exact reverse path (spatial consistency)
-   fade  switching tabs or unrelated screens: a short cross-fade, no travel
-   Both pages animate at once (no out-in wait); the leaving one is lifted out of the flex flow. */
-.page-push-enter-active,
-.page-push-leave-active,
-.page-pop-enter-active,
-.page-pop-leave-active {
-  transition: transform var(--dur-page) var(--ease-page), opacity var(--dur-page) var(--ease-page),
-    filter var(--dur-page) var(--ease-page);
-}
-.page-fade-enter-active,
-.page-fade-leave-active {
-  transition: opacity var(--dur) var(--ease);
-}
-.page-push-leave-active,
-.page-pop-leave-active,
-.page-fade-leave-active {
-  position: absolute !important;
-  inset: 0;
-}
-.page-push-enter-active,
-.page-pop-enter-active {
-  position: relative; /* so z-index applies to the page that stays in the flow */
-  z-index: 1;
-}
-.page-push-enter-active,
-.page-pop-leave-active {
-  z-index: 2; /* the page that slides over sits on top */
-  box-shadow: -8px 0 24px rgba(44, 36, 23, calc(0.18 * var(--motion)));
-}
-.page-push-enter-from,
-.page-pop-leave-to {
-  transform: translateX(calc(100% * var(--motion)));
-  opacity: var(--motion); /* 1 normally; 0 under reduced motion → pure cross-fade */
-}
-.page-push-leave-to,
-.page-pop-enter-from {
-  transform: translateX(calc(-28% * var(--motion)));
-  filter: brightness(calc(1 - 0.08 * var(--motion)));
-  opacity: var(--motion);
-}
-.page-fade-enter-from,
-.page-fade-leave-to {
-  opacity: 0;
-}
+/* ---- Route transitions ----
+   Driven in JS by springs (composables/usePageTransition + lib/pageTransition pageStyle), so they
+   can be reversed mid-way; nothing to style here. */
 
 /* ---- Modal depth ----
    Apple: dim to focus. While a modal sheet is up (and not leaving) the page recedes — a little

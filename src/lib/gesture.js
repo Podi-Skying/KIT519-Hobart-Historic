@@ -69,3 +69,18 @@ export function releaseEasing(velocity, distance, duration) {
 }
 
 const round = (n) => Math.round(n * 1000) / 1000
+
+/**
+ * Photo pager: where a release should land. Uses the momentum projection, not the release
+ * point, so a short quick flick still turns the page and a long slow drag that is let go
+ * short of halfway does not.
+ * @param {number} offset px the photo is dragged (negative = towards the next photo)
+ * @param {number} velocity px/ms at release
+ * @param {number} width px of one page
+ * @returns {-1 | 0 | 1} page step: 1 = next, -1 = previous, 0 = settle back
+ */
+export function pagerStep(offset, velocity, width) {
+  const projected = offset + project(velocity)
+  if (Math.abs(projected) <= width / 2) return 0
+  return projected < 0 ? 1 : -1
+}

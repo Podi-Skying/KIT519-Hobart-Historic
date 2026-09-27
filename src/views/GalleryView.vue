@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
@@ -7,7 +7,8 @@ import PageHeader from '@/components/layout/PageHeader.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { useContent } from '@/i18n/content'
 import { useSwipePager } from '@/composables/useSwipePager'
-import { releaseEasing, rubberband } from '@/lib/gesture'
+import { pagerStep, rubberband } from '@/lib/gesture'
+import { createSpringAnimator, SPRINGS } from '@/lib/spring'
 import { useKeydown } from '@/composables/useKeydown'
 
 const props = defineProps({
@@ -23,46 +24,96 @@ const count = computed(() => site.value.gallery.length)
 const current = computed(() => Math.min(props.index, count.value - 1))
 const photo = computed(() => site.value.gallery[current.value])
 
-/** Which way the photos travel: 1 = next slides in from the right, -1 = previous from the left. */
-const direction = ref(1)
-/** Velocity hand-off from a swipe to the slide animation (lib/gesture releaseEasing). */
-const easing = ref(undefined)
-
-function show(i, dir = Math.sign(i - current.value) || 1) {
-  direction.value = dir
-  easing.value = undefined // arrows, thumbnails, keys: default curve
-  const next = (i + count.value) % count.value
-  router.replace({ name: 'gallery', params: { id: props.id, index: next } })
-}
-const step = (delta) => show(current.value + delta, delta)
-
-// ---- 1:1 swipe: the photo follows the finger, a flick throws it to the next one ----
+// ---- Spring pager (Apple: direct manipulation + springs + velocity hand-off + interruptible) ----
+// Two photos are on stage: the current one and its neighbour on the side it is moving towards.
+// `offset` (px) is the only motion value: the finger drives it 1:1, a spring drives it after
+// release — from the finger's speed — and a new touch stops the spring right where it is.
 const stage = ref(null)
-const SLIDE_MS = 380 // var(--dur-page)
-const pager = useSwipePager({
-  resist: (dx) => (count.value > 1 ? dx : rubberband(dx, stage.value?.clientWidth || 320)),
-  onRelease({ offset, velocity, projected }) {
-    const width = stage.value?.clientWidth || 320
-    if (count.value > 1 && Math.abs(projected) > width / 2) {
-      const dir = projected < 0 ? 1 : -1
-      // Keep the photo where the finger left it until the route changes (see watch below),
-      // then it continues out at the finger's speed.
-      step(dir)
-      easing.value = releaseEasing(Math.abs(velocity), width - Math.abs(offset), SLIDE_MS)
-    } else {
-      easing.value = releaseEasing(-Math.sign(offset) * velocity, offset, SLIDE_MS)
-      pager.offset.value = 0 // spring back
-    }
-  },
-})
-// The new photo starts centred; the leaving one keeps its last offset and slides on from there.
+const offset = ref(0)
+/** Photo on its way in when arrows / thumbnails / keys started the move (may be non-adjacent). */
+const pending = ref(null) // { index, dir }
+const spring = createSpringAnimator((x) => (offset.value = x))
+onBeforeUnmount(() => spring.stop())
+const width = () => stage.value?.clientWidth || 320
+const wrap = (i) => (i + count.value) % count.value
+const reduceMotion = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function commit(index) {
+  router.replace({ name: 'gallery', params: { id: props.id, index: wrap(index) } })
+}
+// Route changed: the neighbour is now the current photo, in place. Same <img> element (keyed by
+// image), so it doesn't reload or jump.
 watch(current, () => {
-  pager.offset.value = 0
+  spring.stop()
+  offset.value = 0
+  pending.value = null
 })
-const photoStyle = computed(() => ({
-  '--dx': `${pager.offset.value}px`,
-  ...(easing.value ? { '--release-ease': easing.value } : {}),
-}))
+
+/** The neighbour that is (or will be) visible, and which side it sits on. */
+const neighbour = computed(() => {
+  if (count.value < 2) return null
+  const dir = pending.value?.dir ?? (offset.value < 0 ? 1 : offset.value > 0 ? -1 : 0)
+  if (!dir) return null
+  const index = pending.value?.index ?? wrap(current.value + dir)
+  return { index, dir, photo: site.value.gallery[index] }
+})
+
+/** Slide to `dir` (1 next, -1 previous) and land on `index`, starting at `velocity` px/s. */
+function slideTo(index, dir, velocity = 0) {
+  if (reduceMotion()) return commit(index) // no slide; the new photo fades in (CSS)
+  pending.value = { index: wrap(index), dir }
+  spring.animate({ from: offset.value, to: -dir * width(), velocity, spring: SPRINGS.page, done: () => commit(index) })
+}
+
+function show(i) {
+  const index = wrap(i)
+  if (index === current.value) return
+  if (spring.running && pending.value) {
+    // A second tap while sliding: land the first move now, then start the next from there.
+    spring.stop()
+    return commit(index)
+  }
+  slideTo(index, index > current.value ? 1 : -1)
+}
+const step = (delta) => {
+  if (spring.running && pending.value) {
+    spring.stop()
+    return commit(pending.value.index + delta)
+  }
+  slideTo(current.value + delta, delta)
+}
+
+let dragBase = 0
+/** Let go of a photo that was caught but not dragged: finish or undo the slide from where it is. */
+function settle(velocity = 0) {
+  const dir = count.value < 2 ? 0 : pagerStep(offset.value, velocity, width())
+  if (dir) {
+    const index = pending.value?.dir === dir ? pending.value.index : current.value + dir
+    slideTo(index, dir, velocity * 1000)
+  } else if (offset.value !== 0) {
+    pending.value = null
+    spring.animate({ from: offset.value, to: 0, velocity: velocity * 1000, spring: SPRINGS.sheet })
+  }
+}
+const pager = useSwipePager({
+  onPress: () => spring.stop(), // touch-down catches a sliding photo where it is
+  onStart() {
+    dragBase = offset.value
+  },
+  onSettle: () => settle(0),
+  onMove(dx) {
+    const x = dragBase + dx
+    if (count.value < 2) {
+      offset.value = rubberband(x, width()) // nothing to page to: soft edge
+      return
+    }
+    // Reversed direction mid-way: the neighbour on the other side takes over.
+    if (pending.value && Math.sign(-x) !== pending.value.dir && x !== 0) pending.value = null
+    offset.value = x
+  },
+  onRelease: ({ velocity }) => settle(velocity),
+})
+const slideStyle = (pos) => ({ transform: `translateX(calc(${pos * 100}% + ${offset.value}px))` })
 useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
 </script>
 
@@ -73,17 +124,25 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
     </PageHeader>
 
     <figure class="viewer">
-      <div ref="stage" class="viewer__stage" :class="{ 'is-dragging': pager.dragging.value }" v-on="pager.handlers">
-        <Transition :name="direction > 0 ? 'photo-next' : 'photo-prev'">
-          <img
-            :key="photo.image"
-            :src="photo.image"
-            :alt="photo.caption"
-            class="viewer__img img-placeholder"
-            :style="photoStyle"
-            draggable="false"
-          />
-        </Transition>
+      <div ref="stage" class="viewer__stage" v-on="pager.handlers">
+        <!-- Keyed by image: when the neighbour becomes current it is the same element — no reload, no jump -->
+        <img
+          :key="photo.image"
+          :src="photo.image"
+          :alt="photo.caption"
+          class="viewer__img img-placeholder"
+          :style="slideStyle(0)"
+          draggable="false"
+        />
+        <img
+          v-if="neighbour && neighbour.photo.image !== photo.image"
+          :key="neighbour.photo.image"
+          :src="neighbour.photo.image"
+          alt=""
+          class="viewer__img img-placeholder"
+          :style="slideStyle(neighbour.dir)"
+          draggable="false"
+        />
         <button type="button" class="viewer__nav viewer__nav--prev pressable" :aria-label="t('gallery.previous')" @click="step(-1)">
           <AppIcon name="back" :size="20" :stroke-width="2.4" />
         </button>
@@ -140,11 +199,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: translateX(var(--dx, 0px));
-  transition: transform var(--dur-page) var(--release-ease, var(--ease-page));
-}
-.viewer__stage.is-dragging .viewer__img {
-  transition: none; /* 1:1 with the finger */
+  will-change: transform; /* moved every frame by the finger or the spring */
 }
 .viewer__nav {
   position: absolute;
@@ -202,22 +257,15 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   height: 100%;
   object-fit: cover;
 }
-/* Next/previous: both photos move together (reduced motion: --motion 0 → a cross-fade). */
-.photo-next-enter-active,
-.photo-next-leave-active,
-.photo-prev-enter-active,
-.photo-prev-leave-active {
-  transition: transform var(--dur-page) var(--release-ease, var(--ease-page)),
-    opacity var(--dur-page) var(--ease-page);
+/* Reduced motion: no slide — the new photo cross-fades in. */
+@media (prefers-reduced-motion: reduce) {
+  .viewer__img {
+    animation: photo-fade var(--dur) var(--ease);
+  }
 }
-.photo-next-enter-from,
-.photo-prev-leave-to {
-  transform: translateX(calc(100% * var(--motion)));
-  opacity: var(--motion);
-}
-.photo-next-leave-to,
-.photo-prev-enter-from {
-  transform: translateX(calc(-100% * var(--motion)));
-  opacity: var(--motion);
+@keyframes photo-fade {
+  from {
+    opacity: 0;
+  }
 }
 </style>

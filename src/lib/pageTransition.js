@@ -20,3 +20,28 @@ export function pageTransition(to, from) {
   if (delta < 0) return 'pop'
   return 'fade'
 }
+
+/**
+ * Where each page travels, in page widths (0 = in place, +1 = off to the right,
+ * -0.28 = the parallax "underneath" position iOS uses for the page you came from).
+ * Motion is a spring on this x (App.vue), so a reversal simply retargets from the live x.
+ */
+export const UNDER = -0.28
+export function pageTargets(kind) {
+  if (kind === 'push') return { enter: { from: 1, to: 0 }, leave: { from: 0, to: UNDER } }
+  if (kind === 'pop') return { enter: { from: UNDER, to: 0 }, leave: { from: 0, to: 1 } }
+  return null // fade / none: opacity only
+}
+
+/**
+ * Inline style for a page at x (page widths): pages sliding over cast a shadow on the one
+ * beneath; the page underneath dims slightly (depth, like iOS).
+ */
+export function pageStyle(x) {
+  const under = Math.min(1, Math.max(0, x / UNDER)) // 0…1 as it slides beneath
+  return {
+    transform: x === 0 ? '' : `translateX(${(x * 100).toFixed(3)}%)`,
+    filter: under > 0 ? `brightness(${(1 - 0.08 * under).toFixed(4)})` : '',
+    boxShadow: x > 0 ? `-8px 0 24px rgba(44, 36, 23, ${(0.18 * Math.min(1, (1 - x) * 4)).toFixed(3)})` : '',
+  }
+}
