@@ -3,7 +3,7 @@
  * Paper copy of the route: Google map + real turn-by-turn steps, key facts for every
  * heritage stop (a hand-out for groups and classes) and space for notes.
  */
-import { computed, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import PageHeader from '@/components/layout/PageHeader.vue'
@@ -34,7 +34,8 @@ const amenityStops = computed(() => trip.stops.filter((s) => !s.siteId).map((s) 
 /** Heritage stops in walking order, then the destination — localised content. */
 const heritageStops = computed(() => [...walk.stopSites.value, site.value].map((s) => siteById(s.id)))
 
-onMounted(() => location.start())
+onMounted(() => location.acquire())
+onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 const print = () => window.print()
 </script>
 

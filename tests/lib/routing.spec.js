@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { decodePolyline } from '@/lib/polyline'
-import { maneuverIcon, nextGuidance } from '@/lib/guidance'
+import { OFF_ROUTE_METERS, maneuverIcon, metersToPath, needsReplan, nextGuidance } from '@/lib/guidance'
 import { formatMeters } from '@/lib/format'
 import { parseRoute } from '@/services/routes'
 
@@ -106,5 +106,29 @@ describe('metersToSegment', () => {
     const b = { lat: -42.884, lng: 147.33 }
     expect(metersToSegment({ lat: -42.884, lng: 147.329 }, a, b)).toBeLessThan(0.5)
     expect(metersToSegment({ lat: -42.8831, lng: 147.329 }, a, b)).toBeCloseTo(99.5, 0)
+  })
+})
+
+describe('metersToPath', () => {
+  const path = [
+    { lat: -42.89, lng: 147.33 },
+    { lat: -42.89, lng: 147.34 },
+  ]
+  it('is ~0 on the line and grows with the perpendicular offset', () => {
+    expect(metersToPath({ lat: -42.89, lng: 147.335 }, path)).toBeLessThan(0.5)
+    expect(metersToPath({ lat: -42.8899, lng: 147.335 }, path)).toBeCloseTo(11, 0) // 0.0001° lat ≈ 11 m
+  })
+})
+
+describe('needsReplan (saves Routes API calls while walking)', () => {
+  it('plans when there is no plan yet', () => {
+    expect(needsReplan({ hasPlan: false, movedMeters: 0, offRouteMeters: 0 })).toBe(true)
+  })
+  it('ignores GPS jitter and walking along the planned route', () => {
+    expect(needsReplan({ hasPlan: true, movedMeters: 20, offRouteMeters: 500 })).toBe(false)
+    expect(needsReplan({ hasPlan: true, movedMeters: 400, offRouteMeters: 10 })).toBe(false)
+  })
+  it('re-plans once the walker has left the route', () => {
+    expect(needsReplan({ hasPlan: true, movedMeters: 120, offRouteMeters: OFF_ROUTE_METERS + 1 })).toBe(true)
   })
 })

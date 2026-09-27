@@ -3,6 +3,8 @@ import { DEFAULT_ORIGIN, HOBART_CENTRE, HOBART_RADIUS_KM } from '@/data/navigati
 import { distanceKm, roundKm, walkingMinutes } from '@/lib/geo'
 
 let watchId = null
+/** Screens currently using the position (map, navigation…); GPS stops when none are. */
+let users = 0
 
 /**
  * The walker's real position (browser Geolocation API).
@@ -41,6 +43,18 @@ export const useLocationStore = defineStore('location', {
   },
 
   actions: {
+    /**
+     * A screen needs the position: start watching (once). Pair with release() on unmount so the
+     * GPS — high-accuracy, battery-hungry — turns off when no screen shows the walker.
+     */
+    acquire() {
+      users++
+      this.start()
+    },
+    release() {
+      users = Math.max(0, users - 1)
+      if (users === 0) this.stop()
+    },
     /** Start watching the position. Safe to call repeatedly. */
     start() {
       if (watchId !== null) return

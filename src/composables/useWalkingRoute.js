@@ -7,11 +7,9 @@ import { ROUTE_TYPES } from '@/data/navigation'
 import { distanceKm, placeAlongPath, walkingMinutes } from '@/lib/geo'
 import { walkMinutesFor } from '@/lib/sites'
 import { routeHighlights } from '@/lib/routeHighlights'
+import { metersToPath, needsReplan } from '@/lib/guidance'
 import { useLocationStore } from '@/stores/location'
 import { useTripStore } from '@/stores/trip'
-
-/** Only re-plan when the walker has moved this far (GPS jitter is ignored). */
-const REROUTE_METERS = 50
 
 /**
  * Walking routes (Google Routes API + terrain) from the walker to a site,
@@ -56,7 +54,9 @@ export function useWalkingRoute(siteSource) {
       return
     }
     const movedMeters = lastOrigin ? distanceKm(lastOrigin, origin.value) * 1000 : Infinity
-    if (!force && options.value && movedMeters < REROUTE_METERS) return
+    const planned = options.value?.[trip.routeType]?.path
+    const offRouteMeters = planned?.length ? metersToPath(origin.value, planned) : Infinity
+    if (!force && !needsReplan({ hasPlan: Boolean(options.value), movedMeters, offRouteMeters })) return
 
     const id = ++requestId
     if (!options.value) status.value = 'loading'

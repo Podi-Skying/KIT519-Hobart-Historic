@@ -94,7 +94,8 @@ const peekHandlers = {
 }
 
 // ---- location ----
-onMounted(() => location.start())
+onMounted(() => location.acquire())
+onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 
 watch(
   () => location.status,

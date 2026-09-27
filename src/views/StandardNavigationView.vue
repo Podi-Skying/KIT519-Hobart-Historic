@@ -3,7 +3,7 @@
  * Turn-by-turn navigation on Google Maps: the real walking route (Routes API),
  * the next manoeuvre from the walker's live position, zoom / recentre controls.
  */
-import { computed, onMounted, ref, watch, watchEffect } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -66,7 +66,8 @@ const guidanceText = computed(() => {
   return guidance.value.instruction // already localised by the Routes API
 })
 
-onMounted(() => location.start())
+onMounted(() => location.acquire())
+onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 
 // Pull the panel down to a slim "time · distance" bar so the map is free
 const summaryEl = ref(null)

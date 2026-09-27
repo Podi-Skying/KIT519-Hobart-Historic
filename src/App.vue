@@ -17,7 +17,10 @@ const ui = useUiStore()
 const prefs = usePrefsStore()
 
 // Prototype: simulated weather changes every 10 s (Weather tab icon + page).
-useWeatherStore().start()
+const weather = useWeatherStore()
+weather.start()
+// Background tab: no timers ticking for nobody (battery), resume on return.
+document.addEventListener('visibilitychange', () => (document.hidden ? weather.stop() : weather.start()))
 
 // Display preferences switch tokens on <html> (tokens.css › Larger text / High contrast).
 watchEffect(() => {

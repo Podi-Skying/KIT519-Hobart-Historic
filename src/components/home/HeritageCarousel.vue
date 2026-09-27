@@ -89,7 +89,7 @@ const scrub = {
           </div>
         </div>
         <div class="rank-card__meta">
-          <span>{{ site.area }} • {{ t('common.minWalk', { n: site.walkMinutes }) }}</span>
+          <span>{{ site.area }}</span>
           <span v-if="site.accessible" class="rank-card__accessible">
             <AppIcon name="accessible" :size="14" /> {{ t('common.accessible') }}
           </span>

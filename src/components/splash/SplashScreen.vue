@@ -8,7 +8,7 @@ import { nextTick, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import TapToStart from './TapToStart.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
-import splashImage from '@/assets/images/splash-bg.jpg'
+import splashImage from '@/assets/images/splash-bg.webp'
 import { LOCALES, setLocale } from '@/i18n'
 import { haptic } from '@/services/haptics'
 

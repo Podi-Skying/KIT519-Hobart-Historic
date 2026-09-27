@@ -38,7 +38,7 @@ const likes = computed(() => favorites.likeCount(props.site))
       <h3 class="grid-card__name">
         <RouterLink :to="{ name: 'site', params: { id: site.id } }" class="grid-card__link">{{ site.name }}</RouterLink>
       </h3>
-      <p class="grid-card__meta">{{ site.area }} • {{ t('common.minWalk', { n: site.walkMinutes }) }}</p>
+      <p class="grid-card__meta">{{ site.area }}</p>
     </div>
   </article>
 </template>

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
@@ -35,7 +35,8 @@ const instruction = computed(() => {
   const text = g.kind === 'arrive' ? t('navigation.arrive') : g.instruction
   return g.meters ? `${formatMeters(g.meters)} · ${text}` : text
 })
-onMounted(() => location.start())
+onMounted(() => location.acquire())
+onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 const arrived = ref(false)
 // Reaching the destination opens the arrival sheet by itself (location-triggered content).
 watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))

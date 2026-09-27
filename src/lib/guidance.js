@@ -4,7 +4,19 @@
 import { distanceKm } from './geo'
 
 /** Beyond this distance from every step the walker is considered off-route. */
-const OFF_ROUTE_METERS = 80
+export const OFF_ROUTE_METERS = 80
+
+/** Only re-plan when the walker has moved this far (GPS jitter is ignored)… */
+const REROUTE_METERS = 50
+/**
+ * …and has left the planned route. Walking along it needs no new plan (turn-by-turn follows the
+ * position on the existing route): a plan is up to 5 Routes API calls + elevation lookups.
+ */
+export function needsReplan({ hasPlan, movedMeters, offRouteMeters }) {
+  if (!hasPlan) return true
+  if (movedMeters < REROUTE_METERS) return false
+  return offRouteMeters > OFF_ROUTE_METERS
+}
 
 const metersBetween = (a, b) => distanceKm(a, b) * 1000
 
@@ -24,7 +36,7 @@ export function metersToSegment(p, a, b) {
 }
 
 /** Metres from a point to a polyline. */
-function metersToPath(point, path) {
+export function metersToPath(point, path) {
   if (path.length === 1) return metersBetween(point, path[0])
   let best = Infinity
   for (let i = 1; i < path.length; i++) best = Math.min(best, metersToSegment(point, path[i - 1], path[i]))

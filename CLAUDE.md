@@ -108,6 +108,8 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 - Bump `version` whenever the persisted shape changes.
 - `setLocale` saves the locale separately.
 
+- **Loading & API budget.** Route chunks prefetch behind the splash; landmark-photo host is preconnected (`index.html`); splash photo is WebP. Routes: `planRouteOptions` caches per trip in memory, and `useWalkingRoute` re-plans only when the walker has moved ≥ 50 m *and* left the planned route (`needsReplan` in `lib/guidance.js`) — never on every GPS fix. Open-Meteo elevations persist in localStorage (`hh.elevations.v1`). GPS: screens call `location.acquire()` / `release()`; the watch stops when none need it. The simulated weather timer pauses while the tab is hidden. Home cards show no walking time (the walker's position is unknown there).
+
 ## Styling rules
 
 - **Tokens only.** Use `src/styles/tokens.css`; never write hex values in components.
