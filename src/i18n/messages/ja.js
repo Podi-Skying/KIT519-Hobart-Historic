@@ -226,6 +226,7 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    view360None: '現在地に 360° ストリートビューがありません',
     close: 'AR ナビを閉じる',
     map: 'マップ',
     openMap: '地図を全画面で開く',

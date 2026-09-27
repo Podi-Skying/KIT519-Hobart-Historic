@@ -72,10 +72,18 @@ onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 // Pull the panel down to a slim "time · distance" bar so the map is free
 const summaryEl = ref(null)
 const peekBar = ref(null)
-const snap = useSnapSheet({
-  element: () => summaryEl.value,
-  peek: () => (peekBar.value ? peekBar.value.offsetTop + peekBar.value.offsetHeight + 10 : 72),
+const peekHeight = () => (peekBar.value ? peekBar.value.offsetTop + peekBar.value.offsetHeight + 10 : 72)
+const snap = useSnapSheet({ element: () => summaryEl.value, peek: peekHeight })
+
+// ---- the map fills everything above the visible part of the panel ----
+const summaryHeight = ref(0)
+let summaryObserver
+onMounted(() => {
+  summaryObserver = new ResizeObserver(([entry]) => (summaryHeight.value = Math.round(entry.borderBoxSize?.[0]?.blockSize ?? entry.target.offsetHeight)))
+  if (summaryEl.value) summaryObserver.observe(summaryEl.value)
 })
+onBeforeUnmount(() => summaryObserver?.disconnect())
+const mapBottom = computed(() => (snap.collapsed.value ? peekHeight() : summaryHeight.value))
 
 // Spoken directions while navigating (the voice toggle lives here, not on the Map tab)
 const ui = useUiStore()
@@ -96,24 +104,26 @@ const endRoute = () => router.push({ name: 'map' })
 
 <template>
   <div class="nav-view">
-    <SiteMap
-      ref="map"
-      class="nav-view__map"
-      :sites="mapSites"
-      :selected-id="site.id"
-      :route-path="walk.path.value"
-      :route-type="trip.routeTypeConfig"
-      :real-route="walk.isRealRoute.value"
-      :amenities="walk.amenityMarkers.value"
-      :highlights="walk.highlights.value"
-      :alternatives="walk.alternatives.value"
-      :user="user"
-      :start="location.origin"
-      fit="route"
-      :padding="{ top: 170, right: 76, bottom: 290, left: 40 }"
-      :box="{ x: [12, 84], y: [26, 62] }"
-      @select-route="trip.setRouteType"
-    />
+    <!-- Map ends where the panel begins, so Google's logo and terms stay visible (Maps Platform terms) -->
+    <div class="nav-view__map" :style="{ bottom: `${mapBottom}px` }">
+      <SiteMap
+        ref="map"
+        :sites="mapSites"
+        :selected-id="site.id"
+        :route-path="walk.path.value"
+        :route-type="trip.routeTypeConfig"
+        :real-route="walk.isRealRoute.value"
+        :amenities="walk.amenityMarkers.value"
+        :highlights="walk.highlights.value"
+        :alternatives="walk.alternatives.value"
+        :user="user"
+        :start="location.origin"
+        fit="route"
+        :padding="{ top: 170, right: 76, bottom: 40, left: 40 }"
+        :box="{ x: [12, 84], y: [26, 86] }"
+        @select-route="trip.setRouteType"
+      />
+    </div>
     <MapLoading class="nav-view__loading" :show="walk.pending.value" :label="t('navigation.finding')" />
 
     <div class="instruction" role="status" aria-live="polite">
@@ -195,6 +205,11 @@ const endRoute = () => router.push({ name: 'map' })
   position: relative;
   overflow: hidden;
   background: var(--map-land);
+}
+.nav-view__map {
+  position: absolute;
+  inset: 0;
+  /* no transition on bottom: the map resizes once, underneath the sliding panel */
 }
 .instruction {
   position: absolute;

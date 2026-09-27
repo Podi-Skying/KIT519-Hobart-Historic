@@ -226,6 +226,7 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    view360None: 'Không có ảnh đường phố 360° tại vị trí của bạn',
     close: 'Đóng dẫn đường AR',
     map: 'Bản đồ',
     openMap: 'Mở bản đồ đầy đủ',

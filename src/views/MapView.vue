@@ -149,7 +149,7 @@ function toggleOffline() {
 <template>
   <div class="map-view">
     <!-- Map sits above the bottom panel so Google's logo and attribution stay visible -->
-    <div class="map-view__map" :style="{ bottom: `${Math.max(0, mapBottom - 8)}px` }">
+    <div class="map-view__map" :style="{ bottom: `${mapBottom}px` }">
       <SiteMap
         ref="siteMap"
         :sites="SITES"

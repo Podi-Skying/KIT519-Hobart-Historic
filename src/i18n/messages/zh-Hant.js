@@ -226,6 +226,7 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    view360None: '你所在的位置沒有 360° 街景',
     close: '關閉 AR 導航',
     map: '地圖',
     openMap: '開啟完整地圖',

@@ -5,6 +5,9 @@ import IconButton from '@/components/base/IconButton.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
+import StreetView360 from '@/components/ar/StreetView360.vue'
+import { isGoogleMapsConfigured } from '@/services/googleMaps'
+import { pointAhead } from '@/lib/streetView'
 import ArrivalSheet from '@/components/map/ArrivalSheet.vue'
 import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
@@ -53,19 +56,74 @@ function toggleVoice() {
 // Look around: tilt the phone or drag the street view; the arrows sit on a closer layer (parallax)
 const stage = ref(null)
 const look = useLookAround({ frame: () => stage.value })
+
+// ---- 360° Street View where the walker is, turned to face the way ahead on the route ----
+const can360 = isGoogleMapsConfigured()
+const view360 = ref(false)
+const pano = ref('loading')
+let panoHinted = false
+/** Walker, or the default origin before they're located / outside Hobart. */
+const here = computed(() => location.origin)
+const ahead = computed(() => pointAhead(walk.path.value, here.value) ?? site.value.coordinates)
+function toggle360() {
+  if (view360.value) return (view360.value = false)
+  pano.value = 'loading'
+  view360.value = true
+}
+function onPanoReady() {
+  pano.value = 'ready'
+  if (panoHinted) return
+  panoHinted = true
+  ui.showToast(t('ar.view360Hint'), { duration: 2600 })
+}
+function onPanoUnavailable() {
+  if (!view360.value) return
+  view360.value = false
+  ui.showToast(t('arNav.view360None'), { duration: 3000 })
+}
+// Google's logo and terms sit at the bottom of the panorama and must stay visible (Maps Platform
+// terms): the panorama ends where the summary card begins instead of running underneath it.
+const summary = ref(null)
+const summaryHeight = ref(0)
+let summaryObserver
+onMounted(() => {
+  summaryObserver = new ResizeObserver(() => (summaryHeight.value = summary.value?.offsetHeight ?? 0))
+  if (summary.value) summaryObserver.observe(summary.value)
+})
+onBeforeUnmount(() => summaryObserver?.disconnect())
 </script>
 
 <template>
   <div ref="stage" class="ar-nav" v-on="look.handlers">
     <!-- Simulated camera feed: the approach to this particular site -->
-    <div class="ar-nav__world" :style="look.layer(1, LOOK_SCALE)">
+    <div v-show="!view360 || pano !== 'ready'" class="ar-nav__world" :style="look.layer(1, LOOK_SCALE)">
       <img class="ar-nav__feed" :src="site.arApproachImage" :alt="t('arNav.feedAlt', { name: site.name })" fetchpriority="high" draggable="false" />
     </div>
+    <Transition name="pano-fade">
+      <StreetView360
+        v-if="view360"
+        data-no-look
+        :at="here"
+        :target="ahead"
+        :pitch="0"
+        :style="{ bottom: `${summaryHeight}px` }"
+        @ready="onPanoReady"
+        @unavailable="onPanoUnavailable"
+      />
+    </Transition>
     <div class="ar-nav__veil" />
 
     <div class="ar-nav__top" data-no-look>
       <IconButton variant="glass" icon="close" :label="t('arNav.close')" @click="close" />
       <span class="ar-nav__actions">
+        <IconButton
+          v-if="can360"
+          variant="glass"
+          icon="pano"
+          :label="t('ar.view360')"
+          :pressed="view360"
+          @click="toggle360"
+        />
         <IconButton
           variant="glass"
           :icon="trip.voiceGuidance ? 'volume' : 'mute'"
@@ -79,7 +137,8 @@ const look = useLookAround({ frame: () => stage.value })
 
     <ArStatusPill :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
 
-    <div class="ar-nav__near" :style="look.layer(1.4)" aria-hidden="true">
+    <!-- the painted arrows belong to the photo; in 360° the street itself (turned ahead) shows the way -->
+    <div v-show="!view360" class="ar-nav__near" :style="look.layer(1.4)" aria-hidden="true">
     <div class="ar-nav__arrows">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
         <path class="ar-nav__arrow" d="M4 40 L36 6 L68 40 L36 27 Z" stroke-width="2.5" stroke-linejoin="round" />
@@ -87,7 +146,13 @@ const look = useLookAround({ frame: () => stage.value })
     </div>
     </div>
 
-    <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__minimap pressable-card" :aria-label="t('arNav.openMap')">
+    <!-- in 360° the minimap moves up to leave the panorama's motion toggle its corner -->
+    <RouterLink
+      :to="{ name: 'navigate-map', params: { id } }"
+      class="ar-nav__minimap pressable-card"
+      :style="view360 ? { bottom: `${summaryHeight + 88}px` } : null"
+      :aria-label="t('arNav.openMap')"
+    >
       <SiteMap
         :sites="[site]"
         :selected-id="site.id"
@@ -105,7 +170,7 @@ const look = useLookAround({ frame: () => stage.value })
       />
     </RouterLink>
 
-    <section class="ar-nav__summary text-zoom" data-no-look>
+    <section ref="summary" class="ar-nav__summary text-zoom" data-no-look>
       <div>
         <p class="ar-nav__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
         <p class="t-small muted">{{ site.name }}</p>
@@ -202,6 +267,7 @@ const look = useLookAround({ frame: () => stage.value })
   border: 3px solid var(--paper);
   border-radius: var(--r-lg);
   box-shadow: var(--e-2);
+  transition: bottom var(--dur) var(--ease);
 }
 .ar-nav__minimap > * {
   pointer-events: none; /* the whole thumbnail is a link to the full map */
@@ -225,6 +291,14 @@ const look = useLookAround({ frame: () => stage.value })
   font: var(--t-metric);
   letter-spacing: var(--track-h1);
   color: var(--success-600);
+}
+.pano-fade-enter-active,
+.pano-fade-leave-active {
+  transition: opacity var(--dur) var(--ease);
+}
+.pano-fade-enter-from,
+.pano-fade-leave-to {
+  opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
   .ar-nav__arrows svg {

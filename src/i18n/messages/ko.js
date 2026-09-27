@@ -226,6 +226,7 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    view360None: '현재 위치에 360° 스트리트 뷰가 없습니다',
     close: 'AR 길 안내 닫기',
     map: '지도',
     openMap: '전체 지도 열기',

@@ -229,6 +229,7 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    view360None: 'No 360° street view where you are',
     close: 'Close AR navigation',
     map: 'Map',
     openMap: 'Open full map',

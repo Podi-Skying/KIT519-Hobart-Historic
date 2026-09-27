@@ -34,3 +34,49 @@ export function facingPov(panoAt, target, pitch = LANDMARK_PITCH) {
 
 /** How far from the landmark we look for a panorama (metres). Street View's own nearest search. */
 export const PANO_SEARCH_RADIUS_M = 60
+
+/** Walking with 360° on: look for a newer panorama after moving this far (metres). */
+export const PANO_FOLLOW_METERS = 25
+
+/** How far ahead on the route the navigation view looks (metres). */
+export const LOOK_AHEAD_M = 40
+
+const metersBetween = (a, b) => {
+  const R = 6371000
+  const dφ = toRad(b.lat - a.lat)
+  const dλ = toRad(b.lng - a.lng)
+  const h = Math.sin(dφ / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dλ / 2) ** 2
+  return 2 * R * Math.asin(Math.sqrt(h))
+}
+
+/**
+ * The point `ahead` metres further along `path` from where the walker is (their nearest vertex),
+ * so AR navigation's 360° view faces the way to walk. Short paths → the last point.
+ * @param {{lat:number,lng:number}[]} path
+ * @param {{lat:number,lng:number}} position
+ */
+export function pointAhead(path, position, ahead = LOOK_AHEAD_M) {
+  if (!path?.length) return null
+  let start = 0
+  let best = Infinity
+  path.forEach((p, i) => {
+    const d = metersBetween(position, p)
+    if (d < best) {
+      best = d
+      start = i
+    }
+  })
+  let left = ahead
+  for (let i = start + 1; i < path.length; i++) {
+    const step = metersBetween(path[i - 1], path[i])
+    if (step >= left) {
+      const f = left / step
+      return {
+        lat: path[i - 1].lat + (path[i].lat - path[i - 1].lat) * f,
+        lng: path[i - 1].lng + (path[i].lng - path[i - 1].lng) * f,
+      }
+    }
+    left -= step
+  }
+  return path[path.length - 1]
+}
