@@ -44,7 +44,7 @@ function toggle(stop) {
       <li v-for="stop in choices" :key="stop.id">
         <button
           type="button"
-          class="stop"
+          class="stop pressable-card"
           :class="{ 'is-added': trip.hasStop(stop.id) }"
           :aria-pressed="trip.hasStop(stop.id)"
           @click="toggle(stop)"
@@ -83,10 +83,12 @@ function toggle(stop) {
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: left;
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
-.stop:hover {
-  border-color: var(--sand-dark);
+@media (hover: hover) {
+  .stop:hover {
+    border-color: var(--sand-dark);
+  }
 }
 .stop.is-added {
   border-color: var(--brand-600);

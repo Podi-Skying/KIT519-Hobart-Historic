@@ -25,7 +25,7 @@ defineProps({
 <template>
   <button
     type="button"
-    class="icon-btn"
+    class="icon-btn pressable"
     :class="[`icon-btn--${variant}`, { 'is-active': active || pressed }]"
     :aria-label="label"
     :aria-pressed="pressed ?? undefined"
@@ -44,7 +44,7 @@ defineProps({
   flex-shrink: 0;
   border-radius: 50%;
   color: var(--ink-900);
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .icon-btn--paper {
   background: var(--paper);

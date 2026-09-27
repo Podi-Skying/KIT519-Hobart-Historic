@@ -24,7 +24,7 @@ const weather = useWeatherStore()
       v-for="tab in TABS"
       :key="tab.key"
       :to="tab.to"
-      class="tab"
+      class="tab pressable-dim"
       :class="{ 'is-active': route.meta.tab === tab.key }"
       :aria-current="route.meta.tab === tab.key ? 'page' : undefined"
     >
@@ -54,7 +54,7 @@ const weather = useWeatherStore()
   padding-top: 10px;
   color: var(--ink-500);
   font: 600 11px var(--font-label);
-  transition: color var(--dur) var(--ease);
+  transition: color var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 /* Active indicator: short burgundy bar on the top edge */
 .tab::before {

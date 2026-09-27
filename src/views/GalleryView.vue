@@ -43,10 +43,10 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         <Transition name="photo" mode="out-in">
           <img :key="photo.image" :src="photo.image" :alt="photo.caption" class="img-placeholder" draggable="false" />
         </Transition>
-        <button type="button" class="viewer__nav viewer__nav--prev" :aria-label="t('gallery.previous')" @click="step(-1)">
+        <button type="button" class="viewer__nav viewer__nav--prev pressable" :aria-label="t('gallery.previous')" @click="step(-1)">
           <AppIcon name="back" :size="20" :stroke-width="2.4" />
         </button>
-        <button type="button" class="viewer__nav viewer__nav--next" :aria-label="t('gallery.next')" @click="step(1)">
+        <button type="button" class="viewer__nav viewer__nav--next pressable" :aria-label="t('gallery.next')" @click="step(1)">
           <AppIcon name="chevron" :size="20" :stroke-width="2.4" />
         </button>
       </div>
@@ -63,7 +63,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         :key="item.image"
         type="button"
         role="tab"
-        class="thumbs__item"
+        class="thumbs__item pressable"
         :class="{ 'is-active': i === current }"
         :aria-selected="i === current"
         :aria-label="item.caption"
@@ -143,7 +143,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   border-radius: var(--r-sm);
   border: 2px solid transparent;
   opacity: 0.55;
-  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .thumbs__item.is-active {
   opacity: 1;

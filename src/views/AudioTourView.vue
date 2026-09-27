@@ -70,13 +70,13 @@ onBeforeUnmount(() => player.pause())
       </div>
 
       <div class="controls">
-        <button type="button" class="controls__skip" :aria-label="t('audio.back', { n: SKIP_SECONDS })" @click="player.skip(-SKIP_SECONDS)">
+        <button type="button" class="controls__skip pressable" :aria-label="t('audio.back', { n: SKIP_SECONDS })" @click="player.skip(-SKIP_SECONDS)">
           <AppIcon name="rewind" :size="26" />{{ SKIP_SECONDS }}
         </button>
-        <button type="button" class="controls__play" :aria-label="player.playing ? t('audio.pause') : t('audio.play')" @click="player.toggle">
+        <button type="button" class="controls__play pressable" :aria-label="player.playing ? t('audio.pause') : t('audio.play')" @click="player.toggle">
           <AppIcon :name="player.playing ? 'pause' : 'play'" :size="28" />
         </button>
-        <button type="button" class="controls__skip" :aria-label="t('audio.forward', { n: SKIP_SECONDS })" @click="player.skip(SKIP_SECONDS)">
+        <button type="button" class="controls__skip pressable" :aria-label="t('audio.forward', { n: SKIP_SECONDS })" @click="player.skip(SKIP_SECONDS)">
           <AppIcon name="forward" :size="26" />{{ SKIP_SECONDS }}
         </button>
       </div>
@@ -221,6 +221,12 @@ onBeforeUnmount(() => player.pause())
 .transcript li.is-current {
   color: var(--ink-900);
   font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave.is-playing i {
+    animation: none;
+    height: 14px; /* static 'playing' bars */
+  }
 }
 @keyframes wave {
   0%,

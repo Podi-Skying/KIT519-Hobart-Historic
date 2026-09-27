@@ -50,7 +50,7 @@ let offAuthFailure = () => {}
 // ---------- marker DOM ----------
 function pinElement(site) {
   const el = document.createElement('div')
-  el.className = 'gm-pin'
+  el.className = 'gm-pin pressable' // press feedback: base.css › Press feedback
   const head = document.createElement('span')
   head.className = 'gm-pin__head'
   const num = document.createElement('b')
@@ -301,10 +301,15 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   background: var(--brand-600);
   transform: rotate(-45deg) scale(1.2);
 }
-.gm-pin.is-selected .gm-pin__label,
-.gm-pin:hover .gm-pin__label {
+.gm-pin.is-selected .gm-pin__label {
   opacity: 1;
   transform: none;
+}
+@media (hover: hover) {
+  .gm-pin:hover .gm-pin__label {
+    opacity: 1;
+    transform: none;
+  }
 }
 .gm-amenity {
   width: 28px;

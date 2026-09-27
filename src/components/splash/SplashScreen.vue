@@ -177,15 +177,20 @@ onMounted(() => root.value?.focus({ preventScroll: true }))
 .d3 { animation-delay: 0.45s; }
 .d4 { animation-delay: 0.7s; }
 
+@media (prefers-reduced-motion: reduce) {
+  .splash__photo {
+    animation: none; /* slow full-screen zoom is vestibular motion */
+  }
+}
 @keyframes ken-burns {
   from { transform: scale(1.12); }
   to { transform: scale(1); }
 }
 @keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(calc(14px * var(--motion))); }
 }
 @keyframes rise-tilted {
-  from { opacity: 0; transform: rotate(-7deg) translateY(10px); }
+  from { opacity: 0; transform: rotate(-7deg) translateY(calc(10px * var(--motion))); }
   to { opacity: 1; transform: rotate(-7deg); }
 }
 </style>

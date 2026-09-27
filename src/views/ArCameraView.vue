@@ -181,7 +181,7 @@ const exit = () => router.push({ name: 'home' })
           <li v-for="option in sites" :key="option.id">
             <button
               type="button"
-              class="chooser__item"
+              class="chooser__item pressable-card"
               :class="{ 'is-selected': option.id === site.id }"
               :aria-current="option.id === site.id"
               @click="chooseSite(option.id, dismiss)"
@@ -366,7 +366,12 @@ const exit = () => router.push({ name: 'home' })
 .sheet-enter-from,
 .sheet-leave-to {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateY(calc(12px * var(--motion)));
+}
+@media (prefers-reduced-motion: reduce) {
+  .scanline {
+    display: none; /* the reticle alone shows it's scanning */
+  }
 }
 @keyframes scan {
   from { top: 27%; }

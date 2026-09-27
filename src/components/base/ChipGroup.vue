@@ -14,7 +14,7 @@ const model = defineModel({ type: String, required: true })
       :key="option.key"
       type="button"
       role="radio"
-      class="chip"
+      class="chip pressable"
       :class="{ 'is-selected': model === option.key }"
       :aria-checked="model === option.key"
       @click="model = option.key"
@@ -55,10 +55,13 @@ const model = defineModel({ type: String, required: true })
   background: var(--paper);
   color: var(--ink-700);
   font: 500 13px var(--font-label);
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    scale var(--dur) var(--ease);
 }
-.chip:hover {
-  border-color: var(--sand-dark);
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--sand-dark);
+  }
 }
 .chip.is-selected {
   background: var(--brand-600);

@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { getSiteById } from '@/data/sites'
 import { useUiStore } from '@/stores/ui'
+import { pageTransition } from '@/lib/pageTransition'
 
 /**
  * Route meta
@@ -135,6 +136,8 @@ export const router = createRouter({
   routes,
 })
 
-router.afterEach(() => {
+router.afterEach((to, from) => {
   useUiStore().setStatusBarSolid(false)
+  // push / pop / fade — read by App.vue's <Transition> (base.css › Route transitions)
+  to.meta.transition = pageTransition(to, from)
 })

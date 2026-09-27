@@ -35,7 +35,7 @@ defineExpose({ focus: () => input.value?.focus() })
       autocomplete="off"
       enterkeyhint="search"
     />
-    <button v-if="model" type="button" class="search__clear" :aria-label="clearLabel" @click="clear">
+    <button v-if="model" type="button" class="search__clear pressable-dim" :aria-label="clearLabel" @click="clear">
       <AppIcon name="close" :size="16" />
     </button>
   </label>

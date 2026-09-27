@@ -90,7 +90,7 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
       v-for="{ site, pos } in pins"
       :key="site.id"
       type="button"
-      class="pin"
+      class="pin pressable"
       :class="{ 'is-selected': site.id === selectedId }"
       :style="{ left: `${pos.x}%`, top: `${pos.y}%` }"
       :aria-label="site.name"

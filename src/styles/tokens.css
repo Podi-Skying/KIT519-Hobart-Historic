@@ -92,9 +92,19 @@
 
   /* ---- Motion ---- */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ease-page: cubic-bezier(0.32, 0.72, 0, 1); /* critically-damped feel for page pushes */
   --dur-fast: 150ms;
   --dur: 220ms;
+  --dur-page: 380ms;
   --dur-slow: 400ms;
+  /* 1 = full movement · 0 under prefers-reduced-motion. Multiply every travel distance,
+     zoom or tilt by it so motion turns into a plain cross-fade instead of vanishing. */
+  --motion: 1;
+
+  /* ---- Press feedback (applies on touch-down; see base.css › Press feedback) ---- */
+  --press-scale: 0.96; /* small controls: buttons, chips, icon buttons */
+  --press-scale-card: 0.98; /* large surfaces: cards, list rows */
+  --press-dim: 0.55; /* text-only buttons */
 
   /* ---- Accessibility ---- */
   --hit: 44px; /* minimum touch target */

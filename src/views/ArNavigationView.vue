@@ -58,7 +58,7 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
       </svg>
     </div>
 
-    <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__minimap" :aria-label="t('arNav.openMap')">
+    <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__minimap pressable-card" :aria-label="t('arNav.openMap')">
       <SiteMap
         :sites="[site]"
         :selected-id="site.id"
@@ -175,6 +175,11 @@ const close = useGoBack({ name: 'navigate', params: { id: props.id } })
 .ar-nav__eta {
   font: 700 26px var(--font-heading);
   color: var(--success-600);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-nav__arrows svg {
+    animation: none;
+  }
 }
 @keyframes bob {
   50% {

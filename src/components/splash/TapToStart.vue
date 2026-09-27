@@ -72,6 +72,12 @@ defineProps({
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
+@media (prefers-reduced-motion: reduce) {
+  .tap__pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
 @keyframes pulse {
   0% {
     transform: scale(1);

@@ -52,7 +52,7 @@ const ui = useUiStore()
 .toast-enter-from,
 .toast-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(calc(-8px * var(--motion)));
 }
 @keyframes spin {
   to {

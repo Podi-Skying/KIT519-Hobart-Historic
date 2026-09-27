@@ -189,7 +189,7 @@ function toggleOffline() {
           <li v-for="stop in trip.stops" :key="stop.id">
             <AppIcon :name="stop.icon" :size="14" />
             {{ t(`waypoints.${stop.id}`) }}
-            <button type="button" :aria-label="t('map.remove', { name: t(`waypoints.${stop.id}`) })" @click="trip.toggleStop(stop.id)">
+            <button type="button" class="pressable" :aria-label="t('map.remove', { name: t(`waypoints.${stop.id}`) })" @click="trip.toggleStop(stop.id)">
               <AppIcon name="close" :size="12" :stroke-width="2.6" />
             </button>
           </li>
@@ -211,10 +211,10 @@ function toggleOffline() {
         @click.capture="sheetDrag.swallowClick"
       >
         <!-- Tapping the grip hides the panel too: dragging is never the only way (WCAG 2.5.7) -->
-        <button type="button" class="panel__hide" :aria-label="t('map.hidePanel')" aria-expanded="true" @click="browseOpen = false">
+        <button type="button" class="panel__hide pressable-dim" :aria-label="t('map.hidePanel')" aria-expanded="true" @click="browseOpen = false">
           <span class="panel__grip" aria-hidden="true" />
         </button>
-        <button type="button" class="nearest" @click="trip.setDestination(nearest.id)">
+        <button type="button" class="nearest pressable-card" @click="trip.setDestination(nearest.id)">
           <span class="nearest__icon"><AppIcon name="pin" :size="20" /></span>
           <span class="nearest__text">
             <span class="t-caption">{{ t('map.nearest') }}</span>
@@ -231,7 +231,7 @@ function toggleOffline() {
       </section>
 
       <!-- Tucked away: just the grip, as a tab -->
-      <button v-else type="button" class="peek text-zoom" aria-expanded="false" v-on="peekHandlers" @click="openBrowse">
+      <button v-else type="button" class="peek text-zoom pressable-dim" aria-expanded="false" v-on="peekHandlers" @click="openBrowse">
         <span class="panel__grip" aria-hidden="true" />
         {{ t('map.planWalk') }}
       </button>
@@ -271,7 +271,7 @@ function toggleOffline() {
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   box-shadow: var(--e-3);
   scrollbar-width: none;
-  transition: transform var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .panel.is-dragging {
   transition: none;
@@ -430,7 +430,7 @@ function toggleOffline() {
 }
 @keyframes slide-up {
   from {
-    transform: translateY(24px);
+    transform: translateY(calc(24px * var(--motion)));
     opacity: 0;
   }
 }

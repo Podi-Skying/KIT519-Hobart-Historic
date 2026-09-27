@@ -46,7 +46,7 @@ function onPointerUp() {
   <button
     ref="el"
     type="button"
-    class="bubble"
+    class="bubble pressable"
     :class="{ 'is-active': active }"
     :style="{ left: `${position.x}%`, top: `${position.y}%` }"
     :aria-label="label"
@@ -102,7 +102,7 @@ function onPointerUp() {
 @keyframes pop {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.4);
+    transform: translate(-50%, -50%) scale(calc(1 - 0.6 * var(--motion)));
   }
 }
 </style>

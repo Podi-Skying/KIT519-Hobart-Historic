@@ -11,7 +11,7 @@ defineProps({
       v-for="(photo, i) in site.gallery"
       :key="photo.image"
       :to="{ name: 'gallery', params: { id: site.id, index: i } }"
-      class="rail__card"
+      class="rail__card pressable-card"
     >
       <img :src="photo.image" :alt="photo.caption" class="img-placeholder" loading="lazy" decoding="async" />
       <span class="rail__year">{{ photo.year }}</span>

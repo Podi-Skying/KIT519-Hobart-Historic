@@ -30,7 +30,7 @@ describe('useSheetDrag', () => {
     vi.advanceTimersByTime(500)
     sheet.handlers.pointermove(pointer(150))
     sheet.handlers.pointerup(pointer(150))
-    expect(sheet.style.value).toEqual({ transform: 'translateY(100%)' })
+    expect(sheet.style.value).toEqual({ transform: 'translateY(calc(100% * var(--motion)))', opacity: 'var(--motion)' })
     vi.advanceTimersByTime(300)
     expect(onDismiss).toHaveBeenCalledOnce()
     expect(sheet.style.value).toBeNull()

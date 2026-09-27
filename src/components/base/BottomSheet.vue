@@ -142,13 +142,14 @@ const showClose = () => props.closable ?? Boolean(props.title)
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   box-shadow: var(--e-3);
   animation: slide-in var(--dur-slow) var(--ease);
-  transition: transform var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .sheet.is-dragging {
   transition: none;
 }
 .sheet.is-leaving {
-  transform: translateY(100%);
+  transform: translateY(calc(100% * var(--motion)));
+  opacity: var(--motion); /* reduced motion: fades out instead of sliding */
 }
 .sheet__handle {
   flex-shrink: 0;
@@ -188,7 +189,7 @@ const showClose = () => props.closable ?? Boolean(props.title)
 }
 .swap-enter-from,
 .swap-leave-to {
-  transform: scale(0.6);
+  transform: scale(calc(1 - 0.4 * var(--motion)));
   opacity: 0;
 }
 .sheet__body {
@@ -199,6 +200,6 @@ const showClose = () => props.closable ?? Boolean(props.title)
   from { opacity: 0; }
 }
 @keyframes slide-in {
-  from { transform: translateY(100%); }
+  from { transform: translateY(calc(100% * var(--motion))); opacity: var(--motion); }
 }
 </style>

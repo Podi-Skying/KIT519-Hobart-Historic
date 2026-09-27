@@ -111,7 +111,8 @@ export function useSheetDrag(onDismiss) {
   }
 
   const style = computed(() => {
-    if (leaving.value) return { transform: 'translateY(100%)' }
+    // --motion is 0 under prefers-reduced-motion: the panel fades out instead of sliding (base.css)
+    if (leaving.value) return { transform: 'translateY(calc(100% * var(--motion)))', opacity: 'var(--motion)' }
     return offset.value ? { transform: `translateY(${offset.value}px)` } : null
   })
 

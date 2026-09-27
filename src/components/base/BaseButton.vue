@@ -21,7 +21,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
     :is="tag"
     :to="to ?? undefined"
     :type="to ? undefined : 'button'"
-    class="btn"
+    class="btn pressable"
     :class="[`btn--${variant}`, `btn--${size}`, { 'btn--block': block }]"
   >
     <AppIcon v-if="icon" :name="icon" :size="size === 'sm' ? 16 : 18" />
@@ -39,10 +39,8 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   font: 600 14px/1 var(--font-label);
   letter-spacing: 0.01em;
   white-space: nowrap;
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast);
-}
-.btn:active {
-  transform: scale(0.98);
+  /* `scale` = release of the press (base.css › Press feedback); the press itself is instant */
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .btn--md {
   min-height: 48px;
@@ -55,21 +53,32 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
 }
 .btn--block {
   width: 100%;
+  --press-scale: var(--press-scale-card); /* wide buttons shrink less */
 }
 .btn--primary {
   background: var(--brand-600);
   color: var(--paper);
 }
-.btn--primary:hover {
-  background: var(--brand-700);
+.btn--primary:active {
+  background: var(--brand-700); /* token: pressed */
+  transition-duration: 0ms;
 }
 .btn--secondary {
   background: var(--paper);
   color: var(--ink-900);
   border: 1.5px solid var(--sand);
 }
-.btn--secondary:hover {
-  border-color: var(--sand-dark);
+.btn--secondary:active {
+  background: var(--parchment);
+  transition-duration: 0ms;
+}
+@media (hover: hover) {
+  .btn--primary:hover {
+    background: var(--brand-700);
+  }
+  .btn--secondary:hover {
+    border-color: var(--sand-dark);
+  }
 }
 .btn--quiet {
   background: var(--sand-fill);

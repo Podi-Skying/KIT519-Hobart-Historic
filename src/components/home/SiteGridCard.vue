@@ -24,7 +24,7 @@ const likes = computed(() => favorites.likeCount(props.site))
       <img :src="site.image" alt="" class="img-placeholder" loading="lazy" decoding="async" />
       <button
         type="button"
-        class="grid-card__like"
+        class="grid-card__like pressable"
         :class="{ 'is-liked': liked }"
         :aria-pressed="liked"
         :aria-label="t(liked ? 'home.unlike' : 'home.like', { name: site.name, n: likes })"
@@ -50,10 +50,17 @@ const likes = computed(() => favorites.likeCount(props.site))
   border: 1.5px solid var(--sand);
   border-radius: var(--r-lg);
   background: var(--paper);
-  transition: box-shadow var(--dur) var(--ease);
+  transition: box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
-.grid-card:hover {
-  box-shadow: var(--e-1);
+/* The whole card is the link (stretched ::after), so the card itself shows the press. */
+.grid-card:has(.grid-card__link:active) {
+  scale: var(--press-scale-card);
+  transition-duration: 0ms;
+}
+@media (hover: hover) {
+  .grid-card:hover {
+    box-shadow: var(--e-1);
+  }
 }
 .grid-card__media {
   position: relative;

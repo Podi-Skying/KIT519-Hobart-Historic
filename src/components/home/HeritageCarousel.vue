@@ -28,7 +28,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
         v-for="(site, rank) in sites"
         :key="site.id"
         :to="{ name: 'site', params: { id: site.id } }"
-        class="rank-card"
+        class="rank-card pressable-card"
         draggable="false"
         aria-roledescription="slide"
         :aria-label="t('home.slide', { n: rank + 1, total: sites.length, name: site.name })"
@@ -60,7 +60,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
     <div class="controls">
       <button
         type="button"
-        class="controls__arrow"
+        class="controls__arrow pressable"
         :aria-label="t('home.prevSite')"
         :disabled="index === 0"
         @click="goTo(index - 1)"
@@ -86,7 +86,7 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
 
       <button
         type="button"
-        class="controls__arrow"
+        class="controls__arrow pressable"
         :aria-label="t('home.nextSite')"
         :disabled="index === props.sites.length - 1"
         @click="goTo(index + 1)"
@@ -115,6 +115,10 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
 }
 .carousel__track::-webkit-scrollbar {
   display: none;
+}
+/* A mouse drag-to-scroll is not a press on the card under the pointer. */
+.carousel__track[data-dragging] .rank-card {
+  scale: 1;
 }
 .rank-card {
   flex: 0 0 290px;
@@ -202,10 +206,15 @@ const { track, index, goTo, onScroll, dragHandlers } = useCarousel()
   justify-content: center;
   border-radius: 50%;
   color: var(--ink-900);
-  transition: background var(--dur-fast) var(--ease), opacity var(--dur) var(--ease);
+  transition: background var(--dur-fast) var(--ease), opacity var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
-.controls__arrow:hover:not(:disabled) {
+.controls__arrow:active:not(:disabled) {
   background: var(--parchment);
+}
+@media (hover: hover) {
+  .controls__arrow:hover:not(:disabled) {
+    background: var(--parchment);
+  }
 }
 .controls__arrow:disabled {
   opacity: 0.3;

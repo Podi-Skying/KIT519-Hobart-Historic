@@ -42,6 +42,7 @@ export function useCarousel({ gutter = 20 } = {}) {
   const endDrag = () => {
     if (!drag) return
     track.value.style.scrollSnapType = ''
+    delete track.value.dataset.dragging
     if (drag.moved) {
       // Swallow the click that follows a drag so cards don't open accidentally.
       track.value.addEventListener('click', (e) => e.preventDefault(), { capture: true, once: true })
@@ -58,7 +59,10 @@ export function useCarousel({ gutter = 20 } = {}) {
     pointermove: (e) => {
       if (!drag) return
       const dx = e.clientX - drag.x
-      if (Math.abs(dx) > 6) drag.moved = true
+      if (!drag.moved && Math.abs(dx) > 6) {
+        drag.moved = true
+        track.value.dataset.dragging = '' // cancels the card's press state (HeritageCarousel.vue)
+      }
       track.value.scrollLeft = drag.scroll - dx
     },
     pointerup: endDrag,

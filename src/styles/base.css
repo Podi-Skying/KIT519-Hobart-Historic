@@ -14,6 +14,11 @@ body {
   height: 100%;
 }
 
+/* No grey system flash on tap (iOS/Android): every control draws its own press state. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   background: #1f1a12;
   color: var(--ink-700);
@@ -105,16 +110,77 @@ a {
   background: linear-gradient(135deg, var(--sand), var(--parchment));
 }
 
-/* ---- Route transition ---- */
-.page-enter-active,
-.page-leave-active {
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+/* ---- Press feedback ----
+   Apple: respond on touch-down, not on release. Add `.pressable` (small controls) or
+   `.pressable-card` (cards, list rows) to anything tappable; `.pressable-dim` for text-only buttons.
+   The press lands instantly (transition-duration: 0); on release the element's own transition
+   eases it back, so components that declare `transition:` must list `scale` (or `opacity`) in it.
+   Uses the `scale` property, not `transform`, so it composes with pins/bubbles that already translate. */
+.pressable,
+.pressable-card {
+  transition: scale var(--dur) var(--ease);
 }
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
+.pressable-dim {
+  transition: opacity var(--dur) var(--ease);
 }
-.page-leave-to {
+.pressable:active:not(:disabled) {
+  scale: var(--press-scale);
+  transition-duration: 0ms;
+}
+.pressable-card:active:not(:disabled) {
+  scale: var(--press-scale-card);
+  transition-duration: 0ms;
+}
+.pressable-dim:active:not(:disabled) {
+  opacity: var(--press-dim);
+  transition-duration: 0ms;
+}
+
+/* ---- Route transitions (router/index.js sets `meta.transition` via lib/pageTransition.js) ----
+   push  drill down: new page slides in from the right over the old one, which drifts left and dims
+   pop   back up: the exact reverse path (spatial consistency)
+   fade  switching tabs or unrelated screens: a short cross-fade, no travel
+   Both pages animate at once (no out-in wait); the leaving one is lifted out of the flex flow. */
+.page-push-enter-active,
+.page-push-leave-active,
+.page-pop-enter-active,
+.page-pop-leave-active {
+  transition: transform var(--dur-page) var(--ease-page), opacity var(--dur-page) var(--ease-page),
+    filter var(--dur-page) var(--ease-page);
+}
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity var(--dur) var(--ease);
+}
+.page-push-leave-active,
+.page-pop-leave-active,
+.page-fade-leave-active {
+  position: absolute !important;
+  inset: 0;
+}
+.page-push-enter-active,
+.page-pop-enter-active {
+  position: relative; /* so z-index applies to the page that stays in the flow */
+  z-index: 1;
+}
+.page-push-enter-active,
+.page-pop-leave-active {
+  z-index: 2; /* the page that slides over sits on top */
+  box-shadow: -8px 0 24px rgba(44, 36, 23, calc(0.18 * var(--motion)));
+}
+.page-push-enter-from,
+.page-pop-leave-to {
+  transform: translateX(calc(100% * var(--motion)));
+  opacity: var(--motion); /* 1 normally; 0 under reduced motion → pure cross-fade */
+}
+.page-push-leave-to,
+.page-pop-enter-from {
+  transform: translateX(calc(-28% * var(--motion)));
+  filter: brightness(calc(1 - 0.08 * var(--motion)));
+  opacity: var(--motion);
+}
+.page-fade-enter-from,
+.page-fade-leave-to {
   opacity: 0;
 }
 
@@ -124,12 +190,22 @@ a {
   .no-print { display: none !important; }
 }
 
+/* Reduced motion keeps feedback but removes travel: --motion: 0 turns every slide, zoom and
+   tilt that multiplies by it into a cross-fade of the same length (Apple: a gentler equivalent,
+   not no feedback). Timings stay intact, so JS waits (e.g. BottomSheet LEAVE_MS) still line up.
+   Looping decoration (pulse, bob, scan, wave, Ken Burns) is switched off in each component. */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  :root {
+    --motion: 0;
+    --press-scale: 1;
+    --press-scale-card: 1;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  /* Press feedback becomes a dim instead of a shrink. */
+  .pressable:active:not(:disabled),
+  .pressable-card:active:not(:disabled) {
+    opacity: 0.7;
   }
 }

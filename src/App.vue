@@ -41,7 +41,8 @@ const statusBar = computed(() => {
 
     <div class="viewport">
       <RouterView v-slot="{ Component }">
-        <Transition name="page" mode="out-in">
+        <!-- No out-in: old and new page animate together, so a tap never waits on an exit. -->
+        <Transition :name="`page-${route.meta.transition ?? 'none'}`" :css="(route.meta.transition ?? 'none') !== 'none'">
           <KeepAlive include="HomeView">
             <component :is="Component" />
           </KeepAlive>
@@ -75,6 +76,6 @@ const statusBar = computed(() => {
 }
 .splash-leave-to {
   opacity: 0;
-  transform: scale(1.04);
+  transform: scale(calc(1 + 0.04 * var(--motion)));
 }
 </style>

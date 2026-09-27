@@ -104,7 +104,7 @@ const endRoute = () => router.push({ name: 'map' })
       <IconButton variant="float" icon="plus" :label="t('navigation.zoomIn')" @click="map?.zoomIn()" />
       <IconButton variant="float" icon="minus" :label="t('navigation.zoomOut')" @click="map?.zoomOut()" />
       <IconButton variant="float" icon="locate" :label="user ? t('navigation.follow') : t('navigation.showRoute')" @click="recenter" />
-      <RouterLink :to="{ name: 'navigate-ar', params: { id } }" class="zoom__ar" :aria-label="t('navigation.switchAr')">
+      <RouterLink :to="{ name: 'navigate-ar', params: { id } }" class="zoom__ar pressable" :aria-label="t('navigation.switchAr')">
         <AppIcon name="ar" :size="20" /><span>AR</span>
       </RouterLink>
     </div>

@@ -37,7 +37,7 @@ const stats = computed(() => {
         :key="type.key"
         type="button"
         role="radio"
-        class="route-type"
+        class="route-type pressable"
         :class="[`route-type--${type.key}`, { 'is-selected': model === type.key }]"
         :aria-checked="model === type.key"
         @click="model = type.key"
@@ -77,7 +77,7 @@ const stats = computed(() => {
   background: var(--paper);
   color: var(--ink-900);
   font: 600 13px var(--font-label);
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .route-type small {
   display: block;

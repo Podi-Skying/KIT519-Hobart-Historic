@@ -46,7 +46,7 @@ const routeType = computed({
       <p class="t-caption content__label">{{ t('navModes.modeLabel') }}</p>
       <ul class="modes">
         <li v-for="mode in NAVIGATION_MODES" :key="mode.route">
-          <RouterLink :to="{ name: mode.route, params: { id } }" class="mode">
+          <RouterLink :to="{ name: mode.route, params: { id } }" class="mode pressable-card">
             <span class="mode__icon"><AppIcon :name="mode.icon" :size="24" /></span>
             <span class="mode__text">
               <span class="mode__title">{{ t(`navModes.${mode.route}.title`) }}</span>
@@ -86,11 +86,13 @@ const routeType = computed({
   border: 1.5px solid var(--sand);
   border-radius: var(--r-lg);
   background: var(--paper);
-  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
-.mode:hover {
-  border-color: var(--brand-600);
-  box-shadow: var(--e-1);
+@media (hover: hover) {
+  .mode:hover {
+    border-color: var(--brand-600);
+    box-shadow: var(--e-1);
+  }
 }
 .mode__icon {
   width: 48px;

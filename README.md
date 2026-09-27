@@ -1,5 +1,7 @@
 # Hobart Heritage Guide
 
+**▶ 線上試用：[podi-skying.github.io/KIT519-Hobart-Historic](https://podi-skying.github.io/KIT519-Hobart-Historic/)**（手機或桌機瀏覽器直接開啟；桌機會顯示在手機外框內）
+
 以 AR 探索 Hobart（nipaluna）歷史建築的步行導覽 App 原型。
 Vue 3 + Vite 單頁應用，採模組化架構，方便後續迭代與交接。
 
@@ -384,9 +386,39 @@ hobart-heritage/
 | 陰影 | `--e-1` | 卡片 hover、浮在照片上的按鈕 |
 | | `--e-2` | 浮動控制（地圖按鈕、Toast、彈出卡） |
 | | `--e-3` | 由下往上的面板 |
-| 動效 | `--dur-fast` 150ms · `--dur` 220ms · `--dur-slow` 400ms，曲線 `--ease` | 頁面淡入上移 6px；面板上滑；Leading page 文字依序浮現 |
+| 動效 | `--dur-fast` 150ms · `--dur` 220ms · `--dur-slow` 400ms，曲線 `--ease` | 面板上滑；Leading page 文字依序浮現 |
+| | `--dur-page` 380ms，曲線 `--ease-page` | 換頁（見下方「換頁轉場」） |
+| | `--motion` 1／0 | 所有位移、縮放、傾斜都乘上它；減少動態效果時為 0 |
+| 按壓 | `--press-scale` 0.96 · `--press-scale-card` 0.98 · `--press-dim` 0.55 | 按下回饋（見下方） |
 
-系統開啟「減少動態效果」時，所有動畫與轉場自動關閉（`base.css`）。
+**按下回饋（Apple：手指一碰到就回應，不等放開）**
+
+- 所有可點的東西都要有按壓狀態，加上 `base.css` 的工具類即可：
+  - `.pressable`：小型控制項（按鈕、chip、圖示按鈕、圖釘）按下縮到 0.96
+  - `.pressable-card`：卡片、清單列、寬按鈕按下縮到 0.98（縮太多會顯得晃）
+  - `.pressable-dim`：純文字按鈕、tab bar 按下變淡
+- 按下是**瞬間**的（`transition-duration: 0`），放開才用元件自己的 transition 彈回；所以元件若自己宣告了 `transition`，要把 `scale`（或 `opacity`）加進清單。
+- 用 CSS 的 `scale` 屬性而不是 `transform`，才不會蓋掉圖釘、AR 泡泡原本的位移。
+- 主要按鈕按下時底色換成 `--brand-700`（pressed token）。
+- `html` 關閉系統灰色點擊框（`-webkit-tap-highlight-color`），`main.js` 註冊一個空的 passive `touchstart`，iOS Safari 才會套用 `:active`。
+- `:hover` 一律包在 `@media (hover: hover)` 裡，避免手機點過之後 hover 樣式卡住。
+
+**換頁轉場（空間一致：從哪裡來就回哪裡去）**
+
+`router/index.js` 在每次導航後用 `lib/pageTransition.js` 算出轉場，寫進 `route.meta.transition`：
+
+| 情境 | 轉場 | 說明 |
+| --- | --- | --- |
+| 同一個 tab 往深一層（Home → 景點 → 語音導覽） | `push` | 新頁從右邊推入，舊頁往左退 28% 並微暗 |
+| 同一個 tab 往回一層 | `pop` | 完全相反的路徑 |
+| 切換 tab、同層頁面互換 | `fade` | 220ms 交叉淡入淡出，不移動 |
+| 第一次載入、同一路徑 | `none` | 不播放 |
+
+新舊兩頁**同時**進行（不用 `mode="out-in"`），點下去不必先等舊頁淡出。
+
+**減少動態效果（`prefers-reduced-motion`）**
+
+不是把回饋整個關掉，而是換成溫和的版本：`--motion` 變成 0，所有位移、縮放都變成**同樣長度的淡入淡出**（換頁、底部面板、Toast、AR 泡泡），按壓改成變淡而不是縮小；會一直循環的裝飾（Leading page 的 Ken Burns 放大、Tap to start 脈衝、語音聲波、AR 箭頭上下浮動、掃描線）各自在元件裡關閉。轉場時間不變，所以 JS 的等待（例如底部面板的 `LEAVE_MS`）仍然對得上。
 
 ### 5.6 元件規範
 

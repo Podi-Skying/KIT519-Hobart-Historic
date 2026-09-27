@@ -124,7 +124,7 @@ onBeforeUnmount(() => observer?.disconnect())
               @update:model-value="(q) => updateQuery({ q })"
               @keydown.esc="closeSearch"
             />
-            <button type="button" class="toolbar__cancel" @click="closeSearch">{{ t('common.cancel') }}</button>
+            <button type="button" class="toolbar__cancel pressable-dim" @click="closeSearch">{{ t('common.cancel') }}</button>
           </div>
           <div v-else key="title" class="toolbar__title">
             <h2 class="t-h2">{{ listTitle }}</h2>

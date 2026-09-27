@@ -34,7 +34,7 @@ function choose(code, dismiss) {
           <button
             type="button"
             role="switch"
-            class="option"
+            class="option pressable-card"
             :class="{ 'is-selected': prefs[option.key] }"
             :aria-checked="prefs[option.key]"
             @click="option.toggle"
@@ -56,7 +56,7 @@ function choose(code, dismiss) {
           :key="option.code"
           type="button"
           role="radio"
-          class="option"
+          class="option pressable-card"
           :class="{ 'is-selected': locale === option.code }"
           :aria-checked="locale === option.code"
           :lang="option.code"
@@ -100,7 +100,7 @@ function choose(code, dismiss) {
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: left;
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .option.is-selected {
   border-color: var(--brand-600);
