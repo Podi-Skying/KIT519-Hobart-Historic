@@ -84,6 +84,7 @@ export default {
     removeFavourite: '즐겨찾기에서 삭제',
   },
   gallery: {
+    credit: '사진: {author}',
     previous: '이전 사진',
     next: '다음 사진',
     photos: '사진',

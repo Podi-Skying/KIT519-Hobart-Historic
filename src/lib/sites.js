@@ -67,7 +67,8 @@ export function siteTimeline(site) {
   const tt = site.timeTravel
   const entries = [
     ...(tt ? [{ image: tt.presentImage, year: null, title: site.name, text: tt.presentCaption }] : []),
-    ...site.gallery.map((p) => ({ image: p.image, year: p.year, title: p.caption, text: p.description })),
+    // interiors and close-ups (`detail`) stay in the gallery; the AR playback shows the building ageing
+    ...site.gallery.filter((p) => !p.detail).map((p) => ({ image: p.image, year: p.year, title: p.caption, text: p.description })),
     ...(tt ? [{ image: tt.pastImage, year: tt.pastYear, title: site.name, text: tt.pastCaption }] : []),
   ]
   const byImage = new Map()

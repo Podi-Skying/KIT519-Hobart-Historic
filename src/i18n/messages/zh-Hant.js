@@ -84,6 +84,7 @@ export default {
     removeFavourite: '移除收藏',
   },
   gallery: {
+    credit: '攝影：{author}',
     previous: '上一張',
     next: '下一張',
     photos: '照片',

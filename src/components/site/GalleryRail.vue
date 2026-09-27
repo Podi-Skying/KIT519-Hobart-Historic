@@ -13,7 +13,7 @@ defineProps({
       :to="{ name: 'gallery', params: { id: site.id, index: i } }"
       class="rail__card pressable-card"
     >
-      <img :src="photo.image" :alt="photo.caption" class="img-placeholder" loading="lazy" decoding="async" />
+      <img :src="photo.thumb ?? photo.image" :alt="photo.caption" class="img-placeholder" loading="lazy" decoding="async" />
       <span class="rail__year">{{ photo.year }}</span>
       <span class="rail__caption">{{ photo.caption }}</span>
     </RouterLink>

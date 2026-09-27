@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SITES } from '@/data/sites'
+import { SITES, smallVersion } from '@/data/sites'
 import { filterSites, nearestSite, rankByLikes, siteTimeline, walkMinutesFor, yearOf } from '@/lib/sites'
 import { getSiteById } from '@/data/sites'
 
@@ -64,7 +64,9 @@ describe('yearOf', () => {
 describe('siteTimeline', () => {
   it('orders every photo of a site newest first, archival views last', () => {
     const years = siteTimeline(getSiteById(1)).map((p) => p.year)
-    expect(years).toEqual([null, 'Present day', 'Present day', 'Present day', '1892', '1844'])
+    expect(years).toEqual([
+      null, 'Present day', 'Present day', 'Present day', '2024', '2024', '2013', '2013', '2013', '2009', '1914–1941', '1892', '1844',
+    ])
   })
 
   it('shows a photo used twice only once, keeping the time-travel story', () => {
@@ -72,14 +74,50 @@ describe('siteTimeline', () => {
     const images = timeline.map((p) => p.image)
     expect(new Set(images).size).toBe(images.length)
     const archival = timeline.filter((p) => p.archival)
-    expect(archival).toHaveLength(1)
+    expect(archival.map((p) => p.year)).toEqual(['c.1900', 'c.1860'])
     expect(archival[0]).toMatchObject({ year: 'c.1900', title: 'Old Trinity and Penitentiary' })
     expect(archival[0].text).toMatch(/Around 1900/)
   })
 
   it('gives sites without archival imagery a timeline of their gallery', () => {
     const years = siteTimeline(getSiteById(2)).map((p) => p.year)
-    expect(years).toEqual(['2022', '2015', '2013', '2013'])
+    expect(years).toEqual(['2022', '2015', '2013', '2013', '2011', '2010', '2010'])
     expect(siteTimeline(getSiteById(2)).every((p) => !p.archival)).toBe(true)
+  })
+})
+
+describe('site photos', () => {
+  it('every site has at least 10 photos, each new one credited to its author and licence', () => {
+    for (const site of SITES) {
+      expect(site.gallery.length).toBeGreaterThanOrEqual(10)
+      for (const photo of site.gallery.filter((p) => p.image.startsWith('https://live.staticflickr.com') || p.image.includes('wikimedia.org'))) {
+        expect(photo.credit?.author).toBeTruthy()
+        expect(photo.credit?.license).toBeTruthy()
+        expect(photo.credit?.url).toMatch(/^https:\/\//)
+      }
+    }
+  })
+
+  it('leaves interiors and close-ups out of the AR playback', () => {
+    const site = getSiteById(2)
+    const shown = new Set(siteTimeline(site).map((p) => p.image))
+    for (const photo of site.gallery) expect(shown.has(photo.image)).toBe(!photo.detail)
+  })
+})
+
+describe('smallVersion', () => {
+  it('asks each host for a small copy (Commons only serves standard widths)', () => {
+    expect(smallVersion('https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/A.jpg/1280px-A.jpg')).toBe(
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c5/A.jpg/330px-A.jpg',
+    )
+    expect(smallVersion('https://upload.wikimedia.org/wikipedia/commons/a/a1/HobartGaol.jpg')).toBe(
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/HobartGaol.jpg/330px-HobartGaol.jpg',
+    )
+    expect(smallVersion('https://live.staticflickr.com/5475/10375580395_f235b922be_b.jpg')).toBe(
+      'https://live.staticflickr.com/5475/10375580395_f235b922be_n.jpg',
+    )
+    expect(smallVersion('https://live.staticflickr.com/3710/11994675884_a727b4dc20.jpg')).toBe(
+      'https://live.staticflickr.com/3710/11994675884_a727b4dc20_n.jpg',
+    )
   })
 })

@@ -154,6 +154,13 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         <span class="viewer__year">{{ photo.year }}</span>
         <h2 class="t-h1">{{ photo.caption }}</h2>
         <p class="t-body">{{ photo.description }}</p>
+        <!-- attribution the photo's licence requires: author + licence, linked to the source -->
+        <p v-if="photo.credit" class="viewer__credit">
+          <a :href="photo.credit.url" target="_blank" rel="noopener">{{ t('gallery.credit', { author: photo.credit.author }) }}</a>
+          ·
+          <a v-if="photo.credit.licenseUrl" :href="photo.credit.licenseUrl" target="_blank" rel="noopener license">{{ photo.credit.license }}</a>
+          <span v-else>{{ photo.credit.license }}</span>
+        </p>
       </figcaption>
     </figure>
 
@@ -169,7 +176,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         :aria-label="item.caption"
         @click="show(i)"
       >
-        <img :src="item.image" alt="" loading="lazy" decoding="async" />
+        <img :src="item.thumb ?? item.image" alt="" loading="lazy" decoding="async" />
       </button>
     </div>
   </AppPage>
@@ -226,6 +233,19 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
 }
 .viewer__caption h2 {
   margin: 6px 0;
+}
+.viewer__credit {
+  margin-top: var(--s-3);
+  font: var(--t-meta);
+  color: var(--ink-500);
+}
+.viewer__credit a {
+  display: inline-block;
+  padding: 10px 0; /* 44px-tall tap target around one line of small text */
+  margin: -10px 0;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .viewer__year {
   font: var(--t-caption);

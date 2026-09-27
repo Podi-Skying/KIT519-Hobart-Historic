@@ -299,7 +299,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
               :to="{ name: 'gallery', params: { id: site.id, index: i } }"
               :aria-label="photo.caption"
             >
-              <img :src="photo.image" alt="" loading="lazy" />
+              <img :src="photo.thumb ?? photo.image" alt="" loading="lazy" />
             </RouterLink>
           </div>
         </template>

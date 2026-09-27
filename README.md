@@ -115,6 +115,10 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 
 使用瀏覽器內建的 **Web Speech API**（`speechSynthesis`）：不需 API 金鑰、不收費、可離線。iOS／macOS、Android、Windows 與 Chrome 都內建英、中、日、韓、越語音；若裝置缺少某語言的語音，頁面會提示使用者到系統設定新增。逐句朗讀，進度條、±15 秒與拖曳都以句子為單位。
 
+### 景點照片與授權
+
+每個景點至少 10 張照片。新增的照片來自 Wikimedia Commons 與 Flickr 的開放授權作品（CC0、公有領域、CC BY／BY-SA／BY-ND／BY-NC 等），直接連結原站、不另存；相簿每張照片下方都會顯示作者與授權並連回來源頁（授權要求的署名）。資料在 `src/data/sites.js`（`openPhoto` + `credit`）。室內與特寫照片標記 `detail`，不放進 AR「穿越時光」播放。
+
 ## 2. 技術架構
 
 | 層級 | 選擇 | 理由 |

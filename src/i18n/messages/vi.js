@@ -84,6 +84,7 @@ export default {
     removeFavourite: 'Xóa khỏi yêu thích',
   },
   gallery: {
+    credit: 'Ảnh: {author}',
     previous: 'Ảnh trước',
     next: 'Ảnh tiếp theo',
     photos: 'Ảnh',

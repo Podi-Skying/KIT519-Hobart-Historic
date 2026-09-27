@@ -110,6 +110,8 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 
 - **Loading & API budget.** Route chunks prefetch behind the splash; landmark-photo host is preconnected (`index.html`); splash photo is WebP. Routes: `planRouteOptions` caches per trip in memory, and `useWalkingRoute` re-plans only when the walker has moved ≥ 50 m *and* left the planned route (`needsReplan` in `lib/guidance.js`) — never on every GPS fix. Open-Meteo elevations persist in localStorage (`hh.elevations.v1`). GPS: screens call `location.acquire()` / `release()`; the watch stops when none need it. The simulated weather timer pauses while the tab is hidden. Home cards show no walking time (the walker's position is unknown there).
 
+- **Site photos.** Every site has ≥ 10 gallery photos (test-enforced). New ones are openly licensed Wikimedia Commons / Flickr photos, hot-linked (not re-hosted) via `openPhoto(url, caption, year, description, credit(author, licence, sourceUrl), { detail })`; GalleryView shows the credit (author + licence link) the licence requires. `thumb` = `smallVersion(url)` (Commons 330px — only standard widths work; Flickr `_n`) for rails/thumbnails. `detail: true` (interiors, close-ups) keeps a photo out of the AR through-time playback. Translations of captions are index-aligned in `src/i18n/content/*.js`. Don't add a photo without a verified licence and author.
+
 ## Styling rules
 
 - **Tokens only.** Use `src/styles/tokens.css`; never write hex values in components. Camera/photo surfaces use `--camera-bg`, `--ar-arrow`, `--like-glass`, `--photo-veil-*` (all overridden for high contrast). Glass IconButtons invert to a cream fill when pressed/on. Icons are AppIcon line icons — no emoji.

@@ -84,6 +84,7 @@ export default {
     removeFavourite: 'お気に入りから削除',
   },
   gallery: {
+    credit: '写真：{author}',
     previous: '前の写真',
     next: '次の写真',
     photos: '写真',

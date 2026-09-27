@@ -87,6 +87,7 @@ export default {
     removeFavourite: 'Remove from favourites',
   },
   gallery: {
+    credit: 'Photo: {author}',
     previous: 'Previous photo',
     next: 'Next photo',
     photos: 'Photos',
