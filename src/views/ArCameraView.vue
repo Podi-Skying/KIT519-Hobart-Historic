@@ -4,7 +4,7 @@
  * the site from the URL, or the one nearest the walker — with draggable
  * hotspots for info, audio and photos. Every image and text follows that site.
  */
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -108,7 +108,8 @@ const detected = ref(false)
 
 // ---- look around: tilt the phone or drag the photo; bubbles sit on a closer layer (parallax) ----
 const stage = ref(null)
-const look = useLookAround({ frame: () => stage.value })
+// the photo only follows the gyro while it's visible (not under 360° Street View)
+const look = useLookAround({ frame: () => stage.value, active: () => !(view360.value && pano.value === 'ready') })
 const vLook = look.directive
 const ui = useUiStore()
 let hinted = false
@@ -122,6 +123,12 @@ const helpOpen = ref(false)
 // ---- 360° Street View of the landmark today (Google), instead of the photo stack ----
 const can360 = isGoogleMapsConfigured()
 const view360 = ref(false)
+/**
+ * The panorama is created once per landmark and then only shown / hidden. Unmounting it on
+ * every toggle made Google tear down and rebuild its WebGL canvases each time; on iPhones the
+ * old GPU contexts aren't freed fast enough and Safari killed the page after a few toggles.
+ */
+const panoMounted = ref(false)
 /** 'loading' until the panorama shows */
 const pano = ref('loading')
 let panoHinted = false
@@ -129,7 +136,10 @@ function toggle360() {
   if (view360.value) return (view360.value = false)
   pauseTime() // the year bar is hidden while you look around today's street
   openPanel.value = null
-  pano.value = 'loading'
+  if (!panoMounted.value) {
+    pano.value = 'loading'
+    panoMounted.value = true
+  }
   view360.value = true
 }
 function onPanoReady() {
@@ -138,7 +148,15 @@ function onPanoReady() {
   panoHinted = true
   ui.showToast(t('ar.view360Hint'), { duration: 2600 })
 }
+/** The panorama's GPU context died (memory pressure): remount a fresh one in its place. */
+async function onPanoLost() {
+  panoMounted.value = false
+  pano.value = 'loading'
+  await nextTick()
+  if (view360.value) panoMounted.value = true
+}
 function onPanoUnavailable() {
+  panoMounted.value = false
   if (!view360.value) return
   view360.value = false
   ui.showToast(t('ar.view360None', { name: site.value.shortName }), { duration: 3000 })
@@ -173,6 +191,7 @@ function scan() {
   player.pause() // the previous landmark's tour stops while the new one is found
   pauseTime()
   view360.value = false
+  panoMounted.value = false // a new landmark gets its own panorama (the instance itself is pooled)
   position.value = 0
   Object.assign(positions, structuredClone(DEFAULT_HOTSPOTS))
   scanTimer = setTimeout(() => (detected.value = true), SCAN_DURATION_MS)
@@ -227,12 +246,15 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
     <!-- fades in over the photo once loaded, fades out back to it -->
     <Transition name="feed">
       <StreetView360
-        v-if="view360"
+        v-if="panoMounted"
+        :class="{ 'is-parked': !view360 }"
         :key="site.id"
         data-no-look
+        :active="view360"
         :target="site.coordinates"
         @ready="onPanoReady"
         @unavailable="onPanoUnavailable"
+        @lost="onPanoLost"
       />
     </Transition>
     <template v-if="!view360">
@@ -703,6 +725,14 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 .sheet-leave-to {
   opacity: 0;
   transform: translateY(calc(-16px * var(--motion))) scale(calc(1 - 0.12 * var(--motion)));
+}
+/* Hidden but alive (not display:none — Google would rebuild its canvases): fades out, then
+   stops taking touches and painting. */
+.is-parked {
+  opacity: 0 !important;
+  visibility: hidden;
+  pointer-events: none !important;
+  transition: opacity var(--dur) var(--ease), visibility 0s linear var(--dur);
 }
 .dock-card-enter-active,
 .dock-card-leave-active {

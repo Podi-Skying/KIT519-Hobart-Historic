@@ -27,8 +27,13 @@ function acquire(kind, container, create, reuse) {
   return entry
 }
 
-function release(kind, entry, reset) {
+function release(kind, entry, reset, { discard = false } = {}) {
   if (!entry) return
+  if (discard) {
+    // broken (e.g. its WebGL context was lost): never hand it out again
+    entry.element.remove()
+    return
+  }
   try {
     reset(entry.instance)
     window.google?.maps?.event?.clearInstanceListeners(entry.instance)
@@ -55,16 +60,15 @@ export const acquirePanorama = (sv, container, options) =>
     'pano',
     container,
     (el) => new sv.StreetViewPanorama(el, options),
-    (pano) => {
-      pano.setOptions(options)
-      pano.setVisible(true)
-    },
+    (pano) => pano.setOptions(options),
   )
-export const releasePanorama = (entry) =>
+export const releasePanorama = (entry, options) =>
   release('pano', entry, (pano) => {
-    pano.setMotionTracking(false) // stop reading the gyro while parked
-    pano.setVisible(false)
-  })
+    // Stop reading the gyro while parked. NOT setVisible(false): hiding makes Google drop its
+    // WebGL canvases and build new ones on the next show — on iPhones the old GPU contexts
+    // pile up until Safari kills the page. A detached element keeps its canvases for reuse.
+    pano.setMotionTracking(false)
+  }, options)
 
 /** For tests / diagnostics: how many instances are parked. */
 export const pooledCount = () => ({ map: pools.map.length, pano: pools.pano.length })

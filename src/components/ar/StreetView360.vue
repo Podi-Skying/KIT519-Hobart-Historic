@@ -33,10 +33,12 @@ const props = defineProps({
   at: { type: Object, default: null },
   /** Search radius in metres */
   radius: { type: Number, default: PANO_SEARCH_RADIUS_M },
+  /** False while the parent keeps it mounted but hidden: the gyro stops driving it. */
+  active: { type: Boolean, default: true },
   /** Camera tilt: up at a building, level down a street */
   pitch: { type: Number, default: LANDMARK_PITCH },
 })
-const emit = defineEmits(['ready', 'unavailable'])
+const emit = defineEmits(['ready', 'unavailable', 'lost'])
 
 const { t } = useI18n()
 const el = ref(null)
@@ -69,6 +71,13 @@ async function toggleMotion() {
   if (await requestMotionPermission()) setMotion(true) // iOS prompts here, inside the tap
 }
 let alive = true
+let broken = false
+function onContextLost(e) {
+  e.preventDefault()
+  if (broken) return
+  broken = true
+  emit('lost')
+}
 const stopAuthWatch = onGoogleMapsAuthFailure(() => emit('unavailable'))
 
 const searchPoint = () => props.at ?? props.target
@@ -113,6 +122,9 @@ onMounted(async () => {
       motionTrackingControl: false, // replaced by the toggle below
     })
     panorama = pooled.instance
+    // iPhones can drop the panorama's GPU context under memory pressure (it would freeze on a
+    // black frame). Throw that instance away and let the parent mount a fresh one.
+    pooled.element.addEventListener('webglcontextlost', onContextLost, true)
     panorama.setPano(found.pano) // a reused panorama keeps its last scene until told otherwise
     panorama.setPov(facingPov(found.position, props.target, props.pitch))
     motion.value = panorama.getMotionTracking?.() ?? false
@@ -148,12 +160,21 @@ watch(
   },
 )
 
+// Hidden but kept (AR camera toggle): stop motion tracking so the gyro isn't read for nothing.
+watch(
+  () => props.active,
+  (on) => {
+    if (!on && motion.value) setMotion(false)
+  },
+)
+
 // Leaving: stop listening, stop the gyro and park the panorama for the next 360° view.
 onBeforeUnmount(() => {
   alive = false
   clearTimeout(hintTimer)
   stopAuthWatch()
-  releasePanorama(pooled)
+  pooled?.element.removeEventListener('webglcontextlost', onContextLost, true)
+  releasePanorama(pooled, { discard: broken })
   pooled = null
   panorama = null
 })

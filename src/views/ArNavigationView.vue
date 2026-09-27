@@ -64,6 +64,12 @@ function onPanoReady() {
   pano.value = 'ready'
   ui.showToast(t('ar.view360Hint'), { duration: 2600 })
 }
+/** The panorama's GPU context died (memory pressure): remount a fresh one. */
+const panoKey = ref(0)
+function onPanoLost() {
+  pano.value = 'loading'
+  panoKey.value++
+}
 function onPanoUnavailable() {
   if (pano.value === 'none') return
   pano.value = 'none'
@@ -98,6 +104,7 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
     <Transition name="pano-fade">
       <StreetView360
         v-if="view360"
+        :key="panoKey"
         data-no-look
         :at="here"
         :target="ahead"
@@ -105,6 +112,7 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
         :style="{ bottom: `${summaryHeight}px` }"
         @ready="onPanoReady"
         @unavailable="onPanoUnavailable"
+        @lost="onPanoLost"
       />
     </Transition>
     <div class="ar-nav__veil" />

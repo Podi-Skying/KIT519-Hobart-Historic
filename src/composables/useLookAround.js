@@ -34,9 +34,9 @@ export async function requestMotionPermission() {
  * hotspot bubbles) — that difference is the 3D parallax.
  * Reduced motion: no gyro (vestibular); dragging still works, it's the user's own motion.
  *
- * @param {{ frame: () => HTMLElement | null | undefined, drag?: boolean }} options
+ * @param {{ frame: () => HTMLElement | null | undefined, drag?: boolean, active?: () => boolean }} options
  */
-export function useLookAround({ frame, drag = true }) {
+export function useLookAround({ frame, drag = true, active = () => true }) {
   const dragX = ref(0)
   const dragY = ref(0)
   const tiltX = ref(0)
@@ -54,7 +54,8 @@ export function useLookAround({ frame, drag = true }) {
   const springTY = createSpringAnimator((v) => (tiltY.value = v))
   let base = null
   function onOrientation(e) {
-    if (e.beta == null || e.gamma == null) return
+    // `active` false: the photo is covered (e.g. by 360° Street View) — don't animate it
+    if (e.beta == null || e.gamma == null || !active()) return
     if (!base) base = { beta: e.beta, gamma: e.gamma }
     const m = margin()
     // leave half the margin for dragging
