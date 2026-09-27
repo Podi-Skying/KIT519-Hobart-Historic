@@ -37,10 +37,12 @@ const props = defineProps({
   radius: { type: Number, default: PANO_SEARCH_RADIUS_M },
   /** False while the parent keeps it mounted but hidden: the gyro stops driving it. */
   active: { type: Boolean, default: true },
+  /** Space kept free at the bottom (px) — a parent overlay covers it; our controls sit above. */
+  bottomInset: { type: Number, default: 0 },
   /** Camera tilt: up at a building, level down a street */
   pitch: { type: Number, default: LANDMARK_PITCH },
 })
-const emit = defineEmits(['ready', 'unavailable', 'lost'])
+const emit = defineEmits(['ready', 'unavailable', 'lost', 'credit'])
 
 const { t } = useI18n()
 const el = ref(null)
@@ -132,7 +134,7 @@ async function nearestPano(point) {
   })
   if (!data?.location?.pano) throw new Error('No panorama nearby')
   const ll = data.location.latLng
-  return { pano: data.location.pano, position: { lat: ll.lat(), lng: ll.lng() } }
+  return { pano: data.location.pano, position: { lat: ll.lat(), lng: ll.lng() }, copyright: data.copyright ?? '' }
 }
 
 onMounted(async () => {
@@ -143,6 +145,7 @@ onMounted(async () => {
     const found = await nearestPano(searchedAt)
     if (!alive || !el.value) return
     currentPano = found.pano
+    emit('credit', found.copyright) // the parent shows it when its overlay covers Google's strip
     pooled = acquirePanorama(sv, el.value, {
       pano: found.pano,
       pov: facingPov(found.position, props.target, props.pitch),
@@ -192,6 +195,7 @@ watch(
       const found = await nearestPano(searchedAt)
       if (!alive || !panorama || found.pano === currentPano) return
       currentPano = found.pano
+      emit('credit', found.copyright)
       panorama.setPano(found.pano)
       if (!motion.value) panorama.setPov(facingPov(found.position, props.target, props.pitch)) // the phone steers when tracking
     } catch {
@@ -222,7 +226,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="street-view" :class="{ 'is-ready': ready }">
+  <div class="street-view" :class="{ 'is-ready': ready }" :style="{ '--sv-inset': `${bottomInset}px` }">
     <div ref="el" class="street-view__pano" />
     <Transition name="hint">
       <span v-if="motionHint" class="street-view__hint" aria-hidden="true">{{ t('ar.motion') }}</span>
@@ -263,13 +267,13 @@ onBeforeUnmount(() => {
 .street-view__motion {
   position: absolute;
   right: var(--gutter);
-  bottom: calc(var(--safe-bottom) + var(--s-6));
+  bottom: calc(var(--sv-inset, 0px) + var(--safe-bottom) + var(--s-6));
   z-index: 1;
 }
 .street-view__hint {
   position: absolute;
   right: calc(var(--gutter) + var(--hit) + var(--s-2));
-  bottom: calc(var(--safe-bottom) + var(--s-6) + 7px);
+  bottom: calc(var(--sv-inset, 0px) + var(--safe-bottom) + var(--s-6) + 7px);
   z-index: 1;
   padding: 6px 12px;
   border-radius: var(--r-pill);

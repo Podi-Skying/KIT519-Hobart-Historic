@@ -84,7 +84,9 @@ const vLook = look.directive
 // Google's logo and terms sit at the bottom of the panorama and must stay visible (Maps Platform
 // terms): the panorama ends at the top of the map dome instead of running underneath it.
 const dome = ref(null)
-const summaryHeight = ref(0) // px from the bottom where the panorama stops (the dome's apex)
+const summaryHeight = ref(0) // dome height: the panorama runs underneath it; its controls sit above
+/** Street View's image credit, shown in the dome (Google's own strip is under the dome now). */
+const panoCredit = ref('')
 let domeObserver
 onMounted(() => {
   domeObserver = new ResizeObserver(() => (summaryHeight.value = dome.value?.offsetHeight ?? 0))
@@ -116,7 +118,8 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
         :at="here"
         :target="ahead"
         :pitch="0"
-        :style="{ bottom: `${summaryHeight}px` }"
+        :bottom-inset="summaryHeight"
+        @credit="(c) => (panoCredit = c)"
         @ready="onPanoReady"
         @unavailable="onPanoUnavailable"
         @lost="onPanoLost"
@@ -175,6 +178,7 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
         <p class="ar-nav__dest">{{ site.shortName }}</p>
         <BaseButton size="sm" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
       </div>
+      <p v-if="view360 && panoCredit" class="ar-nav__credit">Street View {{ panoCredit }}</p>
     </section>
 
     <ArrivalSheet v-if="arrived" :site="site" primary="ar" @close="arrived = false" />
@@ -274,15 +278,15 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
   right: 0;
   bottom: 0;
   z-index: 2;
-  height: 38%;
-  /* a wide arc, like Live View: flat enough that the panorama's attribution above stays clear */
-  clip-path: ellipse(120% 100% at 50% 100%);
+  height: 40%;
+  /* a rounded arc like Live View; the panorama continues underneath it */
+  clip-path: ellipse(82% 100% at 50% 100%);
   background: var(--paper); /* the 4px rim along the arc */
 }
 .ar-nav__dome-map {
   position: absolute;
   inset: 4px 0 0;
-  clip-path: ellipse(120% 100% at 50% 100%);
+  clip-path: ellipse(82% 100% at 50% 100%);
   background: var(--map-land);
 }
 .ar-nav__dome-map > * {
@@ -308,6 +312,17 @@ const follow = computed(() => ({ position: here.value, heading: routeHeading.val
   box-shadow: var(--e-2);
   transform: translateX(-50%);
   white-space: nowrap;
+}
+.ar-nav__credit {
+  position: absolute;
+  top: calc(14% + 60px);
+  left: 0;
+  right: 0;
+  z-index: 2;
+  text-align: center;
+  font: var(--t-meta);
+  color: var(--ink-500);
+  pointer-events: none;
 }
 .ar-nav__dest {
   overflow: hidden;
