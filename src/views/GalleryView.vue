@@ -157,7 +157,6 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         <!-- attribution the photo's licence requires: author + licence, linked to the source -->
         <p v-if="photo.credit" class="viewer__credit">
           <a :href="photo.credit.url" target="_blank" rel="noopener">{{ t('gallery.credit', { author: photo.credit.author }) }}</a>
-          ·
           <a v-if="photo.credit.licenseUrl" :href="photo.credit.licenseUrl" target="_blank" rel="noopener license">{{ photo.credit.license }}</a>
           <span v-else>{{ photo.credit.license }}</span>
         </p>
@@ -235,15 +234,23 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   margin: 6px 0;
 }
 .viewer__credit {
-  margin-top: var(--s-3);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--s-3); /* two separate targets, never touching */
+  margin-top: var(--s-1);
   font: var(--t-meta);
   color: var(--ink-500);
 }
-.viewer__credit a {
-  display: inline-block;
-  padding: 10px 0; /* 44px-tall tap target around one line of small text */
-  margin: -10px 0;
+.viewer__credit a,
+.viewer__credit span {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--hit);
+  min-height: var(--hit); /* full 44pt target around one line of small text */
   color: inherit;
+}
+.viewer__credit a {
   text-decoration: underline;
   text-underline-offset: 2px;
 }

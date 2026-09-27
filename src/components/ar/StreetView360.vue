@@ -1,3 +1,8 @@
+<script>
+/** Module scope: the motion hint shows once per session, across both AR screens. */
+let motionHintShown = false
+</script>
+
 <script setup>
 /**
  * 360° Street View (Google Maps JavaScript API › StreetViewPanorama).
@@ -52,6 +57,9 @@ const canMotion =
 const motion = ref(false)
 /** Hidden until the panorama is on screen: whatever is underneath stays visible while it loads. */
 const ready = ref(false)
+/** First time only: name the motion toggle beside it for a moment (then the icon alone). */
+const motionHint = ref(false)
+let hintTimer
 function setMotion(on) {
   motion.value = on
   panorama?.setMotionTracking(on)
@@ -109,6 +117,11 @@ onMounted(async () => {
     panorama.setPov(facingPov(found.position, props.target, props.pitch))
     motion.value = panorama.getMotionTracking?.() ?? false
     ready.value = true
+    if (canMotion && !motionHintShown) {
+      motionHintShown = true
+      motionHint.value = true
+      hintTimer = setTimeout(() => (motionHint.value = false), 3000)
+    }
     emit('ready')
   } catch {
     if (alive) emit('unavailable') // no key, no panorama nearby (ZERO_RESULTS) or network error
@@ -138,6 +151,7 @@ watch(
 // Leaving: stop listening, stop the gyro and park the panorama for the next 360° view.
 onBeforeUnmount(() => {
   alive = false
+  clearTimeout(hintTimer)
   stopAuthWatch()
   releasePanorama(pooled)
   pooled = null
@@ -148,6 +162,9 @@ onBeforeUnmount(() => {
 <template>
   <div class="street-view" :class="{ 'is-ready': ready }">
     <div ref="el" class="street-view__pano" />
+    <Transition name="hint">
+      <span v-if="motionHint" class="street-view__hint" aria-hidden="true">{{ t('ar.motion') }}</span>
+    </Transition>
     <IconButton
       v-if="canMotion"
       class="street-view__motion"
@@ -186,5 +203,29 @@ onBeforeUnmount(() => {
   right: var(--gutter);
   bottom: calc(var(--safe-bottom) + var(--s-6));
   z-index: 1;
+}
+.street-view__hint {
+  position: absolute;
+  right: calc(var(--gutter) + var(--hit) + var(--s-2));
+  bottom: calc(var(--safe-bottom) + var(--s-6) + 7px);
+  z-index: 1;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  color: var(--cream);
+  font: var(--t-label-sm);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.hint-enter-active,
+.hint-leave-active {
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.hint-enter-from,
+.hint-leave-to {
+  opacity: 0;
+  transform: translateX(calc(8px * var(--motion))); /* grows out of / back into the button */
 }
 </style>

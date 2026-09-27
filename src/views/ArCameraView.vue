@@ -242,7 +242,8 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
     </template>
 
     <div class="ar-camera__top" data-no-look>
-      <BaseButton variant="secondary" size="sm" icon="back" @click="exit">{{ t('ar.exit') }}</BaseButton>
+      <!-- same control, same place as AR navigation: a glass Back button -->
+      <IconButton variant="glass" icon="back" :label="t('ar.exit')" @click="exit" />
       <span class="ar-camera__actions">
         <!-- iOS asks before sharing motion; elsewhere tilt works straight away -->
         <!-- today's street in 360°: Google Street View (only when a Maps key is configured) -->

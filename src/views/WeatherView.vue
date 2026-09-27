@@ -19,7 +19,7 @@ import { useTripStore } from '@/stores/trip'
 import { useLocationStore } from '@/stores/location'
 import { useContent } from '@/i18n/content'
 import { distanceKm } from '@/lib/geo'
-import { nearestAccessibleSite } from '@/lib/sites'
+import { nearestAccessibleSite, walkMinutesFor } from '@/lib/sites'
 import { useWeatherStore } from '@/stores/weather'
 
 const { bestWindow, hourlyComfort } = WEATHER
@@ -43,13 +43,23 @@ const forecast = computed(() => [
 
 const location = useLocationStore()
 const { sites } = useContent()
+/** The walk the button starts — named on the button, so people know where it goes before tapping. */
+const accessibleTarget = computed(() => nearestAccessibleSite(sites.value, (s) => distanceKm(location.origin, s.coordinates)))
+const accessibleMinutes = computed(() =>
+  accessibleTarget.value ? walkMinutesFor({ walkMinutes: location.distanceTo(accessibleTarget.value).minutes }, 'accessible') : 0,
+)
 /** Straight into navigation: nearest step-free site from the walker, Accessible route selected. */
 function planAccessibleWalk() {
-  const site = nearestAccessibleSite(sites.value, (s) => distanceKm(location.origin, s.coordinates))
-  if (!site) return router.push({ name: 'map' })
+  const site = accessibleTarget.value
+  if (!site) return chooseOther()
   trip.setRouteType('accessible')
   trip.setDestination(site.id)
   router.push({ name: 'navigate-map', params: { id: site.id } })
+}
+/** Or pick the place yourself on the map, with Accessible already selected. */
+function chooseOther() {
+  trip.setRouteType('accessible')
+  router.push({ name: 'map' })
 }
 </script>
 
@@ -115,7 +125,10 @@ function planAccessibleWalk() {
         <AppIcon name="shoe" :size="22" />
         <span>{{ t('weather.advice') }}</span>
       </p>
-      <BaseButton block icon="accessible" @click="planAccessibleWalk">{{ t('weather.planAccessible') }}</BaseButton>
+      <BaseButton block icon="accessible" @click="planAccessibleWalk">
+        {{ accessibleTarget ? t('weather.accessibleWalkTo', { name: accessibleTarget.shortName, n: accessibleMinutes }) : t('weather.planAccessible') }}
+      </BaseButton>
+      <button type="button" class="advice__other pressable-dim" @click="chooseOther">{{ t('weather.otherPlaces') }}</button>
     </div>
   </AppPage>
 </template>
@@ -275,5 +288,13 @@ function planAccessibleWalk() {
 .advice__text :deep(svg) {
   margin-top: 2px;
   color: var(--success-600);
+}
+.advice__other {
+  display: block;
+  min-height: var(--hit);
+  margin: var(--s-1) auto 0;
+  padding: 0 var(--s-4);
+  font: var(--t-button);
+  color: var(--brand-600);
 }
 </style>

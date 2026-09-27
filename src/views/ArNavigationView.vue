@@ -88,8 +88,10 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
 
 <template>
   <div ref="stage" class="ar-nav" v-on="look.handlers">
-    <!-- Fallback when there's no Street View here: a photo of the approach to this site -->
-    <div v-if="!view360" v-look="[1, LOOK_SCALE]" class="ar-nav__world">
+    <!-- A photo of the approach to this site: dimmed while Street View loads (never a black
+         screen), and the whole view when there's no Street View here -->
+    <!-- stays underneath once Street View is ready, so the panorama's fade-in never shows black -->
+    <div v-look="[1, LOOK_SCALE]" class="ar-nav__world" :class="{ 'is-waiting': pano === 'loading' }">
       <img class="ar-nav__feed" :src="site.arApproachImage" :alt="t('arNav.feedAlt', { name: site.name })" draggable="false" />
     </div>
     <ArStatusPill v-if="pano === 'loading'" class="ar-nav__loading" spinner>{{ t('ar.view360Loading') }}</ArStatusPill>
@@ -108,7 +110,8 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
     <div class="ar-nav__veil" />
 
     <div class="ar-nav__top" data-no-look>
-      <IconButton variant="glass" icon="close" :label="t('arNav.close')" @click="close" />
+      <!-- same control, same place as the AR camera: a glass Back button -->
+      <IconButton variant="glass" icon="back" :label="t('arNav.close')" @click="close" />
       <span class="ar-nav__actions">
         <IconButton
           variant="glass"
@@ -124,7 +127,7 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
     <ArStatusPill data-toast-below :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
 
     <!-- the painted arrows belong to the fallback photo; in 360° the street itself (turned ahead) shows the way -->
-    <div v-if="!view360" v-look="1.4" class="ar-nav__near" aria-hidden="true">
+    <div v-if="pano === 'none'" v-look="1.4" class="ar-nav__near" aria-hidden="true">
     <div class="ar-nav__arrows">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
         <path class="ar-nav__arrow" d="M4 40 L36 6 L68 40 L36 27 Z" stroke-width="2.5" stroke-linejoin="round" />
@@ -216,6 +219,12 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.ar-nav__world {
+  transition: filter var(--dur) var(--ease);
+}
+.ar-nav__world.is-waiting {
+  filter: brightness(0.55) saturate(0.8); /* a placeholder, clearly not the live view */
 }
 .ar-nav__loading {
   position: absolute;
