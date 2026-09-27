@@ -1,6 +1,7 @@
 <script setup>
-import { computed, ref, watch, watchEffect } from 'vue'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
+import { prefetchRoutes } from '@/router'
 import DeviceFrame from '@/components/layout/DeviceFrame.vue'
 import StatusBar from '@/components/layout/StatusBar.vue'
 import TabBar from '@/components/layout/TabBar.vue'
@@ -38,6 +39,27 @@ const pageMotion = usePageTransition({
 
 /** Leading page shows on every launch, above whichever route was opened. */
 const showSplash = ref(true)
+const viewport = ref(null)
+
+// While the splash is up, fetch the other pages' code so the first tap after it is instant.
+onMounted(() => {
+  const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 600))
+  idle(() => prefetchRoutes())
+})
+
+/**
+ * Home is rendered underneath the splash while it is inert and fully covered. iOS Safari can
+ * keep a stale touch map for that scroll container after the cover goes away, so the first
+ * taps on Home do nothing until the page scrolls once. A 1px scroll round-trip (invisible)
+ * makes WebKit rebuild it; it is a no-op elsewhere.
+ */
+function wakeViewport() {
+  const scroller = viewport.value?.querySelector('.page')
+  if (!scroller || scroller.scrollHeight <= scroller.clientHeight) return
+  const y = scroller.scrollTop
+  scroller.scrollTop = y + 1
+  requestAnimationFrame(() => (scroller.scrollTop = y))
+}
 
 const statusBar = computed(() => {
   const config = route.meta.status ?? {}
@@ -52,7 +74,8 @@ const statusBar = computed(() => {
   <DeviceFrame>
     <StatusBar :tone="statusBar.tone" :background="statusBar.background" />
 
-    <div class="viewport">
+    <!-- inert while the splash covers it: not focusable / not read out / not tappable -->
+    <div ref="viewport" class="viewport" :inert="showSplash">
       <RouterView v-slot="{ Component }">
         <!-- No out-in: old and new page animate together, so a tap never waits on an exit.
              JS hooks (springs), not CSS classes, so a push can be reversed mid-way. -->
@@ -64,12 +87,12 @@ const statusBar = computed(() => {
       </RouterView>
     </div>
 
-    <TabBar v-if="!route.meta.hideTabBar" />
+    <TabBar v-if="!route.meta.hideTabBar" :inert="showSplash" />
     <!-- Modal sheets teleport here (BottomSheet), outside the page they belong to -->
     <div id="sheet-layer" />
     <AppToast />
 
-    <Transition name="splash">
+    <Transition name="splash" @after-leave="wakeViewport">
       <SplashScreen v-if="showSplash" @start="showSplash = false" />
     </Transition>
   </DeviceFrame>

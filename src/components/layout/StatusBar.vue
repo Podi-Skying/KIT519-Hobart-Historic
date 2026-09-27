@@ -59,20 +59,22 @@ defineProps({
 .status-bar--light {
   color: var(--paper);
 }
-.status-bar__sim {
+/* Simulated clock / signal / battery: only in the desktop phone mock-up. A real phone draws its
+   own status bar, so on phones these are display:none. (No other rule may set `display` on
+   them — a later equal-specificity rule would win and bring the icons back.) */
+.status-bar__icons {
+  align-items: center;
+  gap: 5px;
+}
+.status-bar .status-bar__sim {
   display: none;
 }
 @media (min-width: 601px) and (hover: hover) and (pointer: fine) {
-  .status-bar__sim {
+  .status-bar .status-bar__sim {
     display: inline;
   }
-  .status-bar__icons.status-bar__sim {
+  .status-bar .status-bar__icons {
     display: flex;
   }
-}
-.status-bar__icons {
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 </style>

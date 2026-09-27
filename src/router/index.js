@@ -150,3 +150,16 @@ router.afterEach((to, from) => {
   // push / pop / fade — read by App.vue's <Transition> (base.css › Route transitions)
   to.meta.transition = pageTransition(to, from)
 })
+
+/**
+ * Download every page's code in the background (called once the app is idle behind the splash).
+ * Pages are lazy chunks; without this, the first tap on a card or tab on a slow phone connection
+ * waits for the download with no visible response — it feels like the button is broken.
+ * Import promises are cached by the browser, so the router's own later call resolves at once.
+ */
+export function prefetchRoutes() {
+  for (const record of router.getRoutes()) {
+    const load = record.components?.default
+    if (typeof load === 'function' && !('render' in load) && !('setup' in load)) load()?.catch?.(() => {})
+  }
+}
