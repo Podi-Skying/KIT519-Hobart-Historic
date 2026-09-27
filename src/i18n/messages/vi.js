@@ -274,6 +274,7 @@ export default {
   ar: {
     lookAround: 'Nghiêng điện thoại hoặc kéo ảnh để nhìn xung quanh',
     motion: 'Nghiêng điện thoại để nhìn xung quanh',
+    motionDenied: 'Quyền chuyển động đang tắt — bật trong Cài đặt › Safari › Truy cập chuyển động & hướng, rồi tải lại.',
     view360: 'Chế độ xem phố 360°',
     exit360: 'Quay lại màn hình AR',
     view360Status: 'Street View · hiện tại',

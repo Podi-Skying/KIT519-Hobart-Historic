@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LANDMARK_PITCH, bearing, facingPov, pointAhead } from '@/lib/streetView'
+import { LANDMARK_PITCH, approachAngle, bearing, facingPov, orientationToPov, pointAhead } from '@/lib/streetView'
 import { getSiteById } from '@/data/sites'
 
 describe('bearing', () => {
@@ -47,5 +47,33 @@ describe('pointAhead', () => {
   })
   it('faces east from the start of the street', () => {
     expect(bearing(path[0], pointAhead(path, path[0]))).toBeCloseTo(90, 0)
+  })
+})
+
+describe('orientationToPov (turn the phone to look around)', () => {
+  it('uses the iPhone compass heading and turns upright = level', () => {
+    expect(orientationToPov({ alpha: 10, beta: 90, webkitCompassHeading: 45 })).toEqual({ heading: 45, pitch: 0 })
+    expect(orientationToPov({ alpha: 10, beta: 120, webkitCompassHeading: 45 }).pitch).toBe(30) // top tilted back: look up
+  })
+  it('converts an absolute alpha (counter-clockwise) to a compass heading', () => {
+    expect(orientationToPov({ alpha: 90, beta: 90, absolute: true }).heading).toBe(270)
+    expect(orientationToPov({ alpha: 0, beta: 90, absolute: true }).heading).toBe(0)
+  })
+  it('corrects for a rotated screen', () => {
+    expect(orientationToPov({ alpha: 0, beta: 90, absolute: true }, { screenAngle: 90 }).heading).toBe(90)
+  })
+  it('without a compass, turns relative to where the view started', () => {
+    const pov = orientationToPov({ alpha: 30, beta: 90 }, { relativeTo: { alpha: 50, heading: 100 } })
+    expect(pov.heading).toBe(120) // phone turned 20° clockwise (alpha down 20)
+    expect(orientationToPov({ alpha: 30, beta: 90 })).toBeNull()
+    expect(orientationToPov({ alpha: 30, beta: null, absolute: true })).toBeNull()
+  })
+})
+
+describe('approachAngle', () => {
+  it('takes the short way round the circle', () => {
+    expect(approachAngle(359, 1, 0.5)).toBeCloseTo(0)
+    expect(approachAngle(10, 350, 1)).toBeCloseTo(350)
+    expect(approachAngle(90, 180, 0.5)).toBeCloseTo(135)
   })
 })

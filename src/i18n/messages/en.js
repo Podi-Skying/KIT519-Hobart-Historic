@@ -277,6 +277,7 @@ export default {
   ar: {
     lookAround: 'Tilt your phone or drag the photo to look around',
     motion: 'Look around by tilting your phone',
+    motionDenied: 'Motion access is off — allow it in Settings › Safari › Motion & Orientation Access, then reload.',
     view360: '360° street view',
     exit360: 'Back to AR view',
     view360Status: 'Street View · today',

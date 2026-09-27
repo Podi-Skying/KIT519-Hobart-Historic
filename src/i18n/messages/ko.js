@@ -274,6 +274,7 @@ export default {
   ar: {
     lookAround: '휴대폰을 기울이거나 사진을 드래그해 둘러보세요',
     motion: '휴대폰을 기울여 둘러보기',
+    motionDenied: '동작 접근이 꺼져 있습니다. 설정 › Safari › 동작 및 방향 접근을 켠 뒤 새로고침하세요.',
     view360: '360° 스트리트 뷰',
     exit360: 'AR 화면으로 돌아가기',
     view360Status: '스트리트 뷰 · 현재',

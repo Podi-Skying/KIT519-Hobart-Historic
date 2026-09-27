@@ -11,8 +11,9 @@ let motionHintShown = false
  *  - AR navigation: at = the walker, target = a point ~40 m ahead on the route (look where to go);
  *    as the walker moves, the same panorama object switches to the next nearby panorama
  *    (setPano — no new Street View load).
- * Drag to look around; on phones, motion tracking turns the view with the phone. Google's own
- * motion control is replaced by an app-styled toggle (bottom right), which also asks iOS.
+ * Drag to look around; on phones the toggle (bottom right) turns the view with the phone. The
+ * app reads the compass / gyro itself (lib/streetView orientationToPov) rather than Google's
+ * motionTracking, which only starts after Google's own hidden control asks for permission.
  * Google's terms: imagery is never downloaded or cached, and the Google logo/attribution at the
  * bottom stays visible — parents keep their own bottom UI off it (see ArNavigationView).
  * Emits `ready` once the panorama shows, `unavailable` if there is no key, no panorama or an error.
@@ -20,10 +21,11 @@ let motionHintShown = false
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
-import { hasMotionPermission, requestMotionPermission } from '@/composables/useLookAround'
+import { requestMotionPermission } from '@/composables/useLookAround'
+import { useUiStore } from '@/stores/ui'
 import { loadStreetView, onGoogleMapsAuthFailure } from '@/services/googleMaps'
 import { acquirePanorama, releasePanorama } from '@/services/googlePool'
-import { LANDMARK_PITCH, PANO_FOLLOW_METERS, PANO_SEARCH_RADIUS_M, facingPov } from '@/lib/streetView'
+import { LANDMARK_PITCH, PANO_FOLLOW_METERS, PANO_SEARCH_RADIUS_M, approachAngle, facingPov, orientationToPov } from '@/lib/streetView'
 import { distanceKm } from '@/lib/geo'
 
 const props = defineProps({
@@ -62,13 +64,51 @@ const ready = ref(false)
 /** First time only: name the motion toggle beside it for a moment (then the icon alone). */
 const motionHint = ref(false)
 let hintTimer
+let tracking = null
 function setMotion(on) {
   motion.value = on
-  panorama?.setMotionTracking(on)
+  if (on) startTracking()
+  else stopTracking()
+}
+/** Follow the phone: compass heading + tilt → panorama POV, smoothed, at most once a frame. */
+function startTracking() {
+  stopTracking()
+  if (!panorama || typeof window === 'undefined') return
+  // Android: absolute (compass) readings have their own event; iOS adds webkitCompassHeading
+  const event = 'ondeviceorientationabsolute' in window ? 'deviceorientationabsolute' : 'deviceorientation'
+  const state = { relativeTo: null, pov: null, target: null, frame: 0 }
+  const apply = () => {
+    state.frame = 0
+    if (!panorama || !state.target) return
+    const from = state.pov ?? panorama.getPov()
+    state.pov = {
+      heading: approachAngle(from.heading, state.target.heading, 0.3),
+      pitch: from.pitch + (state.target.pitch - from.pitch) * 0.3,
+    }
+    panorama.setPov(state.pov)
+  }
+  const onOrientation = (e) => {
+    const screenAngle = window.screen?.orientation?.angle ?? window.orientation ?? 0
+    if (!state.relativeTo && e.alpha != null) state.relativeTo = { alpha: e.alpha, heading: panorama.getPov().heading }
+    const pov = orientationToPov(e, { screenAngle, relativeTo: state.relativeTo })
+    if (!pov) return
+    state.target = pov
+    if (!state.frame) state.frame = requestAnimationFrame(apply)
+  }
+  window.addEventListener(event, onOrientation)
+  tracking = () => {
+    window.removeEventListener(event, onOrientation)
+    cancelAnimationFrame(state.frame)
+  }
+}
+function stopTracking() {
+  tracking?.()
+  tracking = null
 }
 async function toggleMotion() {
   if (motion.value) return setMotion(false)
   if (await requestMotionPermission()) setMotion(true) // iOS prompts here, inside the tap
+  else useUiStore().showToast(t('ar.motionDenied'), { duration: 3500 }) // say why nothing moves
 }
 let alive = true
 let broken = false
@@ -117,9 +157,9 @@ onMounted(async () => {
       showRoadLabels: false,
       keyboardShortcuts: false, // no "Keyboard shortcuts" button in the attribution strip (touch app)
       clickToGo: false, // the app moves the view (with the walker), not taps
-      // on by default where no prompt is needed (Android, or iOS after an earlier grant)
-      motionTracking: canMotion && hasMotionPermission(),
-      motionTrackingControl: false, // replaced by the toggle below
+      // Google's tracking stays off: the app's toggle drives the view itself (startTracking)
+      motionTracking: false,
+      motionTrackingControl: false,
     })
     panorama = pooled.instance
     // iPhones can drop the panorama's GPU context under memory pressure (it would freeze on a
@@ -127,7 +167,7 @@ onMounted(async () => {
     pooled.element.addEventListener('webglcontextlost', onContextLost, true)
     panorama.setPano(found.pano) // a reused panorama keeps its last scene until told otherwise
     panorama.setPov(facingPov(found.position, props.target, props.pitch))
-    motion.value = panorama.getMotionTracking?.() ?? false
+    motion.value = false // off until the walker turns it on (the view starts facing the landmark)
     ready.value = true
     if (canMotion && !motionHintShown) {
       motionHintShown = true
@@ -171,6 +211,7 @@ watch(
 // Leaving: stop listening, stop the gyro and park the panorama for the next 360° view.
 onBeforeUnmount(() => {
   alive = false
+  stopTracking()
   clearTimeout(hintTimer)
   stopAuthWatch()
   pooled?.element.removeEventListener('webglcontextlost', onContextLost, true)

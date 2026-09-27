@@ -80,3 +80,44 @@ export function pointAhead(path, position, ahead = LOOK_AHEAD_M) {
   }
   return path[path.length - 1]
 }
+
+/**
+ * Street View heading/pitch from a device-orientation event, for "turn the phone to look
+ * around". The app does this itself instead of Google's `motionTracking`: Google's tracking
+ * only starts after its *own* permission prompt (from its own control, which the app hides),
+ * so with the app's toggle it never moved on iPhones.
+ *
+ * - heading: real compass heading when the device gives one — iOS `webkitCompassHeading`
+ *   (clockwise from north) or an absolute `alpha` (counter-clockwise from north) — corrected
+ *   for screen rotation. Without an absolute reading, `relativeTo` ({alpha, heading}) turns the
+ *   change in alpha into a change of the heading the view had when tracking started.
+ * - pitch: phone held upright (beta ≈ 90°) looks level; tilting the top back looks up.
+ *
+ * @param {{alpha:number|null, beta:number|null, gamma?:number|null, absolute?:boolean, webkitCompassHeading?:number}} e
+ * @param {{ screenAngle?: number, relativeTo?: {alpha:number, heading:number} }} [options]
+ * @returns {{heading:number, pitch:number} | null}  null = not enough data
+ */
+export function orientationToPov(e, { screenAngle = 0, relativeTo } = {}) {
+  if (e.beta == null) return null
+  const pitch = Math.max(-80, Math.min(80, e.beta - 90))
+  let heading
+  if (typeof e.webkitCompassHeading === 'number' && !Number.isNaN(e.webkitCompassHeading)) {
+    heading = e.webkitCompassHeading + screenAngle
+  } else if (e.alpha != null && e.absolute) {
+    heading = 360 - e.alpha + screenAngle
+  } else if (e.alpha != null && relativeTo) {
+    heading = relativeTo.heading + (relativeTo.alpha - e.alpha)
+  } else {
+    return null
+  }
+  return { heading: ((heading % 360) + 360) % 360, pitch }
+}
+
+/**
+ * Move `from` a fraction of the way to `to` on a circle (degrees), taking the short way round
+ * (359° → 1° is +2°, not −358°). Low-pass filter for jittery compass readings.
+ */
+export function approachAngle(from, to, fraction) {
+  const delta = ((((to - from) % 360) + 540) % 360) - 180
+  return (((from + delta * fraction) % 360) + 360) % 360
+}

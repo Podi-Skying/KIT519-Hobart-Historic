@@ -274,6 +274,7 @@ export default {
   ar: {
     lookAround: '傾斜手機或拖曳照片，環顧四周',
     motion: '傾斜手機來環顧四周',
+    motionDenied: '動作權限未開啟——請到「設定 › Safari › 動作與方向取用權」開啟後重新載入。',
     view360: '360° 街景',
     exit360: '回到 AR 畫面',
     view360Status: '街景 · 現在',
