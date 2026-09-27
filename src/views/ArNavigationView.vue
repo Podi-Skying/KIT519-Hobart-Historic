@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import IconButton from '@/components/base/IconButton.vue'
-import BaseButton from '@/components/base/BaseButton.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import StreetView360 from '@/components/ar/StreetView360.vue'
@@ -45,6 +45,8 @@ onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 const arrived = ref(false)
 // Reaching the destination opens the arrival sheet by itself (location-triggered content).
 watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))
+const router = useRouter()
+const openMap = () => router.push({ name: 'navigate-map', params: { id: props.id } })
 const close = useGoBack({ name: 'navigate-map', params: { id: props.id } })
 
 // Spoken directions, same as the standard map
@@ -168,11 +170,17 @@ async function walkAhead() {
           :pressed="trip.voiceGuidance"
           @click="toggleVoice"
         />
-        <BaseButton variant="secondary" size="sm" icon="map" :to="{ name: 'navigate-map', params: { id } }">{{ t('arNav.map') }}</BaseButton>
+        <IconButton variant="glass" icon="map" :label="t('arNav.openMap')" @click="openMap" />
       </span>
     </div>
 
-    <ArStatusPill data-toast-below :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
+    <!-- one card for "what next" and "how long": the trip summary no longer sits on the map -->
+    <ArStatusPill data-toast-below :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">
+      <span class="ar-nav__instr">
+        <span>{{ instruction }}</span>
+        <small>{{ t('common.minutes', { n: walk.minutes.value }) }} · {{ site.shortName }}</small>
+      </span>
+    </ArStatusPill>
 
     <!-- 360°: 3D arrows lie on the ground and point along the route; tap to walk ahead -->
     <button
@@ -221,13 +229,11 @@ async function walkAhead() {
         />
       </div>
       <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__dome-open" :aria-label="t('arNav.openMap')" />
-      <div class="ar-nav__trip text-zoom">
-        <p class="ar-nav__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
-        <p class="ar-nav__dest">{{ site.shortName }}</p>
-        <BaseButton size="sm" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
-      </div>
-      <p v-if="view360 && panoCredit" class="ar-nav__credit">Street View {{ panoCredit }}</p>
     </section>
+
+    <!-- prototype control + image credit: small, at the side, off the route and the map -->
+    <button type="button" class="ar-nav__simulate pressable" data-no-look @click="arrived = true">{{ t('arNav.simulate') }}</button>
+    <p v-if="view360 && panoCredit" class="ar-nav__credit">Street View {{ panoCredit }}</p>
 
     <ArrivalSheet v-if="arrived" :site="site" primary="ar" @close="arrived = false" />
   </div>
@@ -326,15 +332,15 @@ async function walkAhead() {
   right: 0;
   bottom: 0;
   z-index: 2;
-  height: 40%;
-  /* a rounded arc like Live View; the panorama continues underneath it */
-  clip-path: ellipse(82% 100% at 50% 100%);
+  height: 30%;
+  /* a round arc like Live View; the panorama continues underneath it */
+  clip-path: ellipse(64% 100% at 50% 100%);
   background: var(--paper); /* the 4px rim along the arc */
 }
 .ar-nav__dome-map {
   position: absolute;
   inset: 4px 0 0;
-  clip-path: ellipse(82% 100% at 50% 100%);
+  clip-path: ellipse(64% 100% at 50% 100%);
   background: var(--map-land);
 }
 .ar-nav__dome-map > * {
@@ -345,51 +351,49 @@ async function walkAhead() {
   inset: 0 0 32px; /* Google's logo / Terms strip stays tappable */
   z-index: 1;
 }
-.ar-nav__trip {
-  position: absolute;
-  top: 14%;
-  left: 50%;
-  z-index: 2;
+.ar-nav__instr {
   display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  max-width: calc(100% - var(--gutter) * 2);
-  padding: 4px 4px 4px var(--s-4);
-  border-radius: var(--r-pill);
-  background: var(--paper);
-  box-shadow: var(--e-2);
-  transform: translateX(-50%);
-  white-space: nowrap;
+  flex-direction: column;
+  gap: 2px;
 }
+.ar-nav__instr small {
+  font: var(--t-label-sm);
+  color: var(--ink-300);
+}
+/* just above the dome's lower shoulders: simulate (left), image credit (right) */
+.ar-nav__simulate,
 .ar-nav__credit {
   position: absolute;
-  top: calc(14% + 60px);
-  left: 0;
-  right: 0;
+  bottom: calc(30% * 0.62 + var(--s-3));
   z-index: 2;
-  text-align: center;
+}
+.ar-nav__simulate {
+  left: var(--gutter);
+  min-height: var(--hit);
+  padding: 0 var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  color: var(--cream);
+  font: var(--t-label-sm);
+}
+.ar-nav__credit {
+  right: var(--gutter);
+  max-width: 40%;
+  text-align: right;
   font: var(--t-meta);
-  color: var(--ink-500);
+  color: var(--cream);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   pointer-events: none;
-}
-.ar-nav__dest {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font: var(--t-label);
-  color: var(--ink-700);
-}
-.ar-nav__eta {
-  font: var(--t-strong);
-  letter-spacing: var(--track-h1);
-  color: var(--success-600);
 }
 /* ---- 3D ground arrows (360°) ---- */
 .ar-nav__go {
   position: absolute;
   left: 50%;
-  bottom: calc(40% + var(--s-2));
+  bottom: calc(30% + var(--s-2));
   z-index: 2;
-  width: 220px;
+  width: 160px;
   height: 190px;
   display: flex;
   flex-direction: column;
@@ -406,25 +410,26 @@ async function walkAhead() {
   height: 150px;
   transform-style: preserve-3d;
   /* laid on the ground, turned toward the route */
-  transform: rotateX(58deg) rotateZ(var(--turn, 0deg));
+  transform: rotateX(52deg) rotateZ(var(--turn, 0deg));
   transition: transform var(--dur-page) var(--ease);
 }
 .ar-nav__chev {
   position: absolute;
-  left: 15px;
-  bottom: calc(var(--i) * 44px);
-  width: 90px;
-  height: 56px;
+  left: 5px;
+  bottom: calc(var(--i) * 48px);
+  width: 110px;
+  height: 68px;
   overflow: visible;
-  /* white face, blue rim, a darker blue extrusion under it = a solid 3D chevron */
-  filter: drop-shadow(0 7px 0 var(--info-600)) drop-shadow(0 12px 10px rgba(0, 0, 0, 0.35));
+  /* solid blue face, white rim, a deeper blue extrusion under it = a chunky 3D chevron that
+     reads on any street (the thin outline one vanished on bright pavement) */
+  filter: drop-shadow(0 8px 0 var(--info-700)) drop-shadow(0 14px 12px rgba(0, 0, 0, 0.4));
   animation: chev-flow 1.5s var(--ease) infinite;
   animation-delay: calc(var(--i) * 0.18s);
 }
 .ar-nav__chev path {
-  fill: var(--paper);
-  stroke: var(--info-600);
-  stroke-width: 5;
+  fill: var(--info-600);
+  stroke: var(--paper);
+  stroke-width: 6;
   stroke-linejoin: round;
 }
 .ar-nav__go-label {
@@ -445,9 +450,9 @@ async function walkAhead() {
   animation: chev-surge 0.35s var(--ease) both;
 }
 @keyframes chev-flow {
-  0% { opacity: 0.35; translate: 0 18px; }
+  0% { opacity: 0.55; translate: 0 18px; }
   45% { opacity: 1; }
-  100% { opacity: 0.35; translate: 0 -18px; }
+  100% { opacity: 0.55; translate: 0 -18px; }
 }
 @keyframes chev-surge {
   to { opacity: 0; translate: 0 -70px; scale: 1.15; }
