@@ -1,9 +1,12 @@
 <script setup>
 /**
  * Floating AR hotspot. Tap → emits `select`; drag → emits `move` with the new
- * position as a percentage of the parent (clamped to keep it on screen).
+ * position as a percentage of the parent. Horizontally it can go right to the visible screen
+ * edge (lib/bubble — the layer moves with the parallax); past a limit it rubber-bands and
+ * springs back on release instead of hitting an invisible wall.
  */
 import { ref } from 'vue'
+import { clamp, horizontalRange, softClamp } from '@/lib/bubble'
 import AppIcon from '@/components/base/AppIcon.vue'
 
 const props = defineProps({
@@ -11,33 +14,61 @@ const props = defineProps({
   label: { type: String, required: true },
   position: { type: Object, required: true }, // { x, y } in %
   active: { type: Boolean, default: false },
-  bounds: { type: Object, default: () => ({ minX: 12, maxX: 88, minY: 32, maxY: 74 }) },
+  /** Vertical limits in % of the layer (below the status pill, above the bottom card). */
+  bounds: { type: Object, default: () => ({ minY: 32, maxY: 74 }) },
 })
 const emit = defineEmits(['select', 'move'])
 
 const DRAG_THRESHOLD = 6
 const el = ref(null)
 let gesture = null
+const settling = ref(false)
 
 function onPointerDown(e) {
-  gesture = { x: e.clientX, y: e.clientY, moved: false, rect: el.value.parentElement.getBoundingClientRect() }
+  const layer = el.value.parentElement
+  const rect = layer.getBoundingClientRect()
+  const stage = (layer.parentElement ?? layer).getBoundingClientRect()
+  // keep the grab offset: the bubble doesn't jump to centre on the finger
+  const grab = { x: e.clientX - (rect.left + (props.position.x / 100) * rect.width), y: e.clientY - (rect.top + (props.position.y / 100) * rect.height) }
+  gesture = { x: e.clientX, y: e.clientY, moved: false, rect, grab, range: horizontalRange(stage, rect, el.value.offsetWidth) }
+  settling.value = false
   el.value.setPointerCapture(e.pointerId)
+}
+
+function limits() {
+  return { ...gesture.range, minY: props.bounds.minY, maxY: props.bounds.maxY }
 }
 
 function onPointerMove(e) {
   if (!gesture) return
   if (!gesture.moved && Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) < DRAG_THRESHOLD) return
   gesture.moved = true
-  const { rect } = gesture
-  const { minX, maxX, minY, maxY } = props.bounds
+  const { rect, grab } = gesture
+  const { minX, maxX, minY, maxY } = limits()
   emit('move', {
-    x: Math.min(maxX, Math.max(minX, ((e.clientX - rect.left) / rect.width) * 100)),
-    y: Math.min(maxY, Math.max(minY, ((e.clientY - rect.top) / rect.height) * 100)),
+    x: softClamp(((e.clientX - grab.x - rect.left) / rect.width) * 100, minX, maxX),
+    y: softClamp(((e.clientY - grab.y - rect.top) / rect.height) * 100, minY, maxY),
   })
+}
+
+/** A cancelled press never selects; a cancelled drag still springs back inside. */
+function onPointerCancel() {
+  if (gesture && !gesture.moved) gesture = null
+  else onPointerUp()
 }
 
 function onPointerUp() {
   if (gesture && !gesture.moved) emit('select')
+  else if (gesture) {
+    // released past an edge: spring back inside
+    const { minX, maxX, minY, maxY } = limits()
+    const x = clamp(props.position.x, minX, maxX)
+    const y = clamp(props.position.y, minY, maxY)
+    if (x !== props.position.x || y !== props.position.y) {
+      settling.value = true
+      emit('move', { x, y })
+    }
+  }
   gesture = null
 }
 </script>
@@ -47,14 +78,14 @@ function onPointerUp() {
     ref="el"
     type="button"
     class="bubble pressable"
-    :class="{ 'is-active': active }"
+    :class="{ 'is-active': active, 'is-settling': settling }"
     :style="{ left: `${position.x}%`, top: `${position.y}%` }"
     :aria-label="label"
     :aria-pressed="active"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"
     @pointerup="onPointerUp"
-    @pointercancel="gesture = null"
+    @pointercancel="onPointerCancel"
     @keydown.enter.prevent="emit('select')"
     @keydown.space.prevent="emit('select')"
   >
@@ -98,6 +129,9 @@ function onPointerUp() {
   background: var(--glass);
   color: var(--cream);
   font: var(--t-micro);
+}
+.bubble.is-settling {
+  transition: left var(--dur-page) var(--ease), top var(--dur-page) var(--ease);
 }
 @keyframes pop {
   from {

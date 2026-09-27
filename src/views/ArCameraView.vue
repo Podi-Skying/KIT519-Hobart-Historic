@@ -54,7 +54,28 @@ const lastIndex = computed(() => timeline.value.length - 1)
 /** 0 = today … lastIndex = oldest; fractional = two photos blended. */
 const position = ref(0)
 const nearest = computed(() => Math.round(position.value))
-const shownPhoto = computed(() => timeline.value[nearest.value])
+/**
+ * A photo picked in the Photos card becomes the background (instead of opening the gallery).
+ * Photos on the timeline just move the year bar there; interiors / close-ups that aren't on it
+ * are pinned on top until playback or the year bar takes over again.
+ */
+const pinned = ref(null)
+const shownPhoto = computed(() =>
+  pinned.value
+    ? { image: pinned.value.image, year: pinned.value.year, title: pinned.value.caption, text: pinned.value.description, archival: false }
+    : timeline.value[nearest.value],
+)
+function showPhoto(photo) {
+  pauseTime()
+  const i = timeline.value.findIndex((p) => p.image === photo.image)
+  if (i >= 0) {
+    pinned.value = null
+    position.value = i
+  } else {
+    pinned.value = photo
+  }
+  openPanel.value = null // show the result straight away
+}
 const timePlaying = ref(false)
 const yearLabel = (p) => (p.year ? p.year : t('compare.today'))
 /**
@@ -85,6 +106,7 @@ function tick(now) {
   frame = requestAnimationFrame(tick)
 }
 function playTime() {
+  pinned.value = null
   if (position.value >= lastIndex.value) position.value = 0 // replay from today
   timePlaying.value = true
   lastTick = performance.now()
@@ -100,6 +122,7 @@ const toggleTime = () => (timePlaying.value ? pauseTime() : playTime())
 /** Dragging the year bar takes over from playback. */
 function scrubTime(value) {
   pauseTime()
+  pinned.value = null
   position.value = value / 100
 }
 const narration = computed(() => localizeNarration(site.value.id, locale.value))
@@ -190,6 +213,7 @@ function scan() {
   openPanel.value = null
   player.pause() // the previous landmark's tour stops while the new one is found
   pauseTime()
+  pinned.value = null
   view360.value = false
   panoMounted.value = false // a new landmark gets its own panorama (the instance itself is pooled)
   position.value = 0
@@ -218,7 +242,11 @@ function chooseSite(id, dismiss) {
 }
 
 /** Exit goes back to where AR was opened from (site page, map…); opened directly → Home. */
-const exit = () => (window.history.state?.back ? router.back() : router.replace({ name: 'home' }))
+/** In 360° the Back button returns to the AR view; otherwise to where AR was opened from (Home if direct). */
+function exit() {
+  if (view360.value) return (view360.value = false)
+  window.history.state?.back ? router.back() : router.replace({ name: 'home' })
+}
 </script>
 
 <template>
@@ -240,6 +268,16 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
             draggable="false"
           />
           </template>
+          <Transition name="feed">
+            <img
+              v-if="pinned"
+              :key="pinned.image"
+              class="ar-camera__feed"
+              :src="pinned.image"
+              :alt="pinned.caption"
+              draggable="false"
+            />
+          </Transition>
         </div>
       </Transition>
     </div>
@@ -265,7 +303,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 
     <div class="ar-camera__top" data-no-look>
       <!-- same control, same place as AR navigation: a glass Back button -->
-      <IconButton variant="glass" icon="back" :label="t('ar.exit')" @click="exit" />
+      <IconButton variant="glass" icon="back" :label="view360 ? t('ar.exit360') : t('ar.exit')" @click="exit" />
       <span class="ar-camera__actions">
         <!-- iOS asks before sharing motion; elsewhere tilt works straight away -->
         <!-- today's street in 360°: Google Street View (only when a Maps key is configured) -->
@@ -333,15 +371,19 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
           <p class="t-caption">{{ t('ar.photos') }}</p>
           <h2 class="t-h1 panel__title">{{ site.name }}</h2>
           <div class="panel__thumbs">
-            <RouterLink
-              v-for="(photo, i) in site.gallery"
+            <!-- tap = make it the background; the full gallery stays one tap away on the site page -->
+            <button
+              v-for="photo in site.gallery"
               :key="photo.image"
+              type="button"
               class="panel__thumb pressable-card"
-              :to="{ name: 'gallery', params: { id: site.id, index: i } }"
+              :class="{ 'is-current': shownPhoto.image === photo.image }"
               :aria-label="photo.caption"
+              :aria-pressed="shownPhoto.image === photo.image"
+              @click="showPhoto(photo)"
             >
               <img :src="photo.thumb ?? photo.image" alt="" loading="lazy" />
-            </RouterLink>
+            </button>
           </div>
         </template>
       </section>
@@ -564,8 +606,12 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 }
 .panel__thumb {
   display: block;
+  padding: 0;
   overflow: hidden;
   border-radius: var(--r-sm);
+}
+.panel__thumb.is-current {
+  box-shadow: 0 0 0 2px var(--cream), 0 0 0 4px var(--brand-600); /* the photo behind the card */
 }
 .panel__thumbs img {
   width: 100%;

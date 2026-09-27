@@ -278,6 +278,7 @@ export default {
     lookAround: 'Tilt your phone or drag the photo to look around',
     motion: 'Look around by tilting your phone',
     view360: '360° street view',
+    exit360: 'Back to AR view',
     view360Status: 'Street View · today',
     view360Loading: 'Loading 360° view',
     view360None: 'No 360° view near {name}',

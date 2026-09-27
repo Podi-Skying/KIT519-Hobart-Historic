@@ -275,6 +275,7 @@ export default {
     lookAround: 'スマホを傾けるか写真をドラッグして見回せます',
     motion: 'スマホを傾けて見回す',
     view360: '360° ストリートビュー',
+    exit360: 'AR 画面に戻る',
     view360Status: 'ストリートビュー · 現在',
     view360Loading: '360° ビューを読み込み中',
     view360None: '{name} 付近に 360° ビューがありません',

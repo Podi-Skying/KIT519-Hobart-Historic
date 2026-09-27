@@ -275,6 +275,7 @@ export default {
     lookAround: 'Nghiêng điện thoại hoặc kéo ảnh để nhìn xung quanh',
     motion: 'Nghiêng điện thoại để nhìn xung quanh',
     view360: 'Chế độ xem phố 360°',
+    exit360: 'Quay lại màn hình AR',
     view360Status: 'Street View · hiện tại',
     view360Loading: 'Đang tải chế độ xem 360°',
     view360None: 'Không có ảnh 360° gần {name}',
