@@ -4,10 +4,10 @@ import { EDGE_MARGIN, clamp, horizontalRange, softClamp } from '@/lib/bubble'
 describe('horizontalRange', () => {
   const stage = { left: 0, width: 400 }
   it('lets a bubble reach the screen edge minus half its width (not a fixed 88 %)', () => {
-    const { minX, maxX } = horizontalRange(stage, stage, 80)
-    expect(minX).toBeCloseTo(((40 + EDGE_MARGIN) / 400) * 100)
-    expect(maxX).toBeCloseTo(((400 - 40 - EDGE_MARGIN) / 400) * 100)
-    expect(maxX).toBeGreaterThan(88)
+    const { minX, maxX } = horizontalRange(stage, stage, 60) // a 60px bubble
+    expect(minX).toBeCloseTo(((30 + EDGE_MARGIN) / 400) * 100)
+    expect(maxX).toBeCloseTo(((400 - 30 - EDGE_MARGIN) / 400) * 100)
+    expect(maxX).toBeGreaterThan(88) // the old fixed limit
   })
   it('follows the visible stage when the parallax layer is shifted', () => {
     const shifted = { left: -30, width: 400 } // layer moved 30px left by the gyro
