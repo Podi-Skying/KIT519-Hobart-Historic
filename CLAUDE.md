@@ -115,6 +115,8 @@ data/ (static content) → lib/ (pure functions) → services/ (external APIs)
 - **Site facts (checked 2026-09-28).** Dates/descriptions follow: St George's parish history (consecrated 1838, tower 1841–47, portico 1888, ramp 2017), Tasmanian Heritage Register THR12092 (Penitentiary Chapel 1831–34, courts 1859–60), narryna.com.au (1835–40, Greek Revival, first folk museum 1955), Salamanca Arts Centre / Tasmanian Life (warehouses 1830s–1840s, whale oil, wool, grain, imports), femalefactory.org.au + Wikipedia (Cascades — with an s — opened 1828). Coordinates from Google Maps place pins. Keep these when editing copy; don't reintroduce unsourced claims.
 - **Weather → accessible walk.** The button goes straight to `navigate-map` for `nearestAccessibleSite` (lib/sites) with the Accessible route selected.
 
+- **Performance rules (slowdown fix, 2026-09-28).** Never `new google.maps.Map` / `new StreetViewPanorama` directly — use `acquireMap` / `acquirePanorama` and release on unmount (`services/googlePool.js`); Google instances can't be destroyed and used to pile up. Per-frame transforms (gyro/drag) go through the `v-look` directive from `useLookAround`, not a `:style` binding (that re-rendered the whole AR view every frame). The AR photo stack only mounts today + the blended pair + the next photo (`inWindow`).
+
 ## Styling rules
 
 - **Tokens only.** Use `src/styles/tokens.css`; never write hex values in components. Camera/photo surfaces use `--camera-bg`, `--ar-arrow`, `--like-glass`, `--photo-veil-*` (all overridden for high contrast). Glass IconButtons invert to a cream fill when pressed/on. Icons are AppIcon line icons — no emoji.

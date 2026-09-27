@@ -73,6 +73,7 @@ function onPanoUnavailable() {
 // Fallback only (no Street View): look around the photo; the painted arrows sit closer (parallax)
 const stage = ref(null)
 const look = useLookAround({ frame: () => stage.value })
+const vLook = look.directive
 // Google's logo and terms sit at the bottom of the panorama and must stay visible (Maps Platform
 // terms): the panorama ends where the summary card begins instead of running underneath it.
 const summary = ref(null)
@@ -88,7 +89,7 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
 <template>
   <div ref="stage" class="ar-nav" v-on="look.handlers">
     <!-- Fallback when there's no Street View here: a photo of the approach to this site -->
-    <div v-if="!view360" class="ar-nav__world" :style="look.layer(1, LOOK_SCALE)">
+    <div v-if="!view360" v-look="[1, LOOK_SCALE]" class="ar-nav__world">
       <img class="ar-nav__feed" :src="site.arApproachImage" :alt="t('arNav.feedAlt', { name: site.name })" draggable="false" />
     </div>
     <ArStatusPill v-if="pano === 'loading'" class="ar-nav__loading" spinner>{{ t('ar.view360Loading') }}</ArStatusPill>
@@ -123,7 +124,7 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
     <ArStatusPill data-toast-below :icon="maneuverIcon(guidance.maneuver)" class="ar-nav__instruction">{{ instruction }}</ArStatusPill>
 
     <!-- the painted arrows belong to the fallback photo; in 360° the street itself (turned ahead) shows the way -->
-    <div v-if="!view360" class="ar-nav__near" :style="look.layer(1.4)" aria-hidden="true">
+    <div v-if="!view360" v-look="1.4" class="ar-nav__near" aria-hidden="true">
     <div class="ar-nav__arrows">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
         <path class="ar-nav__arrow" d="M4 40 L36 6 L68 40 L36 27 Z" stroke-width="2.5" stroke-linejoin="round" />

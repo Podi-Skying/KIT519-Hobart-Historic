@@ -185,7 +185,7 @@ const CATALOGUE = [
     categoryLabel: 'Religious Heritage',
     area: 'Battery Point',
     builtYear: '1838', // consecrated 26 May 1838; tower 1841–47, portico 1888 (stgeorgesbatterypoint.org)
-    coordinates: { lat: -42.89137, lng: 147.33236 }, // 30 Cromwell St (Google Maps)
+    coordinates: { lat: -42.89148, lng: 147.33217 }, // 30 Cromwell St, Battery Point (street address: Street View stands here)
     accessible: true, // ramp and accessible stairs added 2017
     baseLikes: 196,
     image: landmarkImage('st-georges-main.webp'),
@@ -342,7 +342,7 @@ const CATALOGUE = [
     categoryLabel: 'Convict Heritage',
     area: 'CBD',
     builtYear: '1831–1834', // Tasmanian Heritage Register THR12092
-    coordinates: { lat: -42.87724, lng: 147.3268 }, // 98A Campbell St (Google Maps)
+    coordinates: { lat: -42.87712, lng: 147.32661 }, // 10 Brisbane St, Hobart (street address: Street View stands here)
     accessible: false,
     baseLikes: 143,
     image: landmarkImage('penitentiary-main.webp'),
@@ -425,7 +425,7 @@ const CATALOGUE = [
     categoryLabel: 'Colonial Living',
     area: 'Battery Point',
     builtYear: '1835–1840', // narryna.com.au
-    coordinates: { lat: -42.88929, lng: 147.33155 },
+    coordinates: { lat: -42.88927, lng: 147.33159 }, // 103 Hampden Rd, Battery Point
     accessible: true,
     baseLikes: 126,
     image: landmarkImage('narryna-main.webp'),

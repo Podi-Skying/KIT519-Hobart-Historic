@@ -1,4 +1,4 @@
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watchEffect } from 'vue'
 import { createSpringAnimator, SPRINGS } from '@/lib/spring'
 import { createVelocityTracker, project, rubberband } from '@/lib/gesture'
 import { overscan, tiltOffset } from '@/lib/parallax'
@@ -129,9 +129,25 @@ export function useLookAround({ frame, drag = true }) {
   const x = computed(() => dragX.value + tiltX.value)
   const y = computed(() => dragY.value + tiltY.value)
   /** Transform for a layer; depth 1 = the photo, > 1 = closer layers that move more. */
-  const layer = (depth = 1, scale = 1) => ({
-    transform: `translate3d(${(x.value * depth).toFixed(2)}px, ${(y.value * depth).toFixed(2)}px, 0) scale(${scale})`,
-  })
+  const transform = (depth = 1, scale = 1) =>
+    `translate3d(${(x.value * depth).toFixed(2)}px, ${(y.value * depth).toFixed(2)}px, 0) scale(${scale})`
+  const layer = (depth = 1, scale = 1) => ({ transform: transform(depth, scale) })
 
-  return { layer, handlers, enableMotion, canAskMotion, motionOn }
+  /**
+   * `v-look="[depth, scale]"` — writes the layer's transform straight to the element on every
+   * gyro / drag frame. A :style binding instead re-rendered the whole AR screen ~60 times a
+   * second (the main cause of the app slowing down in AR); this effect touches one style only.
+   */
+  const directive = {
+    mounted(el, binding) {
+      const [depth = 1, scale = 1] = [].concat(binding.value ?? 1)
+      el.__look = watchEffect(() => (el.style.transform = transform(depth, scale)), { flush: 'sync' })
+    },
+    unmounted(el) {
+      el.__look?.()
+      delete el.__look
+    },
+  }
+
+  return { layer, directive, handlers, enableMotion, canAskMotion, motionOn }
 }

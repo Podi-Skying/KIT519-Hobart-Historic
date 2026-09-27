@@ -56,6 +56,8 @@ const nearest = computed(() => Math.round(position.value))
 const shownPhoto = computed(() => timeline.value[nearest.value])
 const timePlaying = ref(false)
 const yearLabel = (p) => (p.year ? p.year : t('compare.today'))
+/** Photos kept in the DOM: today's view, the pair being blended, and the next one (preloading). */
+const inWindow = (i) => i === 0 || (i >= Math.floor(position.value) && i <= Math.ceil(position.value) + 1)
 let frame = null
 let lastTick = 0
 function tick(now) {
@@ -94,6 +96,7 @@ const detected = ref(false)
 // ---- look around: tilt the phone or drag the photo; bubbles sit on a closer layer (parallax) ----
 const stage = ref(null)
 const look = useLookAround({ frame: () => stage.value })
+const vLook = look.directive
 const ui = useUiStore()
 let hinted = false
 watch(detected, (now) => {
@@ -188,21 +191,23 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
 
 <template>
   <div ref="stage" class="ar-camera" v-on="look.handlers">
-    <div v-show="!view360 || pano !== 'ready'" class="ar-camera__world" :style="look.layer(1, LOOK_SCALE)">
+    <div v-show="!view360 || pano !== 'ready'" v-look="[1, LOOK_SCALE]" class="ar-camera__world">
       <Transition name="feed" mode="out-in">
         <div :key="site.id" class="ar-camera__stack">
-          <!-- stacked from today to oldest; only the two photos either side of `position` show -->
+          <!-- stacked from today to oldest; only the two photos either side of `position` show.
+               Only today + those two (+ the next, preloading) are in the DOM: with 10+ photos per
+               site, keeping every full-size photo decoded and composited made AR slow down. -->
+          <template v-for="(p, i) in timeline" :key="p.image">
           <img
-            v-for="(p, i) in timeline"
-            :key="p.image"
+            v-if="inWindow(i)"
             class="ar-camera__feed"
             :src="p.image"
             :alt="i === nearest ? (i === 0 ? t('ar.cameraAlt', { name: site.name }) : t('compare.photoAlt', { name: site.name, year: yearLabel(p) })) : ''"
             :aria-hidden="i === nearest ? undefined : 'true'"
             :style="{ opacity: i === 0 ? 1 : layerOpacity(i, position) }"
-            :loading="i < 2 ? 'eager' : 'lazy'"
             draggable="false"
           />
+          </template>
         </div>
       </Transition>
     </div>
@@ -247,7 +252,7 @@ const exit = () => (window.history.state?.back ? router.back() : router.replace(
       {{ detected ? `${t('ar.detected')} · ${site.shortName}` : t('ar.scanning') }}
     </ArStatusPill>
 
-    <div v-if="detected && !view360" class="ar-camera__hotspots" :style="look.layer(1.35)">
+    <div v-if="detected && !view360" v-look="1.35" class="ar-camera__hotspots">
       <ArBubble
         v-for="spot in hotspots"
         :key="spot.key"

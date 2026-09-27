@@ -17,6 +17,7 @@ import { useI18n } from 'vue-i18n'
 import IconButton from '@/components/base/IconButton.vue'
 import { hasMotionPermission, requestMotionPermission } from '@/composables/useLookAround'
 import { loadStreetView, onGoogleMapsAuthFailure } from '@/services/googleMaps'
+import { acquirePanorama, releasePanorama } from '@/services/googlePool'
 import { LANDMARK_PITCH, PANO_FOLLOW_METERS, PANO_SEARCH_RADIUS_M, facingPov } from '@/lib/streetView'
 import { distanceKm } from '@/lib/geo'
 
@@ -35,6 +36,8 @@ const emit = defineEmits(['ready', 'unavailable'])
 const { t } = useI18n()
 const el = ref(null)
 let panorama = null
+/** pooled { element, instance } — panoramas can't be destroyed, so they're reused */
+let pooled = null
 let sv = null
 let service = null
 let searchedAt = null
@@ -83,7 +86,7 @@ onMounted(async () => {
     const found = await nearestPano(searchedAt)
     if (!alive || !el.value) return
     currentPano = found.pano
-    panorama = new sv.StreetViewPanorama(el.value, {
+    pooled = acquirePanorama(sv, el.value, {
       pano: found.pano,
       pov: facingPov(found.position, props.target, props.pitch),
       zoom: 0,
@@ -101,6 +104,9 @@ onMounted(async () => {
       motionTracking: canMotion && hasMotionPermission(),
       motionTrackingControl: false, // replaced by the toggle below
     })
+    panorama = pooled.instance
+    panorama.setPano(found.pano) // a reused panorama keeps its last scene until told otherwise
+    panorama.setPov(facingPov(found.position, props.target, props.pitch))
     motion.value = panorama.getMotionTracking?.() ?? false
     ready.value = true
     emit('ready')
@@ -128,6 +134,15 @@ watch(
     }
   },
 )
+
+// Leaving: stop listening, stop the gyro and park the panorama for the next 360° view.
+onBeforeUnmount(() => {
+  alive = false
+  stopAuthWatch()
+  releasePanorama(pooled)
+  pooled = null
+  panorama = null
+})
 </script>
 
 <template>

@@ -9,6 +9,7 @@
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { loadGoogleMaps, MAP_ID, onGoogleMapsAuthFailure } from '@/services/googleMaps'
+import { acquireMap, releaseMap } from '@/services/googlePool'
 import { HOBART_CENTRE } from '@/data/navigation'
 import { ICONS } from '@/assets/icons'
 
@@ -50,6 +51,8 @@ let userMarker = null
 let startMarker = null
 let routeLine = null
 const pins = new Map() // siteId → { marker, element }
+/** { element, instance } from the map pool while mounted */
+let pooled = null
 let amenityPins = []
 let highlightPins = []
 let alternativeLines = []
@@ -244,7 +247,8 @@ onMounted(async () => {
   }
   if (!container.value) return
 
-  map.value = new api.Map(container.value, {
+  // Reused, not created: Google maps can't be destroyed (services/googlePool.js)
+  pooled = acquireMap(api, container.value, {
     center: HOBART_CENTRE,
     zoom: 15,
     mapId: MAP_ID,
@@ -255,6 +259,7 @@ onMounted(async () => {
     // every map screen has on-screen zoom / locate controls.
     keyboardShortcuts: false,
   })
+  map.value = pooled.instance
 
   for (const site of props.sites) {
     const element = pinElement(site)
@@ -316,6 +321,8 @@ onBeforeUnmount(() => {
   highlightPins.forEach((marker) => safely(() => (marker.map = null)))
   alternativeLines.forEach((line) => safely(() => line.setMap(null)))
   pins.clear()
+  releaseMap(pooled) // back to the pool for the next map screen
+  pooled = null
 })
 
 defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoomBy(-1) })
