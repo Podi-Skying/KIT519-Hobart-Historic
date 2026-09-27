@@ -121,3 +121,14 @@ export function approachAngle(from, to, fraction) {
   const delta = ((((to - from) % 360) + 540) % 360) - 180
   return (((from + delta * fraction) % 360) + 360) % 360
 }
+
+/**
+ * The point `meters` from `p` along compass `bearingDeg` (flat-earth approximation — exact
+ * enough for the few tens of metres the AR navigation map looks ahead).
+ */
+export function offsetPoint(p, bearingDeg, meters) {
+  const b = toRad(bearingDeg)
+  const dLat = (meters * Math.cos(b)) / 111320
+  const dLng = (meters * Math.sin(b)) / (111320 * Math.cos(toRad(p.lat)))
+  return { lat: p.lat + dLat, lng: p.lng + dLng }
+}

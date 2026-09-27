@@ -30,6 +30,8 @@ defineProps({
   showLabels: { type: Boolean, default: true },
   /** Hover previews (photo + name) on landmark pins — Map tab. */
   previews: { type: Boolean, default: false },
+  /** AR navigation follow camera { position, heading } (Google only; the illustration ignores it). */
+  follow: { type: Object, default: null },
   /** Google Maps fit padding (px). */
   padding: { type: Object, default: undefined },
   /** Illustration: percent area pins may occupy. */
@@ -72,6 +74,7 @@ defineExpose({
     :interactive="interactive"
     :previews="previews"
     :show-labels="showLabels"
+    :follow="follow"
     v-bind="padding ? { padding } : {}"
     @select="(id) => emit('select', id)"
     @select-route="(key) => emit('select-route', key)"

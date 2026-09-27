@@ -7,7 +7,8 @@ import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import StreetView360 from '@/components/ar/StreetView360.vue'
 import { isGoogleMapsConfigured } from '@/services/googleMaps'
-import { pointAhead } from '@/lib/streetView'
+import { bearing, pointAhead } from '@/lib/streetView'
+import { distanceKm } from '@/lib/geo'
 import ArrivalSheet from '@/components/map/ArrivalSheet.vue'
 import { useContent } from '@/i18n/content'
 import { formatMeters } from '@/lib/format'
@@ -81,15 +82,21 @@ const stage = ref(null)
 const look = useLookAround({ frame: () => stage.value })
 const vLook = look.directive
 // Google's logo and terms sit at the bottom of the panorama and must stay visible (Maps Platform
-// terms): the panorama ends where the summary card begins instead of running underneath it.
-const summary = ref(null)
-const summaryHeight = ref(0)
-let summaryObserver
+// terms): the panorama ends at the top of the map dome instead of running underneath it.
+const dome = ref(null)
+const summaryHeight = ref(0) // px from the bottom where the panorama stops (the dome's apex)
+let domeObserver
 onMounted(() => {
-  summaryObserver = new ResizeObserver(() => (summaryHeight.value = summary.value?.offsetHeight ?? 0))
-  if (summary.value) summaryObserver.observe(summary.value)
+  domeObserver = new ResizeObserver(() => (summaryHeight.value = dome.value?.offsetHeight ?? 0))
+  if (dome.value) domeObserver.observe(dome.value)
 })
-onBeforeUnmount(() => summaryObserver?.disconnect())
+onBeforeUnmount(() => domeObserver?.disconnect())
+
+/** Live-View map: heading-up along the route, the way the walker (and the panorama) faces. */
+const routeHeading = computed(() =>
+  distanceKm(here.value, ahead.value) * 1000 > 3 ? bearing(here.value, ahead.value) : 0,
+)
+const follow = computed(() => ({ position: here.value, heading: routeHeading.value }))
 </script>
 
 <template>
@@ -143,36 +150,31 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
     </div>
     </div>
 
-    <!-- in 360° the minimap moves up to leave the panorama's motion toggle its corner -->
-    <RouterLink
-      :to="{ name: 'navigate-map', params: { id } }"
-      class="ar-nav__minimap pressable-card"
-      :style="view360 ? { bottom: `${summaryHeight + 88}px` } : null"
-      :aria-label="t('arNav.openMap')"
-    >
-      <SiteMap
-        :sites="[site]"
-        :selected-id="site.id"
-        :route-path="walk.path.value"
-        :route-type="trip.routeTypeConfig"
-        :real-route="walk.isRealRoute.value"
-        :amenities="walk.amenityMarkers.value"
-        :user="user"
-        :start="location.origin"
-        fit="route"
-        :interactive="false"
-        :show-labels="false"
-        :padding="{ top: 14, right: 14, bottom: 14, left: 14 }"
-        :box="{ x: [15, 85], y: [15, 85] }"
-      />
-    </RouterLink>
-
-    <section ref="summary" class="ar-nav__summary text-zoom" data-no-look>
-      <div>
-        <p class="ar-nav__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
-        <p class="t-small muted">{{ site.name }}</p>
+    <!-- Live-View style map: a dome along the bottom, heading-up around the walker.
+         The whole dome opens the full map; its bottom strip stays free for Google's logo/terms. -->
+    <section ref="dome" class="ar-nav__dome" data-no-look :aria-label="t('arNav.openMap')">
+      <div class="ar-nav__dome-map">
+        <SiteMap
+          :sites="[site]"
+          :selected-id="site.id"
+          :route-path="walk.path.value"
+          :route-type="trip.routeTypeConfig"
+          :real-route="walk.isRealRoute.value"
+          :amenities="walk.amenityMarkers.value"
+          :user="user"
+          :start="location.origin"
+          :follow="follow"
+          fit="route"
+          :interactive="false"
+          :box="{ x: [15, 85], y: [30, 85] }"
+        />
       </div>
-      <BaseButton @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
+      <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__dome-open" :aria-label="t('arNav.openMap')" />
+      <div class="ar-nav__trip text-zoom">
+        <p class="ar-nav__eta">{{ t('common.minutes', { n: walk.minutes.value }) }}</p>
+        <p class="ar-nav__dest">{{ site.shortName }}</p>
+        <BaseButton size="sm" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
+      </div>
     </section>
 
     <ArrivalSheet v-if="arrived" :site="site" primary="ar" @close="arrived = false" />
@@ -266,39 +268,55 @@ onBeforeUnmount(() => summaryObserver?.disconnect())
 }
 .ar-nav__arrows svg:nth-child(2) { opacity: 0.8; }
 .ar-nav__arrows svg:nth-child(3) { opacity: 0.6; }
-.ar-nav__minimap {
-  position: absolute;
-  right: var(--gutter);
-  bottom: 150px;
-  z-index: 2;
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
-  border: 3px solid var(--paper);
-  border-radius: var(--r-lg);
-  box-shadow: var(--e-2);
-  transition: bottom var(--dur) var(--ease);
-}
-.ar-nav__minimap > * {
-  pointer-events: none; /* the whole thumbnail is a link to the full map */
-}
-.ar-nav__summary {
+.ar-nav__dome {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 2;
+  height: 38%;
+  /* a wide arc, like Live View: flat enough that the panorama's attribution above stays clear */
+  clip-path: ellipse(120% 100% at 50% 100%);
+  background: var(--paper); /* the 4px rim along the arc */
+}
+.ar-nav__dome-map {
+  position: absolute;
+  inset: 4px 0 0;
+  clip-path: ellipse(120% 100% at 50% 100%);
+  background: var(--map-land);
+}
+.ar-nav__dome-map > * {
+  pointer-events: none; /* a glance map: the link above opens the full one */
+}
+.ar-nav__dome-open {
+  position: absolute;
+  inset: 0 0 32px; /* Google's logo / Terms strip stays tappable */
+  z-index: 1;
+}
+.ar-nav__trip {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  z-index: 2;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: var(--s-4);
-  padding: 18px var(--gutter) var(--s-6);
-  border-radius: var(--r-xl) var(--r-xl) 0 0;
-  background: var(--cream);
-  box-shadow: var(--e-3);
+  gap: var(--s-3);
+  max-width: calc(100% - var(--gutter) * 2);
+  padding: 4px 4px 4px var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  box-shadow: var(--e-2);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.ar-nav__dest {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: var(--t-label);
+  color: var(--ink-700);
 }
 .ar-nav__eta {
-  font: var(--t-metric);
+  font: var(--t-strong);
   letter-spacing: var(--track-h1);
   color: var(--success-600);
 }

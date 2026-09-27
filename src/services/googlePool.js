@@ -10,7 +10,7 @@
  *
  * Each entry is { element, instance }: `element` is the div the instance was created in.
  */
-const pools = { map: [], pano: [] }
+const pools = { map: [], vector: [], pano: [] }
 
 function acquire(kind, container, create, reuse) {
   let entry = pools[kind].pop()
@@ -18,7 +18,7 @@ function acquire(kind, container, create, reuse) {
   else {
     const element = document.createElement('div')
     element.style.cssText = 'position:absolute;inset:0'
-    entry = { element, instance: null }
+    entry = { element, instance: null, kind }
     container.append(element) // Google measures the element on creation
     entry.instance = create(element)
     return entry
@@ -44,15 +44,19 @@ function release(kind, entry, reset, { discard = false } = {}) {
   pools[kind].push(entry)
 }
 
-/** A Map in `container` with `options` (mapId is fixed per page, so every pooled map shares it). */
-export const acquireMap = (api, container, options) =>
+/**
+ * A Map in `container` with `options` (mapId is fixed per page, so every pooled map shares it).
+ * `vector: true` = a WebGL vector map (needed to rotate the map with the walker's heading);
+ * rendering type can't change after creation, so vector maps have their own pool.
+ */
+export const acquireMap = (api, container, options, { vector = false } = {}) =>
   acquire(
-    'map',
+    vector ? 'vector' : 'map',
     container,
-    (el) => new api.Map(el, options),
+    (el) => new api.Map(el, vector ? { ...options, renderingType: 'VECTOR' } : options),
     (map) => map.setOptions(options),
   )
-export const releaseMap = (entry) => release('map', entry, () => {})
+export const releaseMap = (entry) => entry && release(entry.kind, entry, () => {})
 
 /** A StreetViewPanorama in `container`; the caller sets pano / pov after acquiring. */
 export const acquirePanorama = (sv, container, options) =>

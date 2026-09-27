@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { LANDMARK_PITCH, approachAngle, bearing, facingPov, orientationToPov, pointAhead } from '@/lib/streetView'
+import { LANDMARK_PITCH, approachAngle, bearing, facingPov, offsetPoint, orientationToPov, pointAhead } from '@/lib/streetView'
 import { getSiteById } from '@/data/sites'
 
 describe('bearing', () => {
@@ -75,5 +75,16 @@ describe('approachAngle', () => {
     expect(approachAngle(359, 1, 0.5)).toBeCloseTo(0)
     expect(approachAngle(10, 350, 1)).toBeCloseTo(350)
     expect(approachAngle(90, 180, 0.5)).toBeCloseTo(135)
+  })
+})
+
+describe('offsetPoint', () => {
+  it('moves the map centre ahead of the walker along the heading', () => {
+    const p = { lat: -42.89, lng: 147.33 }
+    const north = offsetPoint(p, 0, 111.32)
+    expect(north.lat).toBeCloseTo(-42.889, 5)
+    expect(north.lng).toBeCloseTo(147.33, 6)
+    const east = offsetPoint(p, 90, 100)
+    expect(bearing(p, east)).toBeCloseTo(90, 0)
   })
 })

@@ -11,6 +11,7 @@ import { useI18n } from 'vue-i18n'
 import { loadGoogleMaps, MAP_ID, onGoogleMapsAuthFailure } from '@/services/googleMaps'
 import { acquireMap, releaseMap } from '@/services/googlePool'
 import { HOBART_CENTRE } from '@/data/navigation'
+import { offsetPoint } from '@/lib/streetView'
 import { ICONS } from '@/assets/icons'
 
 const props = defineProps({
@@ -38,6 +39,12 @@ const props = defineProps({
   showLabels: { type: Boolean, default: true },
   /** Map tab: hovering (or focusing) a landmark pops up its photo and name above the pin. */
   previews: { type: Boolean, default: false },
+  /**
+   * AR navigation "follow" camera (like Google Maps Live View): { position, heading }.
+   * The map turns heading-up around the walker (a vector map), zoomed in, with the walker
+   * low in the frame and a heading arrow instead of the dot. null = normal framing.
+   */
+  follow: { type: Object, default: null },
   /** Map padding (px) around fitted content — keep pins clear of overlays. */
   padding: { type: Object, default: () => ({ top: 96, right: 72, bottom: 32, left: 32 }) },
 })
@@ -126,8 +133,30 @@ function frame(points) {
   map.value.fitBounds(bounds, props.padding)
 }
 
+/** Follow camera: heading-up, the walker a third of the way up from the bottom. */
+const FOLLOW_ZOOM = 18
+const FOLLOW_LEAD_M = 30 // centre this far ahead of the walker
+function followCamera() {
+  if (!map.value || !props.follow?.position) return
+  const { position, heading = 0 } = props.follow
+  map.value.moveCamera({ center: offsetPoint(position, heading, FOLLOW_LEAD_M), zoom: FOLLOW_ZOOM, heading, tilt: 0 })
+  syncHeadingArrow()
+}
+let headingMarker = null
+function syncHeadingArrow() {
+  if (!map.value) return
+  const position = props.follow?.position ?? null
+  headingMarker = syncMarker(headingMarker, position, 'gm-heading', t('map.yourLocation'))
+  if (!headingMarker) return
+  // a vector map already turned heading-up (arrow points up); a raster fallback stays
+  // north-up, so the arrow itself turns to the heading
+  const turn = (props.follow.heading ?? 0) - (map.value.getHeading?.() ?? 0)
+  headingMarker.content.style.setProperty('--turn', `${turn}deg`)
+}
+
 /** Frame according to `fit`. */
 function recenter() {
+  if (props.follow) return followCamera()
   if (props.fit === 'route' && props.routePath.length) return frame(props.routePath)
   frame([...props.sites.map((s) => s.coordinates), ...(props.user ? [props.user] : [])])
 }
@@ -232,8 +261,9 @@ function syncMarker(current, position, className, title) {
 
 function syncPeople() {
   if (!map.value) return
-  userMarker = syncMarker(userMarker, props.user, 'gm-user', t('map.yourLocation'))
-  startMarker = syncMarker(startMarker, props.user ? null : props.start, 'gm-start', t('map.routeStart'))
+  const following = Boolean(props.follow) // the heading arrow replaces the dots
+  userMarker = syncMarker(userMarker, following ? null : props.user, 'gm-user', t('map.yourLocation'))
+  startMarker = syncMarker(startMarker, following || props.user ? null : props.start, 'gm-start', t('map.routeStart'))
 }
 
 // ---------- lifecycle ----------
@@ -258,7 +288,7 @@ onMounted(async () => {
     // No keyboard-shortcuts button in the attribution bar; pins stay focusable and
     // every map screen has on-screen zoom / locate controls.
     keyboardShortcuts: false,
-  })
+  }, { vector: Boolean(props.follow) })
   map.value = pooled.instance
 
   for (const site of props.sites) {
@@ -291,6 +321,10 @@ onMounted(async () => {
 
 watch(() => props.selectedId, syncSelection)
 watch(
+  () => [props.follow?.position?.lat, props.follow?.position?.lng, props.follow?.heading],
+  () => followCamera(),
+)
+watch(
   () => [props.routePath, props.realRoute, props.routeColor],
   () => {
     syncRoute()
@@ -316,6 +350,7 @@ onBeforeUnmount(() => {
   safely(() => routeLine?.setMap(null))
   safely(() => userMarker && (userMarker.map = null))
   safely(() => startMarker && (startMarker.map = null))
+  safely(() => headingMarker && (headingMarker.map = null))
   pins.forEach(({ marker }) => safely(() => (marker.map = null)))
   amenityPins.forEach((marker) => safely(() => (marker.map = null)))
   highlightPins.forEach((marker) => safely(() => (marker.map = null)))
@@ -490,5 +525,25 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
 .gm-start {
   background: var(--ink-900);
   box-shadow: var(--e-1);
+}
+/* Walker with heading (AR navigation map): a blue arrow in a soft halo, pointing where they go */
+.gm-heading {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(47, 111, 237, 0.16);
+  transform: translateY(50%) rotate(var(--turn, 0deg));
+}
+.gm-heading::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 26px;
+  background: var(--info-600);
+  clip-path: polygon(50% 0, 100% 100%, 50% 76%, 0 100%);
+  filter: drop-shadow(0 0 0 var(--paper));
+  transform: translate(-50%, -55%);
 }
 </style>
