@@ -93,7 +93,6 @@ const vLook = look.directive
 const dome = ref(null)
 const summaryHeight = ref(0) // dome height: the panorama runs underneath it; its controls sit above
 /** Street View's image credit, shown in the dome (Google's own strip is under the dome now). */
-const panoCredit = ref('')
 let domeObserver
 onMounted(() => {
   domeObserver = new ResizeObserver(() => (summaryHeight.value = dome.value?.offsetHeight ?? 0))
@@ -178,7 +177,6 @@ function blockKeyMoves(e) {
         :target="ahead"
         :pitch="0"
         :bottom-inset="summaryHeight + 56"
-        @credit="(c) => (panoCredit = c)"
         @view="onView"
         @ready="onPanoReady"
         @unavailable="onPanoUnavailable"
@@ -266,9 +264,8 @@ function blockKeyMoves(e) {
       <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__dome-open" :aria-label="t('arNav.openMap')" />
     </section>
 
-    <!-- image credit on the left shoulder; the prototype control tucked into the map's lower-right corner -->
+    <!-- the prototype control, tucked into the map's lower-right corner -->
     <button type="button" class="ar-nav__simulate pressable" data-no-look @click="arrived = true">{{ t('arNav.simulate') }}</button>
-    <p v-if="view360 && panoCredit" class="ar-nav__credit">Street View {{ panoCredit }}</p>
 
     <ArrivalSheet v-if="arrived" :site="site" primary="ar" @close="arrived = false" />
   </div>
@@ -421,22 +418,6 @@ function blockKeyMoves(e) {
   color: var(--cream);
   font: var(--t-button);
   box-shadow: var(--e-2);
-}
-/* image credit: a small glass capsule on the left shoulder, readable over a bright sky */
-.ar-nav__credit {
-  position: absolute;
-  left: var(--gutter);
-  bottom: calc(30% * 0.62 + var(--s-3));
-  z-index: 2;
-  max-width: 45%;
-  padding: 4px var(--s-2);
-  border-radius: var(--r-pill);
-  background: var(--glass);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  font: var(--t-meta);
-  color: var(--cream);
-  pointer-events: none;
 }
 /* ---- 3D ground arrows (360°) ---- */
 .ar-nav__go {
