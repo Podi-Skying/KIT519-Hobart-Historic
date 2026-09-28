@@ -19,7 +19,10 @@ const { t } = useI18n()
 
 <style scoped>
 .stage {
-  min-height: 100vh;
+  /* desktop: exactly one screen tall, never scrolls — the mock-up doesn't drift up and down */
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,7 +32,10 @@ const { t } = useI18n()
 }
 .device {
   position: relative;
-  height: min(844px, 95vh);
+  /* fills what's left after the padding, the gap and the one-line credit (t-meta = 1rem) */
+  height: min(844px, calc(100vh - 2 * var(--s-5) - var(--s-3) - 1rem));
+  height: min(844px, calc(100dvh - 2 * var(--s-5) - var(--s-3) - 1rem));
+  flex-shrink: 0;
   aspect-ratio: 390 / 844;
   display: flex;
   flex-direction: column;
@@ -47,7 +53,9 @@ const { t } = useI18n()
   .stage {
     /* 100vh is taller than the visible area while the browser bar shows → the app got centred
        with dark strips above/below. Match the device to the dynamic viewport exactly. */
+    height: auto;
     min-height: 100dvh;
+    overflow: visible;
     padding: 0;
     gap: 0;
     background: var(--cream);
@@ -66,6 +74,8 @@ const { t } = useI18n()
 @media print {
   .stage {
     display: block;
+    height: auto;
+    overflow: visible;
     padding: 0;
   }
   .device {

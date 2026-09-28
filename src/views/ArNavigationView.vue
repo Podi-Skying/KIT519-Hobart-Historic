@@ -272,6 +272,9 @@ function blockKeyMoves(e) {
 
 <style scoped>
 .ar-nav {
+  /* map dome height. The desktop mock-up is a taller, narrower phone than most real ones, so
+     30% there made a tall, very round dome: lower it and give the street more room. */
+  --dome-h: 30%;
   position: relative;
   overflow: hidden;
   -webkit-user-select: none;
@@ -366,7 +369,7 @@ function blockKeyMoves(e) {
   right: 0;
   bottom: 0;
   z-index: 2;
-  height: 30%;
+  height: var(--dome-h);
   /* a round arc like Live View; the panorama continues underneath it */
   clip-path: ellipse(56% 100% at 50% 100%);
   background: var(--paper); /* the 4px rim along the arc */
@@ -422,7 +425,7 @@ function blockKeyMoves(e) {
 .ar-nav__go {
   position: absolute;
   left: 50%;
-  bottom: calc(30% + var(--s-3) + var(--hit) + var(--s-2)); /* above the step buttons */
+  bottom: calc(var(--dome-h) + var(--s-3) + var(--hit) + var(--s-2)); /* above the step buttons */
   z-index: 2;
   width: 160px;
   height: 170px;
@@ -472,7 +475,7 @@ function blockKeyMoves(e) {
 .ar-nav__steps {
   position: absolute;
   left: 50%;
-  bottom: calc(30% + var(--s-3));
+  bottom: calc(var(--dome-h) + var(--s-3));
   z-index: 3;
   display: flex;
   gap: var(--s-2);
@@ -510,6 +513,11 @@ function blockKeyMoves(e) {
 /* tapped: the arrows surge forward with the view */
 .ar-nav__go.is-going .ar-nav__chev {
   animation: chev-surge 0.35s var(--ease) both;
+}
+@media (min-width: 601px) and (hover: hover) and (pointer: fine) {
+  .ar-nav {
+    --dome-h: 23%;
+  }
 }
 @keyframes chev-flow {
   0% { opacity: 0.55; translate: 0 18px; }
