@@ -83,7 +83,7 @@ export const SCREENS = [
     id: 'S11',
     name: 'Weather',
     intent:
-      'Hobart weather decides whether a walk is pleasant. The page turns conditions into a recommendation and ends in an action, never a dead end.',
+      'Hobart weather decides whether a walk is pleasant. The page is for reading: conditions now, the best time today and the week ahead, with plain advice.',
   },
 ]
 
@@ -342,11 +342,11 @@ export const RATIONALE = {
 
   // ---- S11 Weather
   'weather:NFR4': {
-    title: 'Conditions → a decision',
-    why: 'Now, the best time today and the week ahead end in "Plan an accessible walk" to the nearest suitable site.',
-    principle: 'Flexibility and efficiency (Nielsen H7); no dead ends.',
-    evidence: 'A1/A2 NFR4: weather affects outdoor experience. Round 1 R1-3: the page was a dead end.',
-    tradeoff: 'Weather data is simulated in this prototype.',
+    title: 'Is it a good day to walk?',
+    why: 'Now, the best time today, the week ahead and plain walking advice, on one calm page.',
+    principle: 'Purpose and simplicity: one job done well; recognition over recall (Nielsen H6).',
+    evidence: 'A1/A2 NFR4: weather affects the outdoor experience (case challenge). Personas P1 and P3 check conditions before planning.',
+    tradeoff: 'No shortcut into a walk from here: planning stays on the Map tab. Weather data is simulated in this prototype.',
   },
 
   // ---- every screen

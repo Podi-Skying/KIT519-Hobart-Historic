@@ -1,26 +1,24 @@
 <script setup>
 /**
- * Desktop design notes › "Take part": choose one of the three persona scenarios, read its tasks
- * (quoted from evaluation-plan.md), then answer that persona's Google Form — scan the QR code
- * with a phone or open the link here. Grows out of its button (anchored origin) and closes back
- * into it; Esc closes.
+ * Desktop "Scenario Task" panel: choose one of the three persona scenarios, read the persona and
+ * its three tasks (word for word from that Google Form, data/surveyForms.js), then answer the form
+ * — scan the QR code with a phone, or click it / "Google Form Link" here. Esc closes.
  */
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import planMd from '../../../docs/a3/evaluation/evaluation-plan.md?raw'
 import personasMd from '../../../docs/a3/personas.md?raw'
 import AppIcon from '@/components/base/AppIcon.vue'
+import PersonaAvatar from './PersonaAvatar.vue'
 import { SURVEY_FORMS } from '@/data/surveyForms'
-import { parsePersonas, parseTasks, scenarioFor } from '@/lib/designNotes'
+import { parsePersonas } from '@/lib/designNotes'
 
 const emit = defineEmits(['close'])
 const { t } = useI18n()
 
 const { personas } = parsePersonas(personasMd)
-const tasks = parseTasks(planMd)
 const scenarios = SURVEY_FORMS.map((f) => {
   const [name, role = ''] = (personas[f.persona] ?? f.persona).split(/:\s*/)
-  return { ...f, name, role, tasks: scenarioFor(f.persona, tasks) }
+  return { ...f, name, role }
 })
 
 const chosen = ref(null)
@@ -38,7 +36,7 @@ const close = () => emit('close')
         <ul class="survey__list">
           <li v-for="s in scenarios" :key="s.persona">
             <button type="button" class="scenario pressable-card" @click="chosen = s.persona">
-              <span class="scenario__tile" lang="en">{{ s.persona }}</span>
+              <PersonaAvatar :persona="s.persona" :size="40" />
               <span class="scenario__text" lang="en">
                 <b>{{ s.name }}</b>
                 <small>{{ s.role }} · Form {{ s.form }}</small>
@@ -56,12 +54,19 @@ const close = () => emit('close')
             <AppIcon name="back" :size="16" />
             {{ t('survey.back') }}
           </button>
-          <h3 class="survey__title" lang="en">{{ current.persona }} · {{ current.name }}</h3>
+          <div class="survey__who" lang="en">
+            <PersonaAvatar :persona="current.persona" :size="56" />
+            <div>
+              <h3 class="survey__title">{{ current.name }}</h3>
+              <p class="survey__role">{{ current.persona }} · {{ current.role }}</p>
+            </div>
+          </div>
+          <p class="survey__intro" lang="en">{{ current.intro }}</p>
           <p class="survey__label">{{ t('survey.tasks') }}</p>
           <ol class="survey__tasks" lang="en">
-            <li v-for="task in current.tasks" :key="task.id">
-              <b>{{ task.id }}</b>
-              <span>{{ task.scenario }}</span>
+            <li v-for="(task, i) in current.tasks" :key="task.title">
+              <b>Task {{ i + 1 }}</b>
+              <span><strong>{{ task.title }}</strong> {{ task.text }}</span>
             </li>
           </ol>
         </div>
@@ -69,7 +74,7 @@ const close = () => emit('close')
           <p class="survey__label">{{ t('survey.answer', { form: current.form }) }}</p>
           <div class="survey__ways">
             <!-- the QR code is a link too: click it on a big screen, scan it with a phone -->
-            <a :href="current.url" target="_blank" rel="noopener" class="survey__qr-link pressable" :aria-label="t('survey.open', { form: current.form })">
+            <a :href="current.url" target="_blank" rel="noopener" class="survey__qr-link pressable" :aria-label="t('survey.qrAlt', { form: current.form })">
               <svg
                 class="survey__qr"
                 :viewBox="`-4 -4 ${current.qr.size + 8} ${current.qr.size + 8}`"
@@ -83,9 +88,8 @@ const close = () => emit('close')
             </a>
             <div class="survey__how">
               <p>{{ t('survey.scan') }}</p>
-              <a :href="current.url" target="_blank" rel="noopener" class="survey__url pressable-dim">{{ current.url.replace('https://', '') }}</a>
               <a :href="current.url" target="_blank" rel="noopener" class="survey__open pressable">
-                {{ t('survey.open', { form: current.form }) }}
+                {{ t('survey.open') }}
                 <AppIcon name="chevron" :size="16" />
               </a>
             </div>
@@ -167,18 +171,6 @@ const close = () => emit('close')
     border-color: var(--accent-100);
   }
 }
-.scenario__tile {
-  width: var(--row-icon);
-  height: var(--row-icon);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--r-md); /* same list-row tile as the app's sheets */
-  background: var(--accent-100);
-  color: var(--ink-900);
-  font: var(--t-label);
-}
 .scenario__text {
   flex: 1;
   min-width: 0;
@@ -206,6 +198,21 @@ const close = () => emit('close')
   color: var(--accent-100);
   font: var(--t-button);
 }
+.survey__who {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.survey__role {
+  margin: 0.125rem 0 0;
+  font: var(--t-meta);
+  color: var(--ink-300);
+}
+.survey__intro {
+  margin: var(--s-3) 0 0;
+  font: var(--t-body-sm);
+  color: var(--cream);
+}
 .survey__label {
   margin: var(--s-3) 0 var(--s-1);
   font: var(--t-caption);
@@ -223,8 +230,13 @@ const close = () => emit('close')
   color: var(--cream);
 }
 .survey__tasks li {
-  display: grid;
-  grid-template-columns: 1.75rem 1fr;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.survey__tasks strong {
+  display: block;
+  font-weight: 600;
 }
 .survey__tasks b {
   color: var(--accent-100);
@@ -263,16 +275,6 @@ const close = () => emit('close')
   flex-direction: column;
   gap: var(--s-1);
   min-width: 0;
-}
-.survey__url {
-  display: flex;
-  align-items: center;
-  min-height: var(--hit);
-  color: var(--cream);
-  font: var(--t-label-sm);
-  overflow-wrap: anywhere;
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 .survey__how p {
   margin: 0;

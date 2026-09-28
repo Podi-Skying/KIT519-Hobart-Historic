@@ -21,7 +21,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | NFR1 Accessibility incl. font size / contrast | NFR1 | NFR1 + **FR14** | Font size / contrast was never built → FR14 (Round 1) |
 | NFR2 Offline | NFR2 | NFR2 | Paper map is the working fallback; offline tiles simulated |
 | NFR3 Real-time performance | NFR3 | NFR3 | Hand-tracking (glasses) no longer applies |
-| NFR4 Weather | NFR4 | NFR4 | + "Plan an accessible walk" (Round 1) |
+| NFR4 Weather | NFR4 | NFR4 | + "Plan an accessible walk" (Round 1, later removed: Weather is read-only) |
 | — | FR4, FR5, FR8–FR12, NFR5, NFR6 | same | Unchanged from A2 |
 | — | — | **FR16, FR17, NFR7** | Existing features that had no requirement (likes, nearest site, localisation) |
 
@@ -49,7 +49,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | **NFR1** | Accessible by default: WCAG 2.2 AA, 44px targets, accessible routes, no forced gestures | Must | P1 P2 P3 · all | All screens | axe-core scans (evidence/before → after), tests/composables/sheetDrag.spec.js, heuristic + cognitive walkthrough | A11Y-1…A11Y-4 fixed in Round 1 | Partly verified — manual screen-reader test pending |
 | **NFR2** | Usable with limited connectivity | Should | P2 P3 · W7 W10 | S9 Printable map, S6 Map › Save map offline toggle | usability T7 T9 | Offline mode is simulated, paper map is the real fallback (limitation) | Partial |
 | **NFR3** | Responsive and stable navigation (re-route only after 50 m of movement and off the planned route, cached routes, graceful fallback) | Should | P1 · W3 | S7 Standard navigation, S8 AR navigation | tests/lib/routing.spec.js (needsReplan), tests/lib/terrain.spec.js | — | Implemented |
-| **NFR4** | Clear walking-weather information that feeds route planning | Should | P1 P2 P3 · W2 W8 | S11 Weather /weather › Step-free walk to … → S7 (Accessible route) | tests/lib/sites.spec.js (nearestAccessibleSite), usability T2 T8 | Round 1 R1-3: Plan an accessible walk, data is static (limitation) | Implemented (static data) |
+| **NFR4** | Clear walking-weather information for deciding when to walk | Should | P1 P2 P3 · W2 W8 | S11 Weather /weather (now · best time · this week · advice) | usability T2 T8 | Round 1 R1-3 added a walk button, later removed by the owner: Weather is now read-only, data is static (limitation) | Implemented (static data) |
 | **NFR5** | Simple and consistent navigation (persistent tab bar, one action colour, back everywhere) | Must | P1 P2 P3 · all | Tab bar, PageHeader | heuristic evaluation (H4 consistency) | — | Implemented |
 | **NFR6** | Clear hierarchy and outdoor readability (contrast ≥ 4.5:1, one primary button per screen) | Must | P1 P2 P3 · all | All screens | axe color-contrast, heuristic evaluation | — | Implemented |
 | **NFR7** | All interface text, site content and narration in 5 languages | Must | P1 · W1–W4 | S1 Leading Page › Choose your language, O1 Language & display sheet | tests/i18n/i18n.spec.js (identical keys & placeholders in every locale) | — | Implemented |
@@ -78,7 +78,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | **NFR1** | A1 NFR1 · A2 NFR1 · improve accessibility (client objective) | README §5.8 checklist, ChipGroup radiogroup, aria labels, useSheetDrag (drag has button alternative) |
 | **NFR2** | A1 NFR2 · A2 NFR2 · variable connectivity (case constraint) | views/PrintableMapView.vue, stores/trip.js (offlineMap — simulated) |
 | **NFR3** | A1 NFR3 · A2 NFR3 | composables/useWalkingRoute.js (cache, 'fallback' status), lib/guidance.js (needsReplan: REROUTE_METERS, OFF_ROUTE_METERS), services/routeOptions.js (per-trip cache) |
-| **NFR4** | A1 NFR4 · A2 NFR4 · weather affects outdoor experience (case challenge) | views/WeatherView.vue, data/weather.js (static), lib/sites.js (nearestAccessibleSite) |
+| **NFR4** | A1 NFR4 · A2 NFR4 · weather affects outdoor experience (case challenge) | views/WeatherView.vue, data/weather.js (static), stores/weather.js |
 | **NFR5** | A2 NFR5 · simple navigation (design consideration) | components/layout/TabBar.vue, router meta (tab, hideTabBar) |
 | **NFR6** | A2 NFR6 · clear information hierarchy | styles/tokens.css (AA/AAA contrast tokens) |
 | **NFR7** | A2 FR9 (extended) · international visitors | i18n/messages/*.js, i18n/content/*.js, i18n/index.js |

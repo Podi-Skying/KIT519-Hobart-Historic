@@ -52,8 +52,6 @@ flowchart LR
 
   SITE -- Start walking route --> NAVMAP
   SITE -- View in AR --> ARCAM
-  WEATHER -->|"Step-free walk to … · Accessible"| NAVMAP
-  WEATHER -- Choose another place --> MAP
 
   %% overlays (bottom sheets)
   LANG{{O1 Language & display sheet}}
@@ -105,8 +103,6 @@ flowchart LR
   map (S9) (4 taps). Moving the mode choice into navigation (so walking starts at once on the
   standard map) costs one extra tap here — the earlier "at most three taps" claim no longer
   holds for this path; flagged for review.
-- Accessible walk from Weather (P2): S11 Weather → Step-free walk to … (S7, Accessible route
-  selected) (1 tap).
 
 **Redirects and launch.**
 - Every launch or refresh shows S1 and then lands on S2 Home, whatever URL was open (Home's

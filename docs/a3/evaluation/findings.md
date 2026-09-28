@@ -39,9 +39,8 @@ Round 1 build. Since then:
 - **R1-6 / R1-8:** the separate "How would you like to navigate?" page (`/navigate/:id`) has
   been removed. *Go* and *Start walking route* open S7 Standard navigation directly, with the
   route-type picker in its summary; AR and printable are chosen in the *Change mode* sheet.
-- **R1-3:** the Weather button now names its destination ("Step-free walk to … · n min") and
-  opens S7 with the Accessible route selected; *Choose another place* opens the Map with
-  Accessible preselected.
+- **R1-3:** reverted by the owner. The Weather page is read-only again (conditions, best time,
+  this week, advice); people go to the Map tab to plan a walk.
 - **H1:** Home cards and the site page no longer show walking times; the straight-line
   estimate remains on the Map's *Nearest* card.
 - **Through time** now plays inside the AR camera (S10); `/ar/:id/compare` redirects there.

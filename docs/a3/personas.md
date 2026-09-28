@@ -49,7 +49,7 @@ RTM and evaluation tasks is defined here.
 | ID | Workflow | Main screens (routes) |
 | --- | --- | --- |
 | W1 | Discover and choose a heritage site | S2 Home `/home` → S3 Site detail `/sites/:id` |
-| W2 | Check conditions and plan an accessible route | S11 Weather `/weather` → S7 Standard navigation `/navigate/:id/map` (Accessible selected), or → S6 Map `/map` (Accessible preselected) |
+| W2 | Check conditions and plan an accessible route | S11 Weather `/weather` (read) → S6 Map `/map` tab → Go → S7 Standard navigation, Accessible route |
 | W3 | Navigate by map or AR and switch modes | S7 Standard navigation `/navigate/:id/map` ⇄ S8 AR navigation `/navigate/:id/ar` (AR button · O6 mode sheet) |
 | W4 | Learn on site (arrival → audio, transcript, AR, past vs present) | O3 Arrival sheet → S5 Audio tour `/sites/:id/audio`, S10 AR camera · Through time `/ar/:id` |
 

@@ -1,11 +1,19 @@
 /**
  * Evaluation questionnaires (Google Forms), one per persona scenario — shown in the desktop
- * design notes so a participant can pick a scenario and answer on their phone (QR) or here (link).
+ * "Scenario Task" panel so a participant can pick a scenario, do its three tasks, then answer
+ * on their phone (QR) or here (link). `intro` and `tasks` are copied word for word from each
+ * form (checked 29 Sep 2026): update them here if the form changes.
  * QR codes are pre-encoded (version 3-M, verified to decode to the URL): regenerate if a URL changes.
  */
 export const SURVEY_FORMS = [
   {
     persona: 'P1',
+    intro: 'You are Minzi, a 22-year-old Korean art & design exchange student. Your English isn\'t perfect, and you hurt your leg recently, so you can\'t walk up steep hills or very far. It\'s Saturday and you want to see some of Hobart\'s old buildings.',
+    tasks: [
+      { title: 'Set up the app and check conditions', text: 'You\'d feel more comfortable reading in your language. Set the app to your language, then find out whether today\'s weather is good for a walk.' },
+      { title: 'Choose a site and a route that suits your leg', text: 'Pick one of the most popular heritage sites. Before you set off, compare the route options and choose the one that\'s best for someone who can\'t manage steep hills.' },
+      { title: 'Navigate and learn on arrival', text: 'Start walking to the site using the camera view that shows directions over the street. When you arrive, listen to the story of the site in your language.' },
+    ],
     form: 'A',
     title: 'KIT519 - Group 13 - Hobart Historic Walking Tour',
     url: 'https://forms.gle/TQv1C5AzECHRCrbv9',
@@ -13,6 +21,12 @@ export const SURVEY_FORMS = [
   },
   {
     persona: 'P2',
+    intro: 'You are Margaret, 71, a retired school librarian who has lived in Sandy Bay for 40 years. Small, pale text is hard for you to read, you don\'t like steep streets, and you like to carry a paper map rather than rely on your phone. A friend recommended the Cascades Female Factory.',
+    tasks: [
+      { title: 'Make the app comfortable to read', text: 'The writing is a bit small and faint for you. Make the app easier to read.' },
+      { title: 'Plan a gentle walk with rest stops', text: 'Using the map, find the heritage site closest to you and plan a gentle walk there. Along the way, you\'d like a toilet and somewhere to get a coffee.' },
+      { title: 'Take the route with you on paper', text: 'You\'d rather not look at your phone the whole way. Get a version of this route you could print and carry.' },
+    ],
     form: 'B',
     title: 'KIT519 - Group 13 - Hobart Historic Walking Tour',
     url: 'https://forms.gle/ngtb8nQnHcnGJPdj9',
@@ -20,6 +34,12 @@ export const SURVEY_FORMS = [
   },
   {
     persona: 'P3',
+    intro: 'You are Sam, a Year 9 history teacher at a Hobart public school. You\'re planning a 2-hour convict history excursion for 24 students next week. Some students have mobility needs, and students can\'t use phones freely during the trip.',
+    tasks: [
+      { title: 'Pick the best day', text: 'Look at the weather for the coming week and decide which day would be best for the excursion.' },
+      { title: 'Build a multi-stop route that fits two hours', text: 'Plan a route starting at the Cascades Female Factory that also visits Salamanca Place and Narryna. It needs to work for every student in the class. Tell me how long the whole trip will take.' },
+      { title: 'Prepare the class hand-out and classroom material', text: 'Create a hand-out of this route you could print for the students, with information about each stop. Then find some visual material about one of the sites you could show in class before the trip.' },
+    ],
     form: 'C',
     title: 'KIT519 - Group 13 - Hobart Historic Walking Tour',
     url: 'https://forms.gle/T24EkX4rGffBtDQL8',

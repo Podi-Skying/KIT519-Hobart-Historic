@@ -2,30 +2,20 @@
 /**
  * Walking conditions. Numbers come from data/weather.js; all wording is localised.
  * "Now" follows the simulated live weather (stores/weather.js), like the tab icon.
- * The advice card leads straight into a walk: turn-by-turn navigation to the nearest
- * step-free site with the Accessible route already selected — one tap, no dead end.
+ * A page to read: conditions, the best time today, the week ahead and walking advice.
  */
-import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import CrossfadeIcon from '@/components/base/CrossfadeIcon.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
-import BaseButton from '@/components/base/BaseButton.vue'
 import SectionHeader from '@/components/base/SectionHeader.vue'
 import { computed } from 'vue'
 import { BEST_COMFORT_SCORE, CONDITIONS, WEATHER } from '@/data/weather'
-import { useTripStore } from '@/stores/trip'
-import { useLocationStore } from '@/stores/location'
-import { useContent } from '@/i18n/content'
-import { distanceKm } from '@/lib/geo'
-import { nearestAccessibleSite, walkMinutesFor } from '@/lib/sites'
 import { useWeatherStore } from '@/stores/weather'
 
 const { bestWindow, hourlyComfort } = WEATHER
 const { t } = useI18n()
-const router = useRouter()
-const trip = useTripStore()
 const weather = useWeatherStore()
 
 const current = computed(() => weather.current)
@@ -40,27 +30,6 @@ const forecast = computed(() => [
   { ...WEATHER.forecast[0], condition: current.value.condition, high: current.value.temperature },
   ...WEATHER.forecast.slice(1),
 ])
-
-const location = useLocationStore()
-const { sites } = useContent()
-/** The walk the button starts — named on the button, so people know where it goes before tapping. */
-const accessibleTarget = computed(() => nearestAccessibleSite(sites.value, (s) => distanceKm(location.origin, s.coordinates)))
-const accessibleMinutes = computed(() =>
-  accessibleTarget.value ? walkMinutesFor({ walkMinutes: location.distanceTo(accessibleTarget.value).minutes }, 'accessible') : 0,
-)
-/** Straight into navigation: nearest step-free site from the walker, Accessible route selected. */
-function planAccessibleWalk() {
-  const site = accessibleTarget.value
-  if (!site) return chooseOther()
-  trip.setRouteType('accessible')
-  trip.setDestination(site.id)
-  router.push({ name: 'navigate-map', params: { id: site.id } })
-}
-/** Or pick the place yourself on the map, with Accessible already selected. */
-function chooseOther() {
-  trip.setRouteType('accessible')
-  router.push({ name: 'map' })
-}
 </script>
 
 <template>
@@ -125,10 +94,6 @@ function chooseOther() {
         <AppIcon name="shoe" :size="22" />
         <span>{{ t('weather.advice') }}</span>
       </p>
-      <BaseButton block icon="accessible" @click="planAccessibleWalk">
-        {{ accessibleTarget ? t('weather.accessibleWalkTo', { name: accessibleTarget.shortName, n: accessibleMinutes }) : t('weather.planAccessible') }}
-      </BaseButton>
-      <button type="button" class="advice__other pressable-dim" @click="chooseOther">{{ t('weather.otherPlaces') }}</button>
     </div>
   </AppPage>
 </template>
@@ -283,18 +248,10 @@ function chooseOther() {
 .advice__text {
   display: flex;
   gap: var(--s-3);
-  margin-bottom: var(--s-4);
+  margin: 0;
 }
 .advice__text :deep(svg) {
   margin-top: 0.125rem;
   color: var(--success-600);
-}
-.advice__other {
-  display: block;
-  min-height: var(--hit);
-  margin: var(--s-1) auto 0;
-  padding: 0 var(--s-4);
-  font: var(--t-button);
-  color: var(--brand-600);
 }
 </style>

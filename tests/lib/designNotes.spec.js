@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { RATIONALE, SCREENS } from '@/data/designRationale'
 import { SURVEY_FORMS } from '@/data/surveyForms'
-import { EVERY_SCREEN, ROUTE_REQUIREMENTS, expandIds, layoutColumn, notesFor, parseCsv, parsePersonas, parseTasks, scenarioFor } from '@/lib/designNotes'
+import { EVERY_SCREEN, ROUTE_REQUIREMENTS, expandIds, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
 
 const rows = parseCsv(readFileSync('docs/a3/rtm.csv', 'utf8'))
 const docs = parsePersonas(readFileSync('docs/a3/personas.md', 'utf8'))
@@ -83,20 +83,13 @@ describe('layoutColumn', () => {
   })
 })
 
-describe('evaluation scenarios (desktop "Take part")', () => {
-  const tasks = parseTasks(readFileSync('docs/a3/evaluation/evaluation-plan.md', 'utf8'))
-  it('reads every task T1–T9 with its persona and scenario', () => {
-    expect(tasks.map((t) => t.id)).toEqual(['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9'])
-    for (const t of tasks) expect(t.scenario.length, t.id).toBeGreaterThan(20)
-  })
-  it('orders each persona session as the plan says (P2 starts with the shared task)', () => {
-    expect(scenarioFor('P1', tasks).map((t) => t.id)).toEqual(['T1', 'T2', 'T3', 'T4', 'T5'])
-    expect(scenarioFor('P2', tasks).map((t) => t.id)).toEqual(['T5', 'T6', 'T7'])
-    expect(scenarioFor('P3', tasks).map((t) => t.id)).toEqual(['T8', 'T9', 'T5'])
-  })
-  it('has one form per persona with a link and a QR code', () => {
+describe('Scenario Task forms (desktop)', () => {
+  it('has one form per persona, each with its persona intro and three tasks from the form', () => {
     expect(SURVEY_FORMS.map((f) => `${f.persona}${f.form}`)).toEqual(['P1A', 'P2B', 'P3C'])
     for (const f of SURVEY_FORMS) {
+      expect(f.intro, f.persona).toMatch(/^You are /)
+      expect(f.tasks, f.persona).toHaveLength(3)
+      for (const task of f.tasks) expect(task.title && task.text, f.persona).toBeTruthy()
       expect(f.url).toMatch(/^https:\/\/forms\.gle\//)
       expect(f.qr.path).toMatch(/^M0 0h7/) // finder pattern in the top-left corner
     }

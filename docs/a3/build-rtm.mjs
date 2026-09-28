@@ -45,7 +45,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | NFR1 Accessibility incl. font size / contrast | NFR1 | NFR1 + **FR14** | Font size / contrast was never built → FR14 (Round 1) |
 | NFR2 Offline | NFR2 | NFR2 | Paper map is the working fallback; offline tiles simulated |
 | NFR3 Real-time performance | NFR3 | NFR3 | Hand-tracking (glasses) no longer applies |
-| NFR4 Weather | NFR4 | NFR4 | + "Plan an accessible walk" (Round 1) |
+| NFR4 Weather | NFR4 | NFR4 | + "Plan an accessible walk" (Round 1, later removed: Weather is read-only) |
 | — | FR4, FR5, FR8–FR12, NFR5, NFR6 | same | Unchanged from A2 |
 | — | — | **FR16, FR17, NFR7** | Existing features that had no requirement (likes, nearest site, localisation) |
 
