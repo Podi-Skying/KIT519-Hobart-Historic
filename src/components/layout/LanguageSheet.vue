@@ -107,15 +107,19 @@ function choose(code, dismiss) {
   background: var(--brand-50);
 }
 .option__icon {
-  width: 36px;
-  height: 36px;
+  width: var(--row-icon);
+  height: var(--row-icon);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md); /* list-row icon tile: same size and shape in every sheet */
   background: var(--sand-fill);
   color: var(--ink-900);
+}
+.option.is-selected .option__icon {
+  background: var(--paper);
+  color: var(--brand-600); /* selected row: same tile treatment as the mode and stop sheets */
 }
 .option__text {
   flex: 1;

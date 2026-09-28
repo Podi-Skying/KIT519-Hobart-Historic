@@ -97,14 +97,14 @@ function toggle(stop) {
   background: var(--brand-50);
 }
 .stop__icon {
-  width: 40px;
-  height: 40px;
+  width: var(--row-icon);
+  height: var(--row-icon);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: var(--cream);
+  border-radius: var(--r-md); /* list-row icon tile: same size and shape in every sheet */
+  background: var(--sand-fill);
   color: var(--ink-900);
 }
 .stop.is-added .stop__icon {

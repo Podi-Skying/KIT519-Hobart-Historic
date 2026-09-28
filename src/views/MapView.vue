@@ -419,13 +419,13 @@ function toggleOffline() {
   text-align: left;
 }
 .nearest__icon {
-  width: 40px;
-  height: 40px;
+  width: var(--row-icon);
+  height: var(--row-icon);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: var(--r-md); /* list-row icon tile (paper here: it sits on the amber shortcut) */
   background: var(--paper);
   color: var(--brand-600);
 }
@@ -439,11 +439,12 @@ function toggleOffline() {
   color: var(--accent-700);
 }
 .nearest__text b {
-  font: var(--t-title);
+  font: var(--t-h3);
+  font-weight: 600;
   color: var(--ink-900);
 }
 .nearest__text small {
-  font: var(--t-small);
+  font: var(--t-meta);
   color: var(--ink-700);
 }
 .nearest__chevron {

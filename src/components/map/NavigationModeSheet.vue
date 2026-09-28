@@ -37,7 +37,7 @@ function choose(route, dismiss) {
             :aria-current="mode.route === current ? 'true' : undefined"
             @click="choose(mode.route, dismiss)"
           >
-            <span class="mode__icon"><AppIcon :name="mode.icon" :size="22" /></span>
+            <span class="mode__icon"><AppIcon :name="mode.icon" :size="20" /></span>
             <span class="mode__text">
               <span class="mode__title">{{ t(`navModes.${mode.route}.title`) }}</span>
               <span class="mode__description">{{ t(`navModes.${mode.route}.description`) }}</span>
@@ -76,18 +76,19 @@ function choose(route, dismiss) {
   background: var(--brand-50);
 }
 .mode__icon {
-  width: 44px;
-  height: 44px;
+  width: var(--row-icon);
+  height: var(--row-icon);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--r-md);
-  background: var(--brand-50);
-  color: var(--brand-600);
+  border-radius: var(--r-md); /* list-row icon tile: same size and shape in every sheet */
+  background: var(--sand-fill);
+  color: var(--ink-900);
 }
 .mode.is-current .mode__icon {
   background: var(--paper);
+  color: var(--brand-600);
 }
 .mode__text {
   flex: 1;
@@ -97,12 +98,13 @@ function choose(route, dismiss) {
   gap: 0.125rem;
 }
 .mode__title {
-  font: var(--t-title);
+  font: var(--t-h3);
+  font-weight: 600;
   color: var(--ink-900);
 }
 .mode__description {
   margin-bottom: var(--s-1);
-  font: var(--t-small);
+  font: var(--t-meta);
   color: var(--ink-500);
 }
 .mode__end {

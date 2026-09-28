@@ -39,7 +39,7 @@ const { t } = useI18n()
   min-width: 0;
 }
 .page-header__title {
-  font: var(--t-h3);
+  font: var(--t-title); /* 17px, like an iOS navigation title: "where am I" is never the smallest text */
   color: var(--ink-900);
   white-space: nowrap;
   overflow: hidden;

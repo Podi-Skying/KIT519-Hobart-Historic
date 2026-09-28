@@ -36,13 +36,14 @@
   --success-600: #4a6741; /* accessible route, good conditions, arrived */
   --success-50: #e8efe6;
   --info-600: #2f6fed; /* "you are here" */
-  --ar-400: #38bdf8; /* digital AR layer — camera views only */
+  --ar-400: #a4c6d6; /* AR layer tone (muted slate-blue): scan frame, scan line, arrows — camera views only */
   /* AR direction arrows: a muted, see-through slate-blue (the AR hue, desaturated to sit with the
      sandstone palette) so the street stays visible through them */
   --ar-arrow: rgba(164, 198, 214, 0.6); /* face · hsl(199 38% 74%) */
   --ar-arrow-side: rgba(75, 119, 139, 0.55); /* shaded side: the 3D extrusion */
   --ar-arrow-rim: rgba(255, 255, 255, 0.65);
-  --ar-glow: rgba(164, 198, 214, 0.45); /* soft halo around the fallback arrows */
+  --ar-glow: rgba(164, 198, 214, 0.45); /* soft halo: fallback arrows, AR bubbles */
+  --brand-halo: rgba(125, 48, 69, 0.35); /* halo around a selected AR bubble */
   --camera-bg: #000; /* behind camera / Street View imagery while it loads */
   --like-glass: rgba(125, 48, 69, 0.88); /* like counter over a photo (brand-600, lets the photo tint it) */
   --stage-text: #9a8f7b; /* desktop backdrop credit, on the dark stage only · 5.4:1 on --stage-bg */
@@ -165,6 +166,7 @@
 
   /* ---- Accessibility ---- */
   --hit: 44px; /* minimum touch target */
+  --row-icon: 40px; /* icon tile at the start of a list row (sheets, Nearest) */
   --focus-ring: 0 0 0 3px rgba(125, 48, 69, 0.35);
   --text-zoom: 1; /* scale of `.text-zoom` surfaces, see Larger text below */
 }

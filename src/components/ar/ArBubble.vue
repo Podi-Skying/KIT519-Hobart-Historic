@@ -115,20 +115,20 @@ function onPointerUp() {
   border-radius: 50%;
   background: var(--cream);
   color: var(--ink-900);
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35), var(--e-2);
+  box-shadow: 0 0 0 4px var(--ar-glow), var(--e-2); /* same muted AR tone as the arrows and scan frame */
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .bubble.is-active .bubble__circle {
   background: var(--brand-600);
   color: var(--paper);
-  box-shadow: 0 0 0 4px rgba(125, 48, 69, 0.35), var(--e-2);
+  box-shadow: 0 0 0 4px var(--brand-halo), var(--e-2);
 }
 .bubble__label {
   padding: 0.1875rem 0.5625rem;
   border-radius: var(--r-pill);
   background: var(--glass);
   color: var(--cream);
-  font: var(--t-micro);
+  font: var(--t-label-sm); /* 12px 600: small text over live imagery needs the extra size */
 }
 .bubble.is-settling {
   transition: left var(--dur-page) var(--ease), top var(--dur-page) var(--ease);
