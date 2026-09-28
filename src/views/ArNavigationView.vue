@@ -282,7 +282,7 @@ function blockKeyMoves(e) {
 }
 .ar-nav__arrow {
   fill: var(--ar-arrow);
-  stroke: var(--paper);
+  stroke: var(--ar-arrow-rim);
 }
 .ar-nav__world,
 .ar-nav__near {
@@ -395,7 +395,7 @@ function blockKeyMoves(e) {
 .ar-nav__instr {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.125rem;
 }
 .ar-nav__instr small {
   font: var(--t-label-sm);
@@ -452,17 +452,16 @@ function blockKeyMoves(e) {
   width: 110px;
   height: 68px;
   overflow: visible;
-  /* AR-layer cyan face (README §5.2: navigation arrows are the AR overlay colour, not the
-     "you are here" blue), paper rim, a deeper cyan extrusion = a chunky 3D chevron that reads
-     on any street */
-  filter: drop-shadow(0 8px 0 var(--ar-700)) drop-shadow(0 14px 12px rgba(0, 0, 0, 0.4));
+  /* muted, see-through AR arrows (never the "you are here" blue): a pale slate face, soft white
+     rim and a slate extrusion — present enough to follow, light enough to see the street through */
+  filter: drop-shadow(0 6px 0 var(--ar-arrow-side)) drop-shadow(0 10px 10px rgba(0, 0, 0, 0.18));
   animation: chev-flow 1.5s var(--ease) infinite;
   animation-delay: calc(var(--i) * 0.18s);
 }
 .ar-nav__chev path {
-  fill: var(--ar-400);
-  stroke: var(--paper);
-  stroke-width: 6;
+  fill: var(--ar-arrow);
+  stroke: var(--ar-arrow-rim);
+  stroke-width: 4;
   stroke-linejoin: round;
 }
 .ar-nav__go.is-blocked .ar-nav__chev {
@@ -482,7 +481,7 @@ function blockKeyMoves(e) {
 .ar-nav__step {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   min-height: var(--hit);
   padding: 0 var(--s-4);
   border-radius: var(--r-pill);

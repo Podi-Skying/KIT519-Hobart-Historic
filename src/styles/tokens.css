@@ -37,9 +37,12 @@
   --success-50: #e8efe6;
   --info-600: #2f6fed; /* "you are here" */
   --ar-400: #38bdf8; /* digital AR layer — camera views only */
-  --ar-glow: rgba(56, 189, 248, 0.7); /* soft halo around AR arrows */
-  --ar-700: #0369a1; /* AR layer, shaded side: extrusion under the 3D ground arrows */
-  --ar-arrow: rgba(56, 189, 248, 0.9); /* AR direction arrows (slightly see-through over the street) */
+  /* AR direction arrows: a muted, see-through slate-blue (the AR hue, desaturated to sit with the
+     sandstone palette) so the street stays visible through them */
+  --ar-arrow: rgba(164, 198, 214, 0.6); /* face · hsl(199 38% 74%) */
+  --ar-arrow-side: rgba(75, 119, 139, 0.55); /* shaded side: the 3D extrusion */
+  --ar-arrow-rim: rgba(255, 255, 255, 0.65);
+  --ar-glow: rgba(164, 198, 214, 0.45); /* soft halo around the fallback arrows */
   --camera-bg: #000; /* behind camera / Street View imagery while it loads */
   --like-glass: rgba(125, 48, 69, 0.88); /* like counter over a photo (brand-600, lets the photo tint it) */
   --stage-text: #8c826f; /* desktop backdrop credit, on the dark stage only */
@@ -192,7 +195,9 @@
   --photo-veil-top: rgba(28, 22, 14, 0.7);
   --photo-veil-bottom: rgba(28, 22, 14, 0.88);
   --like-glass: #7d3045; /* solid: no photo showing through behind the count */
-  --ar-arrow: #38bdf8;
+  --ar-arrow: #a4c6d6; /* solid: high contrast wins over see-through */
+  --ar-arrow-side: #4b778b;
+  --ar-arrow-rim: #fff;
   --focus-ring: 0 0 0 3px #2c2417;
   --outline: #6e6352;
   --material-bar: var(--cream); /* solid chrome: nothing shows through behind text */
@@ -226,7 +231,9 @@
     --photo-veil-top: rgba(28, 22, 14, 0.7);
     --photo-veil-bottom: rgba(28, 22, 14, 0.88);
     --like-glass: #7d3045;
-    --ar-arrow: #38bdf8;
+    --ar-arrow: #a4c6d6;
+    --ar-arrow-side: #4b778b;
+    --ar-arrow-rim: #fff;
     --focus-ring: 0 0 0 3px #2c2417;
     --outline: #6e6352;
     --material-bar: var(--cream);
@@ -242,6 +249,9 @@
   :root {
     --glass: rgba(44, 36, 23, 0.94);
     --glass-blur: none;
+    --ar-arrow: #a4c6d6;
+    --ar-arrow-side: #4b778b;
+    --ar-arrow-rim: #fff;
     --material-bar: var(--cream);
     --material-blur: none;
   }
