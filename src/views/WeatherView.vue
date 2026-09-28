@@ -70,7 +70,7 @@ function chooseOther() {
       <h1 class="t-h1">{{ t('weather.title') }}</h1>
     </header>
 
-    <section class="now" :aria-label="summary">
+    <section class="now" data-req="NFR4" :aria-label="summary">
       <CrossfadeIcon class="now__icon" :name="CONDITIONS[current.condition].icon" :size="56" :stroke-width="1.6" />
       <p class="now__summary">{{ summary }}</p>
       <p class="now__temp">{{ current.temperature }}°</p>

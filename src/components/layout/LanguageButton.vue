@@ -15,6 +15,7 @@ const current = computed(() => localeInfo(locale.value))
   <button
     type="button"
     class="language-button pressable"
+    data-req="FR14 NFR7"
     :aria-label="t('language.button', { language: current.label })"
     aria-haspopup="dialog"
     @click="open = true"

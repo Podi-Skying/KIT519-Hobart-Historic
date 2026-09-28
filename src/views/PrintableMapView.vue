@@ -47,7 +47,7 @@ const print = () => window.print()
       <h1 class="t-display content__title">{{ t('print.title') }}</h1>
       <p class="t-body">{{ t('print.lead') }}</p>
 
-      <article class="paper">
+      <article class="paper" data-req="FR12">
         <div class="paper__map">
           <SiteMap
             :sites="[site, ...walk.stopSites.value]"
@@ -108,7 +108,7 @@ const print = () => window.print()
         <div class="paper__lines" aria-hidden="true"><i v-for="n in NOTE_LINES" :key="n" /></div>
       </article>
 
-      <BaseButton block icon="print" class="no-print content__print" @click="print">{{ t('print.print') }}</BaseButton>
+      <BaseButton block icon="print" data-req="NFR2" class="no-print content__print" @click="print">{{ t('print.print') }}</BaseButton>
     </div>
   </AppPage>
 </template>

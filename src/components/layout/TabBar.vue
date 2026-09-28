@@ -19,7 +19,7 @@ const activeIndex = computed(() => TABS.findIndex((tab) => tab.key === route.met
 </script>
 
 <template>
-  <nav class="tab-bar no-print text-zoom" :aria-label="t('tabs.main')">
+  <nav class="tab-bar no-print text-zoom" data-req="NFR5" :aria-label="t('tabs.main')">
     <span
       v-if="activeIndex >= 0"
       class="tab-bar__indicator"

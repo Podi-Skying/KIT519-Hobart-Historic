@@ -11,7 +11,7 @@ export const ROUTE_REQUIREMENTS = {
   site: ['FR5', 'FR8', 'FR7', 'FR16'],
   gallery: ['FR7'],
   audio: ['FR6', 'FR9', 'FR14', 'NFR7'],
-  map: ['FR1', 'FR17', 'FR11', 'NFR5'],
+  map: ['FR1', 'FR17', 'FR11', 'NFR2', 'NFR5'],
   'navigate-map': ['FR1', 'FR10', 'FR11', 'FR15', 'NFR3'],
   'navigate-ar': ['FR2', 'FR10', 'FR15', 'NFR3'],
   'navigate-print': ['FR12', 'NFR2'],
@@ -67,4 +67,28 @@ export function notesFor(ids, rows, { personas = {}, workflows = {} } = {}) {
       personas: expandIds(r.Personas).map((id) => ({ id, name: personas[id] ?? '' })),
       workflows: expandIds(r.Workflows).map((id) => ({ id, title: workflows[id] ?? '' })),
     }))
+}
+
+/**
+ * Stack callouts in one gutter column: each wants its centre at `want` (the anchor's y; Infinity
+ * = no anchor, goes last), never overlaps the one above (gap), stays inside [top, bottom] when
+ * it can. Returns the top of each item, in the input order.
+ */
+export function layoutColumn(items, { top, bottom, gap = 8 }) {
+  const order = items.map((it, i) => ({ ...it, i })).sort((a, b) => a.want - b.want)
+  const tops = new Array(items.length)
+  let next = top
+  for (const it of order) {
+    const wanted = Number.isFinite(it.want) ? it.want - it.h / 2 : bottom
+    tops[it.i] = Math.max(wanted, next)
+    next = tops[it.i] + it.h + gap
+  }
+  // pushed past the bottom: slide back up, keeping order and gaps
+  let limit = bottom
+  for (let k = order.length - 1; k >= 0; k--) {
+    const it = order[k]
+    tops[it.i] = Math.max(top, Math.min(tops[it.i], limit - it.h))
+    limit = tops[it.i] - gap
+  }
+  return tops
 }

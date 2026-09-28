@@ -156,7 +156,7 @@ const endRoute = () => router.push({ name: 'map' })
       <IconButton variant="float" icon="plus" :label="t('navigation.zoomIn')" @click="map?.zoomIn()" />
       <IconButton variant="float" icon="minus" :label="t('navigation.zoomOut')" @click="map?.zoomOut()" />
       <IconButton variant="float" icon="locate" :label="user ? t('navigation.follow') : t('navigation.showRoute')" @click="recenter" />
-      <RouterLink :to="{ name: 'navigate-ar', params: { id } }" class="zoom__ar pressable" :aria-label="t('navigation.switchAr')">
+      <RouterLink :to="{ name: 'navigate-ar', params: { id } }" class="zoom__ar pressable" data-req="FR10" :aria-label="t('navigation.switchAr')">
         <AppIcon name="ar" :size="20" /><span>AR</span>
       </RouterLink>
     </div>
@@ -181,13 +181,13 @@ const endRoute = () => router.push({ name: 'map' })
       <div class="summary__row">
         <p class="t-small muted">{{ routeLine }}</p>
         <div class="summary__buttons">
-          <BaseButton variant="quiet" size="sm" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
+          <BaseButton variant="quiet" size="sm" data-req="FR15" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
           <BaseButton variant="secondary" size="sm" @click="endRoute">{{ t('navigation.end') }}</BaseButton>
         </div>
       </div>
-      <RouteTypePicker v-model="routeType" class="summary__routes" :summaries="walk.summaries.value" :loading="walk.pending.value" compact />
+      <RouteTypePicker v-model="routeType" data-req="FR1" class="summary__routes" :summaries="walk.summaries.value" :loading="walk.pending.value" compact />
       <div class="summary__actions">
-        <BaseButton variant="secondary" icon="plus" :aria-haspopup="'dialog'" @click="stopsOpen = true">
+        <BaseButton variant="secondary" icon="plus" data-req="FR11" :aria-haspopup="'dialog'" @click="stopsOpen = true">
           {{ t('navigation.addStop') }}<span v-if="trip.stops.length" class="summary__count">{{ trip.stops.length }}</span>
         </BaseButton>
         <BaseButton icon="compass" aria-haspopup="dialog" @click="modesOpen = true">{{ t('navigation.changeMode') }}</BaseButton>

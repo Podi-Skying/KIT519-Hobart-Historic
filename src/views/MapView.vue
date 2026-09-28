@@ -172,7 +172,7 @@ function toggleOffline() {
     </div>
 
     <div class="map-view__controls">
-      <IconButton variant="float" :icon="trip.offlineMap ? 'download' : 'wifi'" :label="t('map.offline')" :pressed="trip.offlineMap" @click="toggleOffline" />
+      <IconButton variant="float" :icon="trip.offlineMap ? 'download' : 'wifi'" :label="t('map.offline')" data-req="NFR2" :pressed="trip.offlineMap" @click="toggleOffline" />
       <IconButton
         variant="float"
         icon="locate"
@@ -220,7 +220,7 @@ function toggleOffline() {
         </div>
 
         <p class="t-caption panel__label">{{ t('map.routeType') }}</p>
-        <RouteTypePicker v-model="routeType" :summaries="walk.summaries.value" :loading="walk.pending.value" />
+        <RouteTypePicker v-model="routeType" data-req="FR1" :summaries="walk.summaries.value" :loading="walk.pending.value" />
 
         <ul v-if="trip.stops.length" class="stop-chips" :aria-label="t('map.stopsOnRoute')">
           <li v-for="stop in trip.stops" :key="stop.id">
@@ -251,7 +251,7 @@ function toggleOffline() {
         <button type="button" class="panel__hide pressable-dim" :aria-label="t('map.hidePanel')" aria-expanded="true" @click="browseOpen = false">
           <span class="panel__grip" aria-hidden="true" />
         </button>
-        <button type="button" class="nearest pressable-card" @click="trip.setDestination(nearest.id)">
+        <button type="button" class="nearest pressable-card" data-req="FR17" @click="trip.setDestination(nearest.id)">
           <span class="nearest__icon"><AppIcon name="pin" :size="20" /></span>
           <span class="nearest__text">
             <span class="t-caption">{{ t('map.nearest') }}</span>
@@ -264,7 +264,7 @@ function toggleOffline() {
         <p class="t-caption panel__label panel__label--inset">
           {{ t('map.addStop') }}<template v-if="trip.stopIds.length"> · {{ trip.stopIds.length }}/{{ MAX_STOPS }}</template>
         </p>
-        <StopPicker :selected-ids="trip.stopIds" @toggle="toggleStop" />
+        <StopPicker data-req="FR11" :selected-ids="trip.stopIds" @toggle="toggleStop" />
       </section>
 
       <!-- Tucked away: just the grip, as a tab -->

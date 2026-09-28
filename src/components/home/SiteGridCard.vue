@@ -25,6 +25,7 @@ const likes = computed(() => favorites.likeCount(props.site))
       <button
         type="button"
         class="grid-card__like pressable"
+        data-req="FR16"
         :class="{ 'is-liked': liked }"
         :aria-pressed="liked"
         :aria-label="t(liked ? 'home.unlike' : 'home.like', { name: site.name, n: likes })"

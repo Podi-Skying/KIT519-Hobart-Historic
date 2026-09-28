@@ -80,7 +80,7 @@ function seekTo(value) {
         <span>-{{ formatClock(Math.max(0, player.duration - shownPosition)) }}</span>
       </div>
 
-      <div class="controls">
+      <div class="controls" data-req="FR6">
         <button type="button" class="controls__skip pressable" :aria-label="t('audio.back', { n: SKIP_SECONDS })" @click="player.skip(-SKIP_SECONDS)">
           <AppIcon name="rewind" :size="26" />{{ SKIP_SECONDS }}
         </button>
@@ -99,7 +99,7 @@ function seekTo(value) {
         <AppIcon name="info" :size="16" />{{ t('audio.unsupported') }}
       </p>
 
-      <BaseButton variant="secondary" block class="track__toggle" :aria-expanded="player.showTranscript" @click="player.toggleTranscript">
+      <BaseButton variant="secondary" block class="track__toggle" data-req="FR9" :aria-expanded="player.showTranscript" @click="player.toggleTranscript">
         {{ player.showTranscript ? t('audio.hideTranscript') : t('audio.readTranscript') }}
       </BaseButton>
 

@@ -124,7 +124,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
     </PageHeader>
 
     <figure class="viewer">
-      <div ref="stage" class="viewer__stage" v-on="pager.handlers">
+      <div ref="stage" class="viewer__stage" data-req="FR7" v-on="pager.handlers">
         <!-- Keyed by image: when the neighbour becomes current it is the same element — no reload, no jump -->
         <img
           :key="photo.image"

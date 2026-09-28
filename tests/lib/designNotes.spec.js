@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { EVERY_SCREEN, ROUTE_REQUIREMENTS, expandIds, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
+import { EVERY_SCREEN, ROUTE_REQUIREMENTS, expandIds, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
 
 const rows = parseCsv(readFileSync('docs/a3/rtm.csv', 'utf8'))
 const docs = parsePersonas(readFileSync('docs/a3/personas.md', 'utf8'))
@@ -34,5 +34,29 @@ describe('design notes (RTM beside the desktop mock-up)', () => {
     expect(a.requirement).toBe(rows.find((r) => r.ID === 'FR2').Requirement)
     expect(a.personas[0]).toEqual({ id: 'P1', name: docs.personas.P1 })
     expect(notesFor(['FR3'], rows, docs)[0].evidence).toBe('') // "—" means none
+  })
+  it('puts every anchored screen requirement on an element (data-req) in the source', () => {
+    const src = [
+      ...['views', 'components/home', 'components/layout', 'components/map', 'components/site'].flatMap((d) =>
+        readdirSync(`src/${d}`).filter((f) => f.endsWith('.vue')).map((f) => readFileSync(`src/${d}/${f}`, 'utf8')),
+      ),
+    ].join('\n')
+    const anchored = new Set([...src.matchAll(/data-req="([^"]+)"/g)].flatMap((m) => m[1].split(' ')))
+    const unanchored = new Set(['NFR3']) // real-time performance: no single control
+    for (const id of new Set(Object.values(ROUTE_REQUIREMENTS).flat())) if (!unanchored.has(id)) expect(anchored.has(id), id).toBe(true)
+  })
+})
+
+describe('layoutColumn', () => {
+  it('centres callouts on their anchors when there is room', () => {
+    expect(layoutColumn([{ want: 100, h: 40 }, { want: 300, h: 40 }], { top: 0, bottom: 800 })).toEqual([80, 280])
+  })
+  it('pushes overlapping callouts down, keeping anchor order', () => {
+    expect(layoutColumn([{ want: 110, h: 40 }, { want: 100, h: 40 }], { top: 0, bottom: 800, gap: 8 })).toEqual([128, 80])
+  })
+  it('sends callouts without an anchor to the bottom and keeps them inside', () => {
+    const [a, b] = layoutColumn([{ want: Infinity, h: 50 }, { want: 780, h: 40 }], { top: 0, bottom: 800, gap: 10 })
+    expect(b + 40).toBeLessThanOrEqual(a - 10 + 0.001)
+    expect(a + 50).toBeLessThanOrEqual(800)
   })
 })

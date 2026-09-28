@@ -47,6 +47,7 @@ function startRoute() {
           :pressed="liked"
           :filled="liked"
           class="hero__like"
+          data-req="FR16"
           @click="favorites.toggle(site.id)"
         />
       </div>
@@ -56,7 +57,7 @@ function startRoute() {
       <p class="t-caption">{{ site.categoryLabel }} · {{ site.area }}</p>
       <h1 class="t-display sheet__title">{{ site.name }}</h1>
 
-      <ul class="facts" :aria-label="t('site.keyFacts')">
+      <ul class="facts" data-req="FR5" :aria-label="t('site.keyFacts')">
         <li><BaseBadge icon="clock">{{ t('common.built', { year: site.builtYear }) }}</BaseBadge></li>
         <li v-if="site.accessible"><BaseBadge tone="success" icon="accessible">{{ t('common.accessible') }}</BaseBadge></li>
         <li>
@@ -66,7 +67,7 @@ function startRoute() {
 
       <p class="t-body sheet__description">{{ site.description }}</p>
 
-      <BaseButton block icon="navigate" @click="startRoute">{{ t('site.startRoute') }}</BaseButton>
+      <BaseButton block icon="navigate" data-req="FR8" @click="startRoute">{{ t('site.startRoute') }}</BaseButton>
       <div class="sheet__actions">
         <BaseButton variant="secondary" icon="headphones" :to="{ name: 'audio', params: { id: site.id } }">
           {{ t('site.audioTour') }}
@@ -76,7 +77,7 @@ function startRoute() {
     </article>
 
     <SectionHeader :title="t('site.throughTheYears')" :meta="t('common.photos', site.gallery.length)" />
-    <GalleryRail :site="site" class="gallery" />
+    <GalleryRail :site="site" class="gallery" data-req="FR7" />
   </AppPage>
 </template>
 

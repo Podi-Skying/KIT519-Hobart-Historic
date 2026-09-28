@@ -195,7 +195,7 @@ function blockKeyMoves(e) {
           :pressed="trip.voiceGuidance"
           @click="toggleVoice"
         />
-        <IconButton variant="glass" icon="map" :label="t('arNav.openMap')" @click="openMap" />
+        <IconButton variant="glass" icon="map" data-req="FR10" :label="t('arNav.openMap')" @click="openMap" />
       </span>
     </div>
 
@@ -212,6 +212,7 @@ function blockKeyMoves(e) {
     <div
       v-if="pano === 'ready'"
       class="ar-nav__go"
+      data-req="FR2"
       :class="{ 'is-going': going, 'is-blocked': !canForward }"
       aria-hidden="true"
     >
@@ -233,7 +234,7 @@ function blockKeyMoves(e) {
     </div>
 
     <!-- the painted arrows belong to the fallback photo; in 360° the street itself (turned ahead) shows the way -->
-    <div v-if="pano === 'none'" v-look="1.4" class="ar-nav__near" aria-hidden="true">
+    <div v-if="pano === 'none'" v-look="1.4" class="ar-nav__near" data-req="FR2" aria-hidden="true">
     <div class="ar-nav__arrows">
       <svg v-for="n in 3" :key="n" width="72" height="44" viewBox="0 0 72 44" :style="{ animationDelay: `${(n - 1) * 0.15}s` }">
         <path class="ar-nav__arrow" d="M4 40 L36 6 L68 40 L36 27 Z" stroke-width="2.5" stroke-linejoin="round" />
@@ -264,7 +265,7 @@ function blockKeyMoves(e) {
     </section>
 
     <!-- the prototype control, tucked into the map's lower-right corner -->
-    <button type="button" class="ar-nav__simulate pressable" data-no-look @click="arrived = true">{{ t('arNav.simulate') }}</button>
+    <button type="button" class="ar-nav__simulate pressable" data-req="FR15" data-no-look @click="arrived = true">{{ t('arNav.simulate') }}</button>
 
     <ArrivalSheet v-if="arrived" :site="site" primary="ar" @close="arrived = false" />
   </div>

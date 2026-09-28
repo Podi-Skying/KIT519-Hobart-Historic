@@ -391,7 +391,7 @@ function exit() {
 
     <!-- Through time: a year bar instead of a separate page. Leaves downward for 360°, returns the same way. -->
     <Transition name="dock-card">
-    <section v-show="!view360" class="timeline text-zoom" data-no-look :aria-label="t('compare.title')">
+    <section v-show="!view360" class="timeline text-zoom" data-req="FR13" data-no-look :aria-label="t('compare.title')">
       <p class="timeline__head">
         <b class="num">{{ yearLabel(shownPhoto) }}</b>
         <span v-if="shownPhoto.archival" class="timeline__tag">{{ t('compare.archival') }}</span>

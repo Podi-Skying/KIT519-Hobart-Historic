@@ -108,7 +108,7 @@ onBeforeUnmount(() => observer?.disconnect())
       <LanguageButton />
     </header>
 
-    <HeritageCarousel :title="t('home.top5')" :subtitle="t('home.rankedByLikes')" :sites="topSites" />
+    <HeritageCarousel data-req="FR4" :title="t('home.top5')" :subtitle="t('home.rankedByLikes')" :sites="topSites" />
 
     <section class="directory" :aria-label="t('home.allSites')">
       <!-- zero-height marker: when it scrolls under the status bar, the toolbar is stuck -->
@@ -136,6 +136,7 @@ onBeforeUnmount(() => observer?.disconnect())
         </Transition>
 
         <ChipGroup
+          data-req="FR3"
           :label="t('home.filterBy')"
           :options="categoryOptions"
           :model-value="category"
