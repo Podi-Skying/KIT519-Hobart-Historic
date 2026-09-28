@@ -643,8 +643,8 @@ function exit() {
   color: var(--ink-900);
 }
 .timeline__tag {
-  margin-left: 4px;
-  padding: 1px 6px;
+  margin-left: 0.25rem;
+  padding: 0.0625rem 0.375rem;
   border-radius: var(--r-pill);
   background: var(--brand-50);
   color: var(--brand-600);
@@ -656,7 +656,7 @@ function exit() {
 }
 .timeline__text {
   display: -webkit-box;
-  margin-top: 2px;
+  margin-top: 0.125rem;
   overflow: hidden;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -695,7 +695,7 @@ function exit() {
   flex: 1;
   display: flex;
   justify-content: space-between;
-  padding: 0 4px;
+  padding: 0 0.25rem;
 }
 .timeline__ticks i {
   width: 5px;

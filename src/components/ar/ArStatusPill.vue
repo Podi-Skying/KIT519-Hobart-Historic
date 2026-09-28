@@ -23,8 +23,8 @@ defineProps({
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
+  gap: 0.625rem;
+  padding: 0.75rem 1.125rem;
   border-radius: var(--r-pill); /* same capsule as the other floating status over the camera */
   background: var(--ink-900);
   color: var(--cream);

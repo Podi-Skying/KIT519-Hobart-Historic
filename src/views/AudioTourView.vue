@@ -164,7 +164,7 @@ function seekTo(value) {
   padding: var(--s-5) var(--gutter) var(--s-6);
 }
 .track__title {
-  margin-top: 4px;
+  margin-top: 0.25rem;
 }
 .track__seek {
   margin: var(--s-2) 0 calc(-1 * var(--s-2)); /* 44px touch area, visually where the thin bar was */
@@ -179,7 +179,7 @@ function seekTo(value) {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 36px;
+  gap: 2.25rem;
   padding-top: var(--s-4);
 }
 .controls__skip {
@@ -215,7 +215,7 @@ function seekTo(value) {
 }
 .notice :deep(svg) {
   flex-shrink: 0;
-  margin-top: 1px;
+  margin-top: 0.0625rem;
   color: var(--accent-700);
 }
 .track__toggle {

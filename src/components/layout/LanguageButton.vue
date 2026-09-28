@@ -35,8 +35,8 @@ const current = computed(() => localeInfo(locale.value))
   height: var(--hit);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 14px;
+  gap: 0.375rem;
+  padding: 0 0.875rem;
   border-radius: var(--r-pill);
   background: var(--sand-fill);
   color: var(--ink-900);
@@ -45,7 +45,7 @@ const current = computed(() => localeInfo(locale.value))
   white-space: nowrap;
 }
 .language-button__aa {
-  padding-left: 8px;
+  padding-left: 0.5rem;
   border-left: 1.5px solid var(--sand-dark);
   font: var(--t-label);
   font-family: var(--font-heading);

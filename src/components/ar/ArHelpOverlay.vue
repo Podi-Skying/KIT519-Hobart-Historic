@@ -34,7 +34,7 @@ const { t } = useI18n()
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px;
+  padding: 1.75rem;
   background: var(--scrim);
 }
 .help.materialize-enter-active,

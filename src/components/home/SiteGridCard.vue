@@ -83,9 +83,9 @@ const likes = computed(() => favorites.likeCount(props.site))
   z-index: 2; /* above the stretched link */
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 26px;
-  padding: 0 10px;
+  gap: 0.25rem;
+  height: 1.625rem;
+  padding: 0 0.625rem;
   border-radius: var(--r-pill);
   background: var(--like-glass);
   color: var(--paper);
@@ -101,7 +101,7 @@ const likes = computed(() => favorites.likeCount(props.site))
   background: var(--brand-600);
 }
 .grid-card__body {
-  padding: 9px 11px 11px;
+  padding: 0.5625rem 0.6875rem 0.6875rem;
 }
 .grid-card__name {
   font: var(--t-card-title);
@@ -120,7 +120,7 @@ const likes = computed(() => favorites.likeCount(props.site))
   box-shadow: var(--focus-ring);
 }
 .grid-card__meta {
-  margin-top: 3px;
+  margin-top: 0.1875rem;
   font: var(--t-meta);
   color: var(--ink-500);
 }

@@ -53,7 +53,7 @@ watch(
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding: 12px 18px;
+  padding: 0.75rem 1.125rem;
   border-radius: var(--r-pill); /* iOS-style capsule banner */
   background: var(--ink-900);
   color: var(--cream);

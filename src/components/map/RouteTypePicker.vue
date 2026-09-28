@@ -98,7 +98,7 @@ const stats = computed(() => {
 }
 .route-type small {
   display: block;
-  margin-top: 2px;
+  margin-top: 0.125rem;
   font: var(--t-meta);
   font-weight: 500;
   color: var(--ink-500);
@@ -164,7 +164,7 @@ const stats = computed(() => {
   color: var(--ink-700);
 }
 .route-info__stats {
-  margin-top: 4px;
+  margin-top: 0.25rem;
   font: var(--t-label-sm) !important;
   color: var(--ink-500) !important;
 }

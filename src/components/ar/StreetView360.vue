@@ -353,7 +353,7 @@ onBeforeUnmount(() => {
   right: calc(var(--gutter) + var(--hit) + var(--s-2));
   bottom: calc(var(--sv-inset, 0px) + var(--safe-bottom) + var(--s-6) + 7px);
   z-index: 1;
-  padding: 6px 12px;
+  padding: 0.375rem 0.75rem;
   border-radius: var(--r-pill);
   background: var(--glass);
   -webkit-backdrop-filter: var(--glass-blur);

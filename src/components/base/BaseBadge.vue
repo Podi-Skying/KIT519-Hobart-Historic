@@ -21,18 +21,18 @@ defineProps({
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 0.3125rem;
   border-radius: var(--r-pill);
   font: var(--t-label-sm);
   white-space: nowrap;
 }
 .badge--md {
-  height: 30px;
-  padding: 0 12px;
+  height: 1.875rem;
+  padding: 0 0.75rem;
 }
 .badge--sm {
-  height: 24px;
-  padding: 0 9px;
+  height: 1.5rem;
+  padding: 0 0.5625rem;
   font: var(--t-micro);
 }
 .badge--neutral {

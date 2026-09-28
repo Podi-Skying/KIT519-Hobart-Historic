@@ -231,7 +231,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   padding: var(--s-5) var(--gutter) var(--s-4);
 }
 .viewer__caption h2 {
-  margin: 6px 0;
+  margin: 0.375rem 0;
 }
 .viewer__credit {
   display: flex;

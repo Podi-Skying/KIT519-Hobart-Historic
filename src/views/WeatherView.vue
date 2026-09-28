@@ -138,12 +138,12 @@ function chooseOther() {
   padding: var(--s-2) var(--gutter) var(--s-2);
 }
 .header h1 {
-  margin-top: 4px;
+  margin-top: 0.25rem;
 }
 .now {
   position: relative;
   margin: var(--s-2) var(--gutter) 0;
-  padding: 22px;
+  padding: 1.375rem;
   overflow: hidden;
   border-radius: var(--r-xl);
   background: var(--weather-hero); /* tokens.css — cream text ≥ 4.9:1 across the whole gradient */
@@ -171,7 +171,7 @@ function chooseOther() {
   opacity: 0.9;
 }
 .now__temp {
-  margin: 8px 0 4px;
+  margin: 0.5rem 0 0.25rem;
   font: var(--t-numeral);
   letter-spacing: var(--track-hero);
 }
@@ -181,7 +181,7 @@ function chooseOther() {
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 0.625rem;
   margin: var(--s-4) var(--gutter) 0;
   padding: 0;
   list-style: none;
@@ -197,7 +197,7 @@ function chooseOther() {
 }
 .stat b {
   display: block;
-  margin: 4px 0 1px;
+  margin: 0.25rem 0 0.0625rem;
   font: var(--t-strong);
   color: var(--ink-900);
 }
@@ -225,8 +225,8 @@ function chooseOther() {
 }
 .comfort__labels {
   display: flex;
-  gap: 6px;
-  margin-top: 6px;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
 }
 .comfort__labels span {
   flex: 1;
@@ -236,7 +236,7 @@ function chooseOther() {
 }
 .forecast {
   display: flex;
-  gap: 10px;
+  gap: 0.625rem;
   margin: 0;
   padding: 0 var(--gutter);
   overflow-x: auto;
@@ -260,7 +260,7 @@ function chooseOther() {
 }
 .forecast__icon {
   display: block;
-  margin: 6px auto 0;
+  margin: 0.375rem auto 0;
   color: var(--ink-700); /* same line icons as the tab bar and the big condition icon */
 }
 .forecast li.is-today .forecast__icon {
@@ -268,7 +268,7 @@ function chooseOther() {
 }
 .forecast b {
   display: block;
-  margin-top: 6px;
+  margin-top: 0.375rem;
   font: var(--t-h3);
   color: var(--ink-900);
 }
@@ -286,7 +286,7 @@ function chooseOther() {
   margin-bottom: var(--s-4);
 }
 .advice__text :deep(svg) {
-  margin-top: 2px;
+  margin-top: 0.125rem;
   color: var(--success-600);
 }
 .advice__other {

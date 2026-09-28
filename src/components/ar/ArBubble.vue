@@ -101,7 +101,7 @@ function onPointerUp() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   transform: translate(-50%, -50%);
   touch-action: none;
   animation: pop 0.35s var(--ease) backwards;
@@ -124,7 +124,7 @@ function onPointerUp() {
   box-shadow: 0 0 0 4px rgba(125, 48, 69, 0.35), var(--e-2);
 }
 .bubble__label {
-  padding: 3px 9px;
+  padding: 0.1875rem 0.5625rem;
   border-radius: var(--r-pill);
   background: var(--glass);
   color: var(--cream);

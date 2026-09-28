@@ -54,7 +54,7 @@ defineProps({
 }
 .rail__caption {
   display: block;
-  margin-top: 2px;
+  margin-top: 0.125rem;
   font: var(--t-label);
   color: var(--ink-900);
 }

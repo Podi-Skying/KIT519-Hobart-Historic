@@ -49,7 +49,7 @@ const model = defineModel({ type: String, required: true })
 .chip {
   position: relative;
   flex-shrink: 0;
-  height: 36px;
+  height: 2.25rem; /* grows with the text size */
   padding: 0 var(--s-4);
   border-radius: var(--r-pill);
   border: 1.5px solid var(--outline); /* ≥ 3:1 so the chip reads as a control (WCAG 1.4.11) */

@@ -253,7 +253,7 @@ const endRoute = () => router.push({ name: 'map' })
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
 }
 .zoom__ar {
   width: var(--hit);
@@ -271,15 +271,15 @@ const endRoute = () => router.push({ name: 'map' })
   box-shadow: var(--e-2);
 }
 .summary__count {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
   border-radius: var(--r-pill);
   background: var(--brand-600);
   color: var(--paper);
   font: var(--t-micro);
   font-weight: 700;
-  line-height: 20px;
+  line-height: 1.25rem;
 }
 .summary {
   position: absolute;

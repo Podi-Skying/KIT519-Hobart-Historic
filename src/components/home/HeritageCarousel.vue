@@ -148,7 +148,7 @@ const scrub = {
 .carousel__track {
   display: flex;
   gap: var(--s-3);
-  padding: 0 var(--gutter) 2px;
+  padding: 0 var(--gutter) 0.125rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-padding: 0 var(--gutter);
@@ -191,7 +191,7 @@ const scrub = {
   top: 10px;
   right: 10px;
   z-index: 1;
-  padding: 3px 8px;
+  padding: 0.1875rem 0.5rem;
   border-radius: var(--r-sm);
   background: rgba(255, 255, 255, 0.94);
   color: var(--ink-900);
@@ -208,27 +208,27 @@ const scrub = {
 }
 .rank-card__category {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 0.25rem 0.625rem;
   border-radius: var(--r-pill);
   background: var(--brand-600);
   font: var(--t-micro);
 }
 .rank-card__name {
-  margin-top: 6px;
+  margin-top: 0.375rem;
   font: var(--t-title);
 }
 .rank-card__meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 11px 14px;
+  padding: 0.6875rem 0.875rem;
   font: var(--t-meta);
   color: var(--ink-500);
 }
 .rank-card__accessible {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 0.1875rem;
   color: var(--success-600);
   font-weight: 600;
 }

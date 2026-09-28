@@ -94,7 +94,7 @@ function choose(route, dismiss) {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
+  gap: 0.125rem;
 }
 .mode__title {
   font: var(--t-title);

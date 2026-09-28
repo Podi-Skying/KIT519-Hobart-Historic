@@ -118,7 +118,7 @@ function startRoute() {
   background: var(--cream);
 }
 .sheet__title {
-  margin-top: 6px;
+  margin-top: 0.375rem;
 }
 .facts {
   display: flex;

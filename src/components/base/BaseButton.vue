@@ -42,7 +42,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .btn--md {
-  min-height: 48px;
+  min-height: 3rem;
   padding: 0 var(--s-5);
 }
 .btn--sm {

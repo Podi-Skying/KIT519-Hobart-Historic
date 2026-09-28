@@ -172,7 +172,7 @@ const showClose = () => props.closable ?? Boolean(props.title)
   color: var(--ink-900);
 }
 .sheet__subtitle {
-  margin-top: 2px;
+  margin-top: 0.125rem;
   font: var(--t-small);
   color: var(--ink-500);
 }

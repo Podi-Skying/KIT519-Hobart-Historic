@@ -298,7 +298,7 @@ function toggleOffline() {
   z-index: 3;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.625rem;
 }
 .panel {
   position: absolute;
@@ -473,7 +473,7 @@ function toggleOffline() {
 .stop-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 0.375rem;
   margin: var(--s-3) 0 0;
   padding: 0;
   list-style: none;
@@ -481,9 +481,9 @@ function toggleOffline() {
 .stop-chips li {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 6px 0 12px;
+  gap: 0.375rem;
+  height: 1.875rem;
+  padding: 0 0.375rem 0 0.75rem;
   border-radius: var(--r-pill);
   background: var(--paper);
   border: 1.5px solid var(--sand);
