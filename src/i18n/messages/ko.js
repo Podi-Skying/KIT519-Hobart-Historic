@@ -334,6 +334,7 @@ export default {
     lead: '세 명의 페르소나 중 한 명이 되어 앱을 사용해 본 뒤, 해당 페르소나의 설문에 답해 주세요.',
     back: '모든 시나리오',
     tasks: '나의 과제',
+    tasksRight: '세 가지 과제는 오른쪽에 있어요 →',
     answer: '그다음 양식 {form}에 응답',
     scan: '휴대폰으로 스캔하거나 여기에서 여세요.',
     open: 'Google Form Link',

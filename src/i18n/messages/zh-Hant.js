@@ -334,6 +334,7 @@ export default {
     lead: '以三位人物誌之一的身分試用 App，再填寫該人物的問卷。',
     back: '所有情境',
     tasks: '你的任務',
+    tasksRight: '你的三個任務在右邊 →',
     answer: '完成後填寫表單 {form}',
     scan: '用手機掃描，或直接在這裡開啟。',
     open: 'Google Form Link',

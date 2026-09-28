@@ -334,6 +334,7 @@ export default {
     lead: '3人のペルソナの1人としてアプリを試し、そのペルソナのアンケートに回答してください。',
     back: 'すべてのシナリオ',
     tasks: 'あなたのタスク',
+    tasksRight: '3つのタスクは右側にあります →',
     answer: 'その後フォーム {form} に回答',
     scan: 'スマートフォンで読み取るか、ここで開いてください。',
     open: 'Google Form Link',

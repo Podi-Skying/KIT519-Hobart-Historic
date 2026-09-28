@@ -15,6 +15,7 @@ import personasMd from '../../../docs/a3/personas.md?raw'
 import AppIcon from '@/components/base/AppIcon.vue'
 import SurveyPicker from './SurveyPicker.vue'
 import { RATIONALE, SCREENS } from '@/data/designRationale'
+import { SURVEY_FORMS } from '@/data/surveyForms'
 import { EVERY_SCREEN, ROUTE_REQUIREMENTS, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
 
 const props = defineProps({ open: { type: Boolean, default: true } })
@@ -41,10 +42,16 @@ watch(
 )
 /** While a participant picks a scenario, the callouts step aside (focus on one task). */
 const surveyOpen = ref(false)
+/** The persona picked in the Scenario Task panel: its Task 1–3 sit on the right, so the left
+    column holds who you are and where to answer, and neither side gets crowded. */
+const chosen = ref(null)
+const chosenForm = computed(() => SURVEY_FORMS.find((f) => f.persona === chosen.value))
+watch(surveyOpen, (on) => on || (chosen.value = null))
 
 /* ---- per-frame placement (no re-render: styles and paths are written directly) ---- */
 const layer = ref(null)
 const bar = ref(null)
+const tasksEl = ref(null)
 const clip = ref(null)
 const ring = ref(null)
 const cards = new Map() // id -> element
@@ -113,6 +120,13 @@ function frame() {
     write(bar.value, 'box', `${xL},${widthL}`, () => {
       bar.value.style.left = `${xL}px`
       bar.value.style.width = `${widthL}px`
+    })
+  }
+  if (tasksEl.value) {
+    write(tasksEl.value, 'box', `${xR},${widthR}`, () => {
+      tasksEl.value.style.left = `${xR}px`
+      tasksEl.value.style.width = `${widthR}px`
+      tasksEl.value.style.visibility = 'visible' // hidden until it has its place (no flash at the left edge)
     })
   }
   if (clip.value) {
@@ -246,7 +260,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
       </div>
 
       <Transition name="bar-swap" mode="out-in">
-        <SurveyPicker v-if="surveyOpen" key="survey" class="notes__panel" @close="surveyOpen = false" />
+        <SurveyPicker v-if="surveyOpen" key="survey" v-model:chosen="chosen" class="notes__panel" @close="surveyOpen = false" />
         <header v-else-if="open" key="head" class="notes__head">
           <p class="notes__eyebrow">{{ t('designNotes.title') }}</p>
           <h2 class="notes__screen" lang="en">
@@ -257,6 +271,19 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
         </header>
       </Transition>
     </div>
+
+    <!-- Scenario Task: the chosen persona's tasks, in the right-hand column -->
+    <Transition name="tasks-in">
+      <section v-if="surveyOpen && chosenForm" ref="tasksEl" :key="chosenForm.persona" class="notes__tasks" lang="en" :aria-label="t('survey.tasks')">
+        <p class="notes__eyebrow">{{ t('survey.tasks') }}</p>
+        <ol class="notes__task-list">
+          <li v-for="(task, i) in chosenForm.tasks" :key="task.title" class="notes__task">
+            <b>Task {{ i + 1 }}</b>
+            <span><strong>{{ task.title }}</strong> {{ task.text }}</span>
+          </li>
+        </ol>
+      </section>
+    </Transition>
 
     <template v-if="open">
       <article
@@ -395,6 +422,58 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   background: var(--accent-100); /* on: the action colour on dark surfaces (README §5.2) */
   border-color: var(--accent-100);
   color: var(--ink-900);
+}
+.notes__tasks {
+  position: absolute;
+  top: var(--s-6); /* left and width follow the right-hand column (set each frame) */
+  visibility: hidden;
+  max-height: calc(100vh - 2 * var(--s-6)); /* the page never scrolls; long tasks scroll inside */
+  overflow-y: auto;
+  padding: var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--stage-card-strong);
+  border: 1px solid var(--stage-line);
+  box-shadow: var(--e-2);
+  pointer-events: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--stage-line) transparent;
+}
+.notes__task {
+  padding: var(--s-3) 0;
+  border-top: 1px solid var(--stage-line);
+}
+.notes__task:first-child {
+  border-top: 0;
+  padding-top: var(--s-1);
+}
+.notes__task-list {
+  display: grid;
+  margin: var(--s-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font: var(--t-body-sm);
+  color: var(--cream);
+}
+.notes__task-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.notes__task-list strong {
+  display: block;
+  font-weight: 600;
+}
+.notes__task-list b {
+  color: var(--accent-100);
+}
+.tasks-in-enter-active,
+.tasks-in-leave-active {
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.tasks-in-enter-from,
+.tasks-in-leave-to {
+  opacity: 0;
+  transform: translateX(calc(12px * var(--motion))); /* arrives from, and leaves to, the right */
 }
 .notes__panel {
   flex: 1 1 auto;

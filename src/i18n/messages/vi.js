@@ -334,6 +334,7 @@ export default {
     lead: 'Dùng thử ứng dụng trong vai một trong ba persona, rồi trả lời bảng hỏi của persona đó.',
     back: 'Tất cả kịch bản',
     tasks: 'Nhiệm vụ của bạn',
+    tasksRight: 'Ba nhiệm vụ của bạn ở bên phải →',
     answer: 'Sau đó trả lời Biểu mẫu {form}',
     scan: 'Quét bằng điện thoại, hoặc mở ngay tại đây.',
     open: 'Google Form Link',

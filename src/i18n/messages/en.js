@@ -337,6 +337,7 @@ export default {
     lead: 'Try the app as one of our three personas, then answer that persona’s questionnaire.',
     back: 'All scenarios',
     tasks: 'Your tasks',
+    tasksRight: 'Your three tasks are on the right →',
     answer: 'Then answer Form {form}',
     scan: 'Scan with your phone, or open it here.',
     open: 'Google Form Link',

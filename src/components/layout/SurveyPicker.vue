@@ -4,7 +4,7 @@
  * its three tasks (word for word from that Google Form, data/surveyForms.js), then answer the form
  * — scan the QR code with a phone, or click it / "Google Form Link" here. Esc closes.
  */
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import personasMd from '../../../docs/a3/personas.md?raw'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -21,7 +21,8 @@ const scenarios = SURVEY_FORMS.map((f) => {
   return { ...f, name, role }
 })
 
-const chosen = ref(null)
+/** The chosen persona is shared with DesignNotes, which shows its Task 1–3 on the right-hand side. */
+const chosen = defineModel('chosen', { type: String, default: null })
 const current = computed(() => scenarios.find((s) => s.persona === chosen.value))
 const close = () => emit('close')
 </script>
@@ -62,13 +63,7 @@ const close = () => emit('close')
             </div>
           </div>
           <p class="survey__intro" lang="en">{{ current.intro }}</p>
-          <p class="survey__label">{{ t('survey.tasks') }}</p>
-          <ol class="survey__tasks" lang="en">
-            <li v-for="(task, i) in current.tasks" :key="task.title">
-              <b>Task {{ i + 1 }}</b>
-              <span><strong>{{ task.title }}</strong> {{ task.text }}</span>
-            </li>
-          </ol>
+          <p class="survey__hint">{{ t('survey.tasksRight') }}</p>
         </div>
         <div class="survey__answer">
           <p class="survey__label">{{ t('survey.answer', { form: current.form }) }}</p>
@@ -213,33 +208,20 @@ const close = () => emit('close')
   font: var(--t-body-sm);
   color: var(--cream);
 }
+.survey__hint {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  margin: var(--s-3) 0 0;
+  font: var(--t-label-sm);
+  color: var(--accent-100);
+}
 .survey__label {
   margin: var(--s-3) 0 var(--s-1);
   font: var(--t-caption);
   letter-spacing: var(--track-caption);
   text-transform: uppercase;
   color: var(--ink-300);
-}
-.survey__tasks {
-  display: grid;
-  gap: var(--s-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font: var(--t-body-sm);
-  color: var(--cream);
-}
-.survey__tasks li {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-.survey__tasks strong {
-  display: block;
-  font-weight: 600;
-}
-.survey__tasks b {
-  color: var(--accent-100);
 }
 .survey__qr {
   display: block;
