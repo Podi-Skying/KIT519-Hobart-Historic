@@ -23,4 +23,13 @@ describe('haptics', () => {
     vi.stubGlobal('navigator', { vibrate: vi.fn() })
     expect(haptic('nope')).toBe(false)
   })
+
+  it('stays silent before the first tap on the page (browsers block it and log an error)', () => {
+    const vibrate = vi.fn(() => true)
+    vi.stubGlobal('navigator', { vibrate, userActivation: { hasBeenActive: false } })
+    expect(haptic('success')).toBe(false)
+    expect(vibrate).not.toHaveBeenCalled()
+    vi.stubGlobal('navigator', { vibrate, userActivation: { hasBeenActive: true } })
+    expect(haptic('success')).toBe(true)
+  })
 })

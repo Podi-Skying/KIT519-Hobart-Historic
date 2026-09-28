@@ -66,6 +66,14 @@ ul {
   margin: 0;
 }
 
+/* Korean wraps at spaces, like English: without this a title could break mid-word and leave one
+   syllable alone on a line ("문화유산 가이" / "드"). overflow-wrap is the safety net for a very
+   long word in a narrow box. (Chinese and Japanese have no spaces, so they keep normal breaking.) */
+:root:lang(ko) body {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
 img {
   display: block;
   max-width: 100%;

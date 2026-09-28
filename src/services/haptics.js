@@ -22,6 +22,9 @@ export function stopToggleHaptic(result) {
 export function haptic(kind) {
   const pattern = PATTERNS[kind]
   if (!pattern || typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return false
+  // Browsers refuse (and log an error) before the first tap on the page, e.g. an arrival that
+  // fires on a deep link. Skip quietly then; it is never the only feedback anyway.
+  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return false
   try {
     return navigator.vibrate(pattern)
   } catch {

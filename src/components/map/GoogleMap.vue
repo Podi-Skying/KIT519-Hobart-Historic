@@ -62,6 +62,8 @@ const pins = new Map() // siteId → { marker, element }
 let pooled = null
 let amenityPins = []
 let highlightPins = []
+/** Listeners on the pooled map: removed on unmount, or every reuse of the map would stack another. */
+let mapListeners = []
 let alternativeLines = []
 let offAuthFailure = () => {}
 
@@ -232,6 +234,25 @@ function syncHighlights() {
         zIndex: 6,
       }),
   )
+  requestAnimationFrame(declutterHighlights)
+}
+/**
+ * Feature labels are ~150px wide, so two points close together on a zoomed-out route overlap
+ * (and can sit on the destination pin). Keep them in priority order and hide any label that
+ * would collide on screen with a pin or an earlier label; re-checked whenever the map settles.
+ */
+function declutterHighlights() {
+  const hit = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)
+  const kept = [...pins.values()].map(({ element }) => element.getBoundingClientRect())
+  for (const marker of highlightPins) {
+    const el = marker.content
+    if (!el) continue
+    el.style.visibility = ''
+    const box = el.getBoundingClientRect()
+    if (!box.width) continue
+    if (kept.some((k) => hit(k, box))) el.style.visibility = 'hidden'
+    else kept.push(box)
+  }
 }
 function syncAmenities() {
   amenityPins.forEach((marker) => (marker.map = null))
@@ -292,7 +313,8 @@ onMounted(async () => {
     keyboardShortcuts: false,
   }, { vector: Boolean(props.follow) })
   map.value = pooled.instance
-  if (props.follow) map.value.addListener('renderingtype_changed', syncHeadingArrow) // vector becomes ready
+  if (props.follow) mapListeners.push(map.value.addListener('renderingtype_changed', syncHeadingArrow)) // vector becomes ready
+  mapListeners.push(map.value.addListener('idle', declutterHighlights))
 
   for (const site of props.sites) {
     const element = pinElement(site)
@@ -303,7 +325,7 @@ onMounted(async () => {
       title: site.name,
       gmpClickable: props.interactive,
     })
-    if (props.interactive) marker.addListener('click', () => emit('select', site.id))
+    if (props.interactive) marker.addEventListener('gmp-click', () => emit('select', site.id))
     if (props.previews) {
       // the hovered landmark (and its card) rises above its neighbours
       element.addEventListener('mouseenter', () => (marker.zIndex = 50))
@@ -350,6 +372,8 @@ const safely = (fn) => {
 
 onBeforeUnmount(() => {
   offAuthFailure()
+  mapListeners.forEach((l) => safely(() => l.remove()))
+  mapListeners = []
   safely(() => routeLine?.setMap(null))
   safely(() => userMarker && (userMarker.map = null))
   safely(() => startMarker && (startMarker.map = null))
