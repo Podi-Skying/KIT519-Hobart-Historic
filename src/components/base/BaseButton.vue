@@ -49,7 +49,6 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   border-radius: var(--r-pill); /* small buttons share the capsule shape of the chips and search field beside them */
   min-height: var(--hit);
   padding: 0 var(--s-4);
-  font-size: 0.8125rem;
 }
 .btn--block {
   width: 100%;

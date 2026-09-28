@@ -37,6 +37,7 @@
   --success-50: #e8efe6;
   --info-600: #2f6fed; /* "you are here" */
   --ar-400: #38bdf8; /* digital AR layer — camera views only */
+  --ar-glow: rgba(56, 189, 248, 0.7); /* soft halo around AR arrows */
   --ar-700: #0369a1; /* AR layer, shaded side: extrusion under the 3D ground arrows */
   --ar-arrow: rgba(56, 189, 248, 0.9); /* AR direction arrows (slightly see-through over the street) */
   --camera-bg: #000; /* behind camera / Street View imagery while it loads */
@@ -45,7 +46,7 @@
 
   /* ---- Overlays ---- */
   --scrim: rgba(44, 36, 23, 0.55); /* modal backdrop */
-  --glass: rgba(44, 36, 23, 0.6); /* controls over photos / camera */
+  --glass: rgba(44, 36, 23, 0.72); /* controls over photos / camera · cream text ≥ 4.5:1 even over a white sky */
   --photo-veil-top: rgba(44, 36, 23, 0.55);
   --photo-veil-bottom: rgba(44, 36, 23, 0.78);
 

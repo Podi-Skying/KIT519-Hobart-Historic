@@ -318,8 +318,8 @@ const endRoute = () => router.push({ name: 'map' })
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 24px;
-  margin-top: -10px;
+  height: var(--hit); /* 44pt, like the Map panel's handle; takes the same 14px of layout as before */
+  margin: -20px 0 -10px;
 }
 .summary__grip span {
   display: block;

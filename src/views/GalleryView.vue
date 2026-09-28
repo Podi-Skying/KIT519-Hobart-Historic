@@ -156,8 +156,8 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
         <p class="t-body">{{ photo.description }}</p>
         <!-- attribution the photo's licence requires: author + licence, linked to the source -->
         <p v-if="photo.credit" class="viewer__credit">
-          <a :href="photo.credit.url" target="_blank" rel="noopener">{{ t('gallery.credit', { author: photo.credit.author }) }}</a>
-          <a v-if="photo.credit.licenseUrl" :href="photo.credit.licenseUrl" target="_blank" rel="noopener license">{{ photo.credit.license }}</a>
+          <a :href="photo.credit.url" class="pressable-dim" target="_blank" rel="noopener">{{ t('gallery.credit', { author: photo.credit.author }) }}</a>
+          <a v-if="photo.credit.licenseUrl" :href="photo.credit.licenseUrl" class="pressable-dim" target="_blank" rel="noopener license">{{ photo.credit.license }}</a>
           <span v-else>{{ photo.credit.license }}</span>
         </p>
       </figcaption>

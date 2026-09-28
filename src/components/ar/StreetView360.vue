@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
 /* Stepping forward: the view pushes in and softens as the next panorama loads, then settles —
    reads as walking into the scene. Reduced motion: a short dip in opacity only. */
 .street-view__pano {
-  transition: transform 260ms var(--ease), filter 260ms var(--ease), opacity 260ms var(--ease);
+  transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .street-view.is-stepping-back .street-view__pano {
   transform: scale(calc(1 - 0.12 * var(--motion))); /* pull out: the reverse of walking in */

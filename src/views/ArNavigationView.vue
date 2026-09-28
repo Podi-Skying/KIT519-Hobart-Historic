@@ -147,10 +147,20 @@ async function walkBack() {
   if (await sv.value?.stepBack()) haptic('selection')
   setTimeout(() => (going.value = false), 350)
 }
+/** Moving is buttons-only: Street View's own ↑/↓ (and W/S) keys would jump the view without the
+    arrows, haptics or Back history, so they're stopped before they reach the panorama.
+    ←/→ still turn the view. */
+const MOVE_KEYS = new Set(['ArrowUp', 'ArrowDown', 'w', 'W', 's', 'S'])
+function blockKeyMoves(e) {
+  if (MOVE_KEYS.has(e.key) && e.target instanceof Element && e.target.closest('.street-view')) {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+}
 </script>
 
 <template>
-  <div ref="stage" class="ar-nav" v-on="look.handlers">
+  <div ref="stage" class="ar-nav" v-on="look.handlers" @keydown.capture="blockKeyMoves">
     <!-- A photo of the approach to this site: dimmed while Street View loads (never a black
          screen), and the whole view when there's no Street View here -->
     <!-- stays underneath once Street View is ready, so the panorama's fade-in never shows black -->
@@ -200,15 +210,13 @@ async function walkBack() {
       </span>
     </ArStatusPill>
 
-    <!-- 360°: 3D arrows lie on the ground and point along the route (tapping them walks ahead
-         too); the labelled buttons below say plainly what this screen can do -->
+    <!-- 360°: 3D arrows lie on the ground and point along the route. They only show the way:
+         moving is done with the two labelled buttons below, one clear way to do it. -->
     <div
       v-if="pano === 'ready'"
       class="ar-nav__go"
       :class="{ 'is-going': going, 'is-blocked': !canForward }"
-      data-no-look
       aria-hidden="true"
-      @click="walkAhead"
     >
       <span class="ar-nav__floor" :style="{ '--turn': `${arrowTurn}deg` }">
         <svg v-for="n in 3" :key="n" class="ar-nav__chev" :style="{ '--i': n - 1 }" viewBox="0 0 90 56">
@@ -258,7 +266,7 @@ async function walkBack() {
       <RouterLink :to="{ name: 'navigate-map', params: { id } }" class="ar-nav__dome-open" :aria-label="t('arNav.openMap')" />
     </section>
 
-    <!-- prototype control + image credit: small, at the side, off the route and the map -->
+    <!-- image credit on the left shoulder; the prototype control tucked into the map's lower-right corner -->
     <button type="button" class="ar-nav__simulate pressable" data-no-look @click="arrived = true">{{ t('arNav.simulate') }}</button>
     <p v-if="view360 && panoCredit" class="ar-nav__credit">Street View {{ panoCredit }}</p>
 
@@ -270,6 +278,9 @@ async function walkBack() {
 .ar-nav {
   position: relative;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none; /* dragging to look around must never highlight the instruction text */
+  -webkit-touch-callout: none;
   background: var(--camera-bg);
   touch-action: none; /* drags look around instead of scrolling the page */
 }
@@ -348,7 +359,7 @@ async function walkBack() {
   transform: translateX(-50%);
 }
 .ar-nav__arrows svg {
-  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.7));
+  filter: drop-shadow(0 0 10px var(--ar-glow));
   animation: bob 1.2s ease-in-out infinite;
 }
 .ar-nav__arrows svg:nth-child(2) { opacity: 0.8; }
@@ -361,14 +372,21 @@ async function walkBack() {
   z-index: 2;
   height: 30%;
   /* a round arc like Live View; the panorama continues underneath it */
-  clip-path: ellipse(64% 100% at 50% 100%);
+  clip-path: ellipse(56% 100% at 50% 100%);
   background: var(--paper); /* the 4px rim along the arc */
 }
 .ar-nav__dome-map {
   position: absolute;
   inset: 4px 0 0;
-  clip-path: ellipse(64% 100% at 50% 100%);
+  clip-path: ellipse(56% 100% at 50% 100%);
   background: var(--map-land);
+  transform-origin: 50% 100%;
+  transition: scale var(--dur) var(--ease);
+}
+/* press feedback on touch-down: the map dips a little before the full map opens */
+.ar-nav__dome:has(.ar-nav__dome-open:active) .ar-nav__dome-map {
+  scale: var(--press-scale-card);
+  transition-duration: 0ms;
 }
 .ar-nav__dome-map > * {
   pointer-events: none; /* a glance map: the link above opens the full one */
@@ -387,15 +405,13 @@ async function walkBack() {
   font: var(--t-label-sm);
   color: var(--ink-300);
 }
-/* just above the dome's lower shoulders: simulate (left), image credit (right) */
-.ar-nav__simulate,
-.ar-nav__credit {
-  position: absolute;
-  bottom: calc(30% * 0.62 + var(--s-3));
-  z-index: 2;
-}
+/* prototype control: a glass chip in the map's lower-right corner, clear of Google's
+   logo/Terms strip (bottom 32px) and of the route, which runs up the middle */
 .ar-nav__simulate {
-  left: var(--gutter);
+  position: absolute;
+  right: var(--gutter);
+  bottom: calc(32px + var(--s-2));
+  z-index: 3;
   min-height: var(--hit);
   padding: 0 var(--s-4);
   border-radius: var(--r-pill);
@@ -403,15 +419,23 @@ async function walkBack() {
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   color: var(--cream);
-  font: var(--t-label-sm);
+  font: var(--t-button);
+  box-shadow: var(--e-2);
 }
+/* image credit: a small glass capsule on the left shoulder, readable over a bright sky */
 .ar-nav__credit {
-  right: var(--gutter);
-  max-width: 40%;
-  text-align: right;
+  position: absolute;
+  left: var(--gutter);
+  bottom: calc(30% * 0.62 + var(--s-3));
+  z-index: 2;
+  max-width: 45%;
+  padding: 4px var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
   font: var(--t-meta);
   color: var(--cream);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   pointer-events: none;
 }
 /* ---- 3D ground arrows (360°) ---- */
@@ -430,6 +454,7 @@ async function walkBack() {
   background: none;
   transform: translateX(-50%);
   perspective: 520px;
+  pointer-events: none; /* shows the way only; the buttons move */
 }
 .ar-nav__floor {
   position: relative;
@@ -488,7 +513,7 @@ async function walkBack() {
   font: var(--t-button);
   white-space: nowrap;
   box-shadow: var(--e-2);
-  transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease);
+  transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .ar-nav__step--primary {
   background: var(--brand-600); /* the one action colour (README §5.2) */
@@ -502,9 +527,6 @@ async function walkBack() {
 }
 .ar-nav__step-icon--back {
   rotate: 180deg;
-}
-.ar-nav__go:active .ar-nav__floor {
-  scale: var(--press-scale);
 }
 /* tapped: the arrows surge forward with the view */
 .ar-nav__go.is-going .ar-nav__chev {
