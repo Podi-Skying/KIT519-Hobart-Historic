@@ -45,12 +45,12 @@
   --ar-glow: rgba(164, 198, 214, 0.45); /* soft halo around the fallback arrows */
   --camera-bg: #000; /* behind camera / Street View imagery while it loads */
   --like-glass: rgba(125, 48, 69, 0.88); /* like counter over a photo (brand-600, lets the photo tint it) */
-  --stage-text: #8c826f; /* desktop backdrop credit, on the dark stage only */
+  --stage-text: #9a8f7b; /* desktop backdrop credit, on the dark stage only · 5.4:1 on --stage-bg */
   /* desktop stage around the phone mock-up (design notes live here) */
   --stage-bg: #1f1a12;
   --stage-card: rgba(245, 239, 230, 0.05);
   --stage-line: rgba(245, 239, 230, 0.12);
-  --stage-card-strong: rgba(245, 239, 230, 0.1); /* the note you're pointing at */
+  --stage-card-strong: #342f27; /* the note you're pointing at: solid, since it floats over other notes */
   --stage-leader: rgba(185, 174, 156, 0.6); /* leader lines from a note to its control */
 
   /* ---- Overlays ---- */

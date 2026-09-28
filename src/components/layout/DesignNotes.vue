@@ -50,6 +50,9 @@ const MAX_W = 272
 const MIN_W = 168
 let raf = 0
 const written = new WeakMap()
+/** Resting (collapsed) height per card: an opened note floats over its neighbours instead of
+    pushing them — nothing moves that you aren't pointing at. */
+const restH = new WeakMap()
 function write(el, key, value, apply) {
   const prev = written.get(el) ?? {}
   if (prev[key] === value) return
@@ -109,12 +112,15 @@ function frame() {
     if (a) side = (a.left + a.right) / 2 < mid ? 'left' : 'right'
     else side = spare++ % 2 ? 'left' : 'right' // unanchored: shared out, at the bottom
     const y = a ? Math.min(Math.max((a.top + a.bottom) / 2, dev.top + 36), dev.bottom - 36) : Infinity
-    placed[side].push({ note, el, a, want: y, h: el.offsetHeight })
+    if (hovered.value !== note.id || !restH.has(el)) restH.set(el, el.offsetHeight)
+    placed[side].push({ note, el, a, want: y, h: restH.get(el) })
   }
 
   let hl = ''
   for (const side of ['left', 'right']) {
     const list = placed[side]
+    // each leader gets its own elbow lane in the gap, so vertical runs never sit on top of each other
+    const lanes = list.filter((it) => it.a).sort((p, q) => p.want - q.want)
     const top = side === 'left' ? Math.max(headBottom, dev.top) : dev.top
     const tops = layoutColumn(list, { top, bottom: dev.bottom, gap: 10 })
     list.forEach((it, i) => {
@@ -123,6 +129,7 @@ function frame() {
       write(it.el, 'box', `${x},${tops[i]},${w}`, () => {
         it.el.style.transform = `translate3d(${x}px, ${tops[i]}px, 0)`
         it.el.style.width = `${w}px`
+        it.el.style.setProperty('--placed', '1') // fades in only once it is where it belongs (a style, so Vue's class patching can't undo it)
       })
       const path = leaders.get(it.note.id)
       let d = ''
@@ -131,7 +138,8 @@ function frame() {
         const cy = Math.min(Math.max(it.want, tops[i] + 16), tops[i] + it.h - 16)
         const cx = side === 'left' ? x + w : x
         const px = side === 'left' ? dev.left - 6 : dev.right + 6
-        const ex = side === 'left' ? dev.left - GAP_PHONE / 2 : dev.right + GAP_PHONE / 2
+        const lane = 12 + ((lanes.indexOf(it) * 7) % 26) // 12…33 px from the phone
+        const ex = side === 'left' ? dev.left - lane : dev.right + lane
         d = `M${cx},${cy} H${ex} V${it.want} H${px}`
         if (hovered.value === it.note.id) {
           hl = `M${it.a.left + 10},${it.a.top} H${it.a.right - 10} Q${it.a.right},${it.a.top} ${it.a.right},${it.a.top + 10} V${it.a.bottom - 10} Q${it.a.right},${it.a.bottom} ${it.a.right - 10},${it.a.bottom} H${it.a.left + 10} Q${it.a.left},${it.a.bottom} ${it.a.left},${it.a.bottom - 10} V${it.a.top + 10} Q${it.a.left},${it.a.top} ${it.a.left + 10},${it.a.top} Z`
@@ -157,6 +165,9 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
         <marker id="notes-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto">
           <path d="M0,0 L8,4 L0,8 Z" class="notes__arrowhead" />
         </marker>
+        <marker id="notes-arrow-on" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" class="notes__arrowhead notes__arrowhead--on" />
+        </marker>
       </defs>
       <path ref="highlight" class="notes__highlight" d="" />
       <path
@@ -166,7 +177,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
         class="notes__leader"
         :class="{ 'is-hovered': hovered === note.id }"
         d=""
-        marker-end="url(#notes-arrow)"
+        :marker-end="hovered === note.id ? 'url(#notes-arrow-on)' : 'url(#notes-arrow)'"
       />
     </svg>
 
@@ -256,6 +267,9 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 .notes__arrowhead {
   fill: var(--stage-leader);
 }
+.notes__arrowhead--on {
+  fill: var(--accent-100);
+}
 .notes__highlight {
   fill: none;
   stroke: var(--accent-100);
@@ -325,6 +339,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   position: absolute;
   top: 0;
   left: 0;
+  opacity: calc(var(--placed, 0) * var(--rest-opacity, 1));
   padding: var(--s-2) var(--s-3);
   border-radius: var(--r-md);
   background: var(--stage-card);
@@ -332,9 +347,15 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   pointer-events: auto;
   cursor: default;
   outline: none;
-  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+.note--quiet {
+  --rest-opacity: 0.8;
 }
 .note.is-hovered {
+  z-index: 1; /* opened: floats over the notes below */
+  box-shadow: var(--e-2);
   border-color: var(--accent-100);
   background: var(--stage-card-strong);
 }
@@ -360,9 +381,6 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   margin: 0.125rem 0 0;
   font: var(--t-body-sm);
   color: var(--cream);
-}
-.note--quiet {
-  opacity: 0.8;
 }
 .note__facts {
   display: grid;
