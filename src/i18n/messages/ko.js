@@ -229,6 +229,9 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    stepBack: "뒤로",
+    coach: "'앞으로 가기'로 경로를 따라 이동 · 드래그하거나 휴대폰을 돌려 둘러보세요",
+    stepsLabel: "스트리트 뷰에서 이동",
     walkAhead: '앞으로 가기',
     noPathAhead: "이 방향으로는 스트리트 뷰가 더 없습니다",
     view360None: '현재 위치에 360° 스트리트 뷰가 없습니다',

@@ -229,6 +229,9 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    stepBack: "Lùi lại",
+    coach: "Nhấn Đi tiếp để đi theo tuyến · kéo hoặc xoay điện thoại để nhìn quanh",
+    stepsLabel: "Di chuyển trong Street View",
     walkAhead: 'Đi tiếp',
     noPathAhead: "Street View không đi xa hơn theo hướng này",
     view360None: 'Không có ảnh đường phố 360° tại vị trí của bạn',

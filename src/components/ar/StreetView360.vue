@@ -116,19 +116,22 @@ let alive = true
 let broken = false
 let viewListeners = []
 let viewFrame = 0
-/** Emit { position, heading } of the view, at most once a frame. */
+/** Panoramas walked through, for Step back (cleared when the real walker moves the view). */
+const history = []
+/** Emit { position, heading, canBack } of the view, at most once a frame. */
 function reportView() {
   if (viewFrame) return
   viewFrame = requestAnimationFrame(() => {
     viewFrame = 0
     const ll = panorama?.getPosition()
     if (!ll) return
-    emit('view', { position: { lat: ll.lat(), lng: ll.lng() }, heading: panorama.getPov().heading })
+    emit('view', { position: { lat: ll.lat(), lng: ll.lng() }, heading: panorama.getPov().heading, canBack: history.length > 0 })
   })
 }
 
 // ---- walk forward through Street View ----
-const stepping = ref(false)
+/** 'forward' | 'back' | null — drives the push-in / pull-out transition */
+const stepping = ref(null)
 /**
  * Move to the next panorama along `wantHeading` (the route's direction), with a dolly-in
  * transition. Returns false when Street View has no link roughly that way.
@@ -137,16 +140,32 @@ async function stepForward(wantHeading) {
   if (!panorama || stepping.value) return false
   const link = bestLink(panorama.getLinks() ?? [], wantHeading)
   if (!link) return false
-  stepping.value = true // CSS: push in + soften (reduced motion: a quick fade)
+  stepping.value = 'forward' // CSS: push in + soften (reduced motion: a quick fade)
   await new Promise((r) => setTimeout(r, 180))
+  history.push(currentPano)
   panorama.setPano(link.pano)
   currentPano = link.pano
   if (!motion.value) panorama.setPov({ heading: link.heading, pitch: props.pitch })
   await new Promise((r) => setTimeout(r, 260))
-  stepping.value = false
+  stepping.value = null
+  reportView()
   return true
 }
-defineExpose({ stepForward })
+/** Back to the previous panorama (same way you came), pulling out instead of pushing in. */
+async function stepBack() {
+  if (!panorama || stepping.value || !history.length) return false
+  stepping.value = 'back'
+  await new Promise((r) => setTimeout(r, 180))
+  currentPano = history.pop()
+  panorama.setPano(currentPano)
+  await new Promise((r) => setTimeout(r, 260))
+  stepping.value = null
+  reportView()
+  return true
+}
+/** Is there Street View to walk into roughly this way? (enables the Walk ahead button) */
+const canStep = (wantHeading) => Boolean(panorama && bestLink(panorama.getLinks() ?? [], wantHeading))
+defineExpose({ stepForward, stepBack, canStep })
 function onContextLost(e) {
   e.preventDefault()
   if (broken) return
@@ -202,6 +221,7 @@ onMounted(async () => {
     viewListeners = [
       panorama.addListener('pov_changed', reportView),
       panorama.addListener('position_changed', reportView),
+      panorama.addListener('links_changed', reportView), // neighbours known → Walk ahead can enable
     ]
     // iPhones can drop the panorama's GPU context under memory pressure (it would freeze on a
     // black frame). Throw that instance away and let the parent mount a fresh one.
@@ -233,6 +253,7 @@ watch(
       const found = await nearestPano(searchedAt)
       if (!alive || !panorama || found.pano === currentPano) return
       currentPano = found.pano
+      history.length = 0 // the real walker moved: start a fresh trail
       emit('credit', found.copyright)
       panorama.setPano(found.pano)
       if (!motion.value) panorama.setPov(facingPov(found.position, props.target, props.pitch)) // the phone steers when tracking
@@ -266,7 +287,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="street-view" :class="{ 'is-ready': ready, 'is-stepping': stepping }" :style="{ '--sv-inset': `${bottomInset}px` }">
+  <div
+    class="street-view"
+    :class="{ 'is-ready': ready, 'is-stepping': stepping === 'forward', 'is-stepping-back': stepping === 'back' }" :style="{ '--sv-inset': `${bottomInset}px` }">
     <div ref="el" class="street-view__pano" />
     <Transition name="hint">
       <span v-if="motionHint" class="street-view__hint" aria-hidden="true">{{ t('ar.motion') }}</span>
@@ -308,6 +331,11 @@ onBeforeUnmount(() => {
    reads as walking into the scene. Reduced motion: a short dip in opacity only. */
 .street-view__pano {
   transition: transform 260ms var(--ease), filter 260ms var(--ease), opacity 260ms var(--ease);
+}
+.street-view.is-stepping-back .street-view__pano {
+  transform: scale(calc(1 - 0.12 * var(--motion))); /* pull out: the reverse of walking in */
+  filter: blur(calc(3px * var(--motion)));
+  opacity: 0.85;
 }
 .street-view.is-stepping .street-view__pano {
   transform: scale(calc(1 + 0.18 * var(--motion)));

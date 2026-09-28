@@ -229,6 +229,9 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    stepBack: "戻る",
+    coach: "「前に進む」でルートに沿って移動 · ドラッグかスマホを動かして見回せます",
+    stepsLabel: "ストリートビューで移動",
     walkAhead: '前に進む',
     noPathAhead: "この方向にはストリートビューが続いていません",
     view360None: '現在地に 360° ストリートビューがありません',

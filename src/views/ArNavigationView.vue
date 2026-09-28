@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import IconButton from '@/components/base/IconButton.vue'
+import AppIcon from '@/components/base/AppIcon.vue'
 import ArStatusPill from '@/components/ar/ArStatusPill.vue'
 import SiteMap from '@/components/map/SiteMap.vue'
 import StreetView360 from '@/components/ar/StreetView360.vue'
@@ -64,9 +65,12 @@ const view360 = computed(() => pano.value !== 'none')
 /** Walker, or the default origin before they're located / outside Hobart. */
 const here = computed(() => location.origin)
 const ahead = computed(() => pointAhead(walk.path.value, here.value) ?? site.value.coordinates)
+let coached = false
 function onPanoReady() {
   pano.value = 'ready'
-  ui.showToast(t('ar.view360Hint'), { duration: 2600 })
+  if (coached) return
+  coached = true // say what this screen is for, once: walk with the buttons, look by dragging / turning
+  ui.showToast(t('arNav.coach'), { duration: 4000 })
 }
 /** The panorama's GPU context died (memory pressure): remount a fresh one. */
 const panoKey = ref(0)
@@ -121,12 +125,26 @@ const arrowTurn = computed(() => {
 /** The dome map follows the view: after walking ahead in Street View it shows where you "are". */
 const follow = computed(() => ({ position: panoView.value?.position ?? here.value, heading: guideHeading.value }))
 const going = ref(false)
+/** Buttons reflect what's possible right now (disabled rather than failing after a tap). */
+const canForward = ref(false)
+const canBack = ref(false)
+function onView(v) {
+  panoView.value = v
+  canBack.value = v.canBack
+  nextTick(() => (canForward.value = sv.value?.canStep(guideHeading.value) ?? false))
+}
 async function walkAhead() {
   if (going.value) return
+  if (!canForward.value) return ui.showToast(t('arNav.noPathAhead'), { duration: 2600 })
   going.value = true // arrows surge forward while the view steps
   const moved = await sv.value?.stepForward(guideHeading.value)
   if (moved) haptic('selection')
-  else ui.showToast(t('arNav.noPathAhead'), { duration: 2600 })
+  setTimeout(() => (going.value = false), 350)
+}
+async function walkBack() {
+  if (going.value || !canBack.value) return
+  going.value = true
+  if (await sv.value?.stepBack()) haptic('selection')
   setTimeout(() => (going.value = false), 350)
 }
 </script>
@@ -149,9 +167,9 @@ async function walkAhead() {
         :at="here"
         :target="ahead"
         :pitch="0"
-        :bottom-inset="summaryHeight"
+        :bottom-inset="summaryHeight + 56"
         @credit="(c) => (panoCredit = c)"
-        @view="(v) => (panoView = v)"
+        @view="onView"
         @ready="onPanoReady"
         @unavailable="onPanoUnavailable"
         @lost="onPanoLost"
@@ -182,23 +200,32 @@ async function walkAhead() {
       </span>
     </ArStatusPill>
 
-    <!-- 360°: 3D arrows lie on the ground and point along the route; tap to walk ahead -->
-    <button
+    <!-- 360°: 3D arrows lie on the ground and point along the route (tapping them walks ahead
+         too); the labelled buttons below say plainly what this screen can do -->
+    <div
       v-if="pano === 'ready'"
-      type="button"
       class="ar-nav__go"
-      :class="{ 'is-going': going }"
+      :class="{ 'is-going': going, 'is-blocked': !canForward }"
       data-no-look
-      :aria-label="t('arNav.walkAhead')"
+      aria-hidden="true"
       @click="walkAhead"
     >
-      <span class="ar-nav__floor" :style="{ '--turn': `${arrowTurn}deg` }" aria-hidden="true">
+      <span class="ar-nav__floor" :style="{ '--turn': `${arrowTurn}deg` }">
         <svg v-for="n in 3" :key="n" class="ar-nav__chev" :style="{ '--i': n - 1 }" viewBox="0 0 90 56">
           <path d="M6 50 L45 8 L84 50 L45 32 Z" />
         </svg>
       </span>
-      <span class="ar-nav__go-label">{{ t('arNav.walkAhead') }}</span>
-    </button>
+    </div>
+    <div v-if="pano === 'ready'" class="ar-nav__steps" role="group" :aria-label="t('arNav.stepsLabel')" data-no-look>
+      <button type="button" class="ar-nav__step pressable" :disabled="!canBack || going" @click="walkBack">
+        <AppIcon name="up" :size="18" :stroke-width="2.6" class="ar-nav__step-icon--back" />
+        {{ t('arNav.stepBack') }}
+      </button>
+      <button type="button" class="ar-nav__step ar-nav__step--primary pressable" :disabled="!canForward || going" @click="walkAhead">
+        <AppIcon name="up" :size="18" :stroke-width="2.6" />
+        {{ t('arNav.walkAhead') }}
+      </button>
+    </div>
 
     <!-- the painted arrows belong to the fallback photo; in 360° the street itself (turned ahead) shows the way -->
     <div v-if="pano === 'none'" v-look="1.4" class="ar-nav__near" aria-hidden="true">
@@ -391,10 +418,10 @@ async function walkAhead() {
 .ar-nav__go {
   position: absolute;
   left: 50%;
-  bottom: calc(30% + var(--s-2));
+  bottom: calc(30% + var(--s-3) + var(--hit) + var(--s-2)); /* above the step buttons */
   z-index: 2;
   width: 160px;
-  height: 190px;
+  height: 170px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -432,15 +459,45 @@ async function walkAhead() {
   stroke-width: 6;
   stroke-linejoin: round;
 }
-.ar-nav__go-label {
-  margin-top: -6px;
-  padding: 4px 12px;
+.ar-nav__go.is-blocked .ar-nav__chev {
+  opacity: 0.35;
+  animation: none; /* nothing further this way: arrows rest */
+}
+/* Step back · Walk ahead — a glass capsule pair just above the map */
+.ar-nav__steps {
+  position: absolute;
+  left: 50%;
+  bottom: calc(30% + var(--s-3));
+  z-index: 3;
+  display: flex;
+  gap: var(--s-2);
+  transform: translateX(-50%);
+}
+.ar-nav__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--hit);
+  padding: 0 var(--s-4);
   border-radius: var(--r-pill);
   background: var(--glass);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
   color: var(--cream);
-  font: var(--t-label-sm);
+  font: var(--t-button);
+  white-space: nowrap;
+  box-shadow: var(--e-2);
+  transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.ar-nav__step--primary {
+  background: var(--info-600); /* the main action, same blue as the ground arrows */
+  color: var(--paper);
+}
+.ar-nav__step:disabled {
+  opacity: 0.45;
+}
+.ar-nav__step-icon--back {
+  rotate: 180deg;
 }
 .ar-nav__go:active .ar-nav__floor {
   scale: var(--press-scale);

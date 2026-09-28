@@ -232,6 +232,9 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    stepBack: "Step back",
+    coach: "Tap Walk ahead to move along the route · drag or turn your phone to look around",
+    stepsLabel: "Move through Street View",
     walkAhead: 'Walk ahead',
     noPathAhead: "Street View doesn't go further this way",
     view360None: 'No 360° street view where you are',

@@ -229,6 +229,9 @@ export default {
     narryna: 'Narryna',
   },
   arNav: {
+    stepBack: "後退",
+    coach: "點「往前走」沿著路線前進 · 拖曳或轉動手機環顧四周",
+    stepsLabel: "在街景中移動",
     walkAhead: '往前走',
     noPathAhead: "街景沒辦法再往這個方向前進",
     view360None: '你所在的位置沒有 360° 街景',
