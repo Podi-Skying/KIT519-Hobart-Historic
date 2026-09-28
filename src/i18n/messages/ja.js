@@ -339,5 +339,10 @@ export default {
     scan: 'スマートフォンで読み取るか、ここで開いてください。',
     open: 'Google Form Link',
     qrAlt: 'フォーム {form} の QR コード',
+    progress: '{n}/{total} 完了',
+    markDone: 'タスク {n} を完了にする',
+    done: '3つのタスクがすべて完了しました！',
+    doneNext: 'ありがとうございます。フォーム {form} で感想を教えてください。',
+    reset: '最初からやり直す',
   },
 }

@@ -17,8 +17,10 @@ const { t } = useI18n()
 
 const { personas } = parsePersonas(personasMd)
 const scenarios = SURVEY_FORMS.map((f) => {
-  const [name, role = ''] = (personas[f.persona] ?? f.persona).split(/:\s*/)
-  return { ...f, name, role }
+  const p = personas[f.persona] ?? { name: f.persona, age: null, role: '' }
+  // name on its own line; age and role underneath in small type (never "(Age: 22)" in brackets)
+  const meta = [p.age && `Age ${p.age}`, p.role].filter(Boolean).join(' · ')
+  return { ...f, name: p.name, meta }
 })
 
 /** The chosen persona is shared with DesignNotes, which shows its Task 1–3 on the right-hand side. */
@@ -40,7 +42,7 @@ const close = () => emit('close')
               <PersonaAvatar :persona="s.persona" :size="40" />
               <span class="scenario__text" lang="en">
                 <b>{{ s.name }}</b>
-                <small>{{ s.role }} · Form {{ s.form }}</small>
+                <small>{{ s.meta }}</small>
               </span>
               <AppIcon name="chevron" :size="18" class="scenario__chevron" />
             </button>
@@ -59,7 +61,7 @@ const close = () => emit('close')
             <PersonaAvatar :persona="current.persona" :size="56" />
             <div>
               <h3 class="survey__title">{{ current.name }}</h3>
-              <p class="survey__role">{{ current.persona }} · {{ current.role }}</p>
+              <p class="survey__role">{{ current.meta }}</p>
             </div>
           </div>
           <p class="survey__intro" lang="en">{{ current.intro }}</p>
@@ -81,14 +83,13 @@ const close = () => emit('close')
                 <path :d="current.qr.path" class="survey__qr-dots" />
               </svg>
             </a>
-            <div class="survey__how">
-              <p>{{ t('survey.scan') }}</p>
-              <a :href="current.url" target="_blank" rel="noopener" class="survey__open pressable">
-                {{ t('survey.open') }}
-                <AppIcon name="chevron" :size="16" />
-              </a>
-            </div>
+            <p class="survey__how">{{ t('survey.scan') }}</p>
           </div>
+          <!-- full panel width: never pokes out of the panel on a narrow column -->
+          <a :href="current.url" target="_blank" rel="noopener" class="survey__open pressable">
+            {{ t('survey.open') }}
+            <AppIcon name="chevron" :size="16" />
+          </a>
         </div>
       </div>
     </Transition>
@@ -225,8 +226,8 @@ const close = () => emit('close')
 }
 .survey__qr {
   display: block;
-  width: 112px;
-  height: 112px;
+  width: 96px;
+  height: 96px;
   flex-shrink: 0;
   border-radius: var(--r-md);
 }
@@ -253,21 +254,19 @@ const close = () => emit('close')
   }
 }
 .survey__how {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-1);
+  flex: 1;
   min-width: 0;
-}
-.survey__how p {
   margin: 0;
   font: var(--t-body-sm);
   color: var(--ink-300);
 }
 .survey__open {
-  /* the panel's one primary action: a filled pill in the dark-surface action colour */
-  align-self: flex-start;
-  display: inline-flex;
+  /* the panel's one primary action: a filled pill in the dark-surface action colour, full width */
+  display: flex;
+  justify-content: center;
   align-items: center;
+  width: 100%;
+  margin-top: var(--s-3);
   gap: var(--s-1);
   min-height: var(--hit);
   padding: 0 var(--s-3) 0 var(--s-4);

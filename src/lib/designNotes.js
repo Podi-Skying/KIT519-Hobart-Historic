@@ -23,16 +23,22 @@ export const ROUTE_REQUIREMENTS = {
 export const EVERY_SCREEN = ['NFR1', 'NFR6']
 
 /**
- * Persona names and workflow titles from personas.md:
- * "## P1 · Minzi (22): international exchange student" and "| W1 | Discover and choose … |".
- * A bare age is spelled out for readers who never saw the persona sheet: "Minzi (Age: 22): …".
+ * Personas and workflow titles from personas.md:
+ * "## P1 · Minzi (22): international exchange student" → { name: 'Minzi', age: 22,
+ * role: 'international exchange student', label: 'Minzi · Age 22 · international exchange student' }
+ * (the bare "(22)" is spelled out, never shown in brackets); "| W1 | Discover and choose … |".
  */
 export function parsePersonas(markdown) {
   const personas = {}
   const workflows = {}
   for (const line of markdown.split('\n')) {
     const p = line.match(/^##\s+(P\d+)\s+·\s+(.+?)\s*$/)
-    if (p) personas[p[1]] = p[2].replace(/\((\d+)\)/, '(Age: $1)')
+    if (p) {
+      const m = p[2].match(/^(.+?)\s*(?:\((\d+)\))?\s*(?::\s*(.+))?$/)
+      const [, name, age, role = ''] = m
+      const label = [name, age && `Age ${age}`, role].filter(Boolean).join(' · ')
+      personas[p[1]] = { name, age: age ? Number(age) : null, role, label }
+    }
     const w = line.match(/^\|\s*(W\d+)\s*\|\s*([^|]+?)\s*\|/)
     if (w) workflows[w[1]] = w[2]
   }
@@ -65,7 +71,7 @@ export function notesFor(ids, rows, { personas = {}, workflows = {} } = {}) {
       priority: r.Priority,
       status: r.Status,
       evidence: dash(r['Evaluation evidence']),
-      personas: expandIds(r.Personas).map((id) => ({ id, name: personas[id] ?? '' })),
+      personas: expandIds(r.Personas).map((id) => ({ id, name: personas[id]?.label ?? '' })),
       workflows: expandIds(r.Workflows).map((id) => ({ id, title: workflows[id] ?? '' })),
     }))
 }

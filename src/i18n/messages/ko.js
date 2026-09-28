@@ -339,5 +339,10 @@ export default {
     scan: '휴대폰으로 스캔하거나 여기에서 여세요.',
     open: 'Google Form Link',
     qrAlt: '양식 {form} QR 코드',
+    progress: '{total}개 중 {n}개 완료',
+    markDone: '과제 {n} 완료로 표시',
+    done: '세 가지 과제를 모두 마쳤어요!',
+    doneNext: '감사합니다. 이제 양식 {form}에서 사용 소감을 알려 주세요.',
+    reset: '처음부터 다시',
   },
 }

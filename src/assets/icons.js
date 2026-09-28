@@ -35,6 +35,7 @@ export const ICONS = {
   image: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 16l-5-5-9 9"/>',
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 014.8 1c0 1.7-2.3 2-2.3 3.5M12 17v.5"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  tasks: '<rect x="5" y="4.5" width="14" height="16.5" rx="2"/><path d="M9 3h6v3H9z"/><path d="M8.5 13.5l2.5 2.5 4.5-5"/>', // clipboard with a tick: a checklist of tasks
   print: '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><rect x="6" y="14" width="12" height="7" rx="1"/>',
   shoe: '<path d="M3 17h18v-2c0-1.5-1-2.3-2.5-2.6L13 11l-2-4H6L3 10z"/><path d="M3 20h18"/>',
   // media

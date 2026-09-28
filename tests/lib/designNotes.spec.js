@@ -22,7 +22,12 @@ describe('design notes (RTM beside the desktop mock-up)', () => {
     for (const name of Object.keys(ROUTE_REQUIREMENTS)) if (name !== 'splash') expect(names.has(name), name).toBe(true)
   })
   it('reads persona names and workflow titles from personas.md', () => {
-    expect(docs.personas.P1).toMatch(/^Minzi/)
+    expect(docs.personas.P1).toEqual({
+      name: 'Minzi',
+      age: 22,
+      role: 'international exchange student',
+      label: 'Minzi · Age 22 · international exchange student',
+    })
     expect(Object.keys(docs.workflows)).toContain('W11')
   })
   it('expands ID lists and ranges', () => {
@@ -34,7 +39,7 @@ describe('design notes (RTM beside the desktop mock-up)', () => {
     expect(a.id).toBe('FR2')
     expect(b.id).toBe('FR1')
     expect(a.requirement).toBe(rows.find((r) => r.ID === 'FR2').Requirement)
-    expect(a.personas[0]).toEqual({ id: 'P1', name: docs.personas.P1 })
+    expect(a.personas[0]).toEqual({ id: 'P1', name: docs.personas.P1.label })
     expect(notesFor(['FR3'], rows, docs)[0].evidence).toBe('') // "—" means none
   })
   it('puts every anchored screen requirement on an element (data-req) in the source', () => {

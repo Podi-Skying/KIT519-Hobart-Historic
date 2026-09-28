@@ -339,5 +339,10 @@ export default {
     scan: '用手機掃描，或直接在這裡開啟。',
     open: 'Google Form Link',
     qrAlt: '表單 {form} 的 QR code',
+    progress: '已完成 {n}/{total}',
+    markDone: '將任務 {n} 標記為完成',
+    done: '三個任務都完成了！',
+    doneNext: '謝謝你！接著在表單 {form} 告訴我們你的使用感受。',
+    reset: '重新開始',
   },
 }

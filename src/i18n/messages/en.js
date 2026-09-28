@@ -342,5 +342,10 @@ export default {
     scan: 'Scan with your phone, or open it here.',
     open: 'Google Form Link',
     qrAlt: 'QR code for Form {form}',
+    progress: '{n} of {total} done',
+    markDone: 'Mark Task {n} as done',
+    done: 'All three tasks done!',
+    doneNext: 'Thank you. Now tell us how it went in Form {form}.',
+    reset: 'Start over',
   },
 }

@@ -339,5 +339,10 @@ export default {
     scan: 'Quét bằng điện thoại, hoặc mở ngay tại đây.',
     open: 'Google Form Link',
     qrAlt: 'Mã QR cho Biểu mẫu {form}',
+    progress: 'Đã xong {n}/{total}',
+    markDone: 'Đánh dấu Nhiệm vụ {n} là đã xong',
+    done: 'Bạn đã xong cả ba nhiệm vụ!',
+    doneNext: 'Cảm ơn bạn. Hãy chia sẻ cảm nhận trong Biểu mẫu {form}.',
+    reset: 'Làm lại từ đầu',
   },
 }
