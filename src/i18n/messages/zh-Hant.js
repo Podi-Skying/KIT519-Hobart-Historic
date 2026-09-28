@@ -332,4 +332,15 @@ export default {
     hide: '隱藏設計說明',
     show: '設計說明',
   },
+  survey: {
+    button: '參與測試：選擇情境',
+    title: '選擇情境',
+    lead: '以三位人物誌之一的身分試用 App，再填寫該人物的問卷。',
+    back: '所有情境',
+    tasks: '你的任務',
+    answer: '完成後填寫表單 {form}',
+    scan: '用手機掃描，或直接在這裡開啟。',
+    open: '開啟表單 {form}',
+    qrAlt: '表單 {form} 的 QR code',
+  },
 }

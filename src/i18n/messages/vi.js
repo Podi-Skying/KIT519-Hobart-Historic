@@ -332,4 +332,15 @@ export default {
     hide: 'Ẩn ghi chú thiết kế',
     show: 'Ghi chú thiết kế',
   },
+  survey: {
+    button: 'Tham gia: chọn kịch bản',
+    title: 'Chọn kịch bản',
+    lead: 'Dùng thử ứng dụng trong vai một trong ba persona, rồi trả lời bảng hỏi của persona đó.',
+    back: 'Tất cả kịch bản',
+    tasks: 'Nhiệm vụ của bạn',
+    answer: 'Sau đó trả lời Biểu mẫu {form}',
+    scan: 'Quét bằng điện thoại, hoặc mở ngay tại đây.',
+    open: 'Mở Biểu mẫu {form}',
+    qrAlt: 'Mã QR cho Biểu mẫu {form}',
+  },
 }

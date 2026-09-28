@@ -335,4 +335,15 @@ export default {
     hide: 'Hide design notes',
     show: 'Design notes',
   },
+  survey: {
+    button: 'Take part: choose a scenario',
+    title: 'Choose a scenario',
+    lead: 'Try the app as one of our three personas, then answer that persona’s questionnaire.',
+    back: 'All scenarios',
+    tasks: 'Your tasks',
+    answer: 'Then answer Form {form}',
+    scan: 'Scan with your phone, or open it here.',
+    open: 'Open Form {form}',
+    qrAlt: 'QR code for Form {form}',
+  },
 }

@@ -13,6 +13,7 @@ import { useI18n } from 'vue-i18n'
 import rtmCsv from '../../../docs/a3/rtm.csv?raw'
 import personasMd from '../../../docs/a3/personas.md?raw'
 import AppIcon from '@/components/base/AppIcon.vue'
+import SurveyPicker from './SurveyPicker.vue'
 import { RATIONALE, SCREENS } from '@/data/designRationale'
 import { EVERY_SCREEN, ROUTE_REQUIREMENTS, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
 
@@ -34,6 +35,8 @@ const notes = computed(() => [
   ...notesFor(EVERY_SCREEN, rows, docs).map((n) => ({ ...withRationale('*')(n), everywhere: true })),
 ])
 const hovered = ref(null)
+/** While a participant picks a scenario, the callouts step aside (focus on one task). */
+const surveyOpen = ref(false)
 
 /* ---- per-frame placement (no re-render: styles and paths are written directly) ---- */
 const layer = ref(null)
@@ -159,7 +162,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   <div v-if="!open" class="notes-toggle">
     <button type="button" class="notes__show pressable" @click="emit('toggle')">{{ t('designNotes.show') }}</button>
   </div>
-  <div v-else ref="layer" class="notes" :aria-label="t('designNotes.title')" role="complementary">
+  <div v-else ref="layer" class="notes" :class="{ 'is-surveying': surveyOpen }" :aria-label="t('designNotes.title')" role="complementary">
     <svg class="notes__lines" aria-hidden="true">
       <defs>
         <marker id="notes-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto">
@@ -189,6 +192,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
         </h2>
         <p class="notes__intent" lang="en">{{ meta?.intent }}</p>
         <p class="notes__subtitle">{{ t('designNotes.subtitle') }}</p>
+        <SurveyPicker v-model:open="surveyOpen" />
       </div>
       <button type="button" class="notes__hide pressable-dim" :aria-label="t('designNotes.hide')" @click="emit('toggle')">
         <AppIcon name="close" :size="18" />
@@ -250,6 +254,10 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   visibility: hidden; /* shown by the first frame, once everything has a place */
   color: var(--cream);
 }
+.notes.is-surveying .note,
+.notes.is-surveying .notes__lines {
+  visibility: hidden;
+}
 .notes__lines {
   width: 100%;
   height: 100%;
@@ -282,6 +290,10 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   align-items: flex-start;
   gap: var(--s-2);
   pointer-events: auto;
+}
+.notes__head > div {
+  flex: 1;
+  min-width: 0;
 }
 .notes__eyebrow {
   margin: 0;

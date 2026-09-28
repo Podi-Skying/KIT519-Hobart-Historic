@@ -92,3 +92,23 @@ export function layoutColumn(items, { top, bottom, gap = 8 }) {
   }
   return tops
 }
+
+/**
+ * Usability tasks from evaluation-plan.md's task table:
+ * | **T1** | P1 · W1 | "scenario read to the participant" | … → { id, persona ('P1'… or 'all'), scenario }.
+ */
+export function parseTasks(markdown) {
+  const tasks = []
+  for (const line of markdown.split('\n')) {
+    const m = line.match(/^\|\s*\*\*(T\d+)\*\*\s*\|\s*(P\d+|all)\s*·[^|]*\|\s*"(.+?)"\s*\|/)
+    if (m) tasks.push({ id: m[1], persona: m[2], scenario: m[3].replace(/\*/g, '') })
+  }
+  return tasks
+}
+
+/** A persona's tasks in session order: role tasks, then the shared one (P2 does the shared one first). */
+export function scenarioFor(persona, tasks) {
+  const own = tasks.filter((t) => t.persona === persona)
+  const shared = tasks.filter((t) => t.persona === 'all')
+  return persona === 'P2' ? [...shared, ...own] : [...own, ...shared]
+}
