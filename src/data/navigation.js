@@ -1,12 +1,11 @@
 /**
  * Walking-route presets. `factor` scales a site's normal walking time.
- * `color` is a CSS token for DOM/SVG; `hex` is the same colour for Google Maps
- * (which can't read CSS variables) — keep them in sync with tokens.css.
+ * `color` is a CSS token, used by the illustrated map and by Google Maps (GoogleMap resolves it)
  */
 export const ROUTE_TYPES = [
-  { key: 'normal', label: 'Normal', factor: 1, color: 'var(--brand-600)', hex: '#7D3045', dashed: true },
-  { key: 'accessible', label: 'Accessible', factor: 1.75, color: 'var(--success-600)', hex: '#4A6741', dashed: false },
-  { key: 'steep', label: 'Steep', factor: 0.65, color: 'var(--accent-500)', hex: '#D98A3D', dashed: true },
+  { key: 'normal', label: 'Normal', factor: 1, color: 'var(--brand-600)', dashed: true },
+  { key: 'accessible', label: 'Accessible', factor: 1.75, color: 'var(--success-600)', dashed: false },
+  { key: 'steep', label: 'Steep', factor: 0.65, color: 'var(--accent-500)', dashed: true },
 ]
 
 export const DEFAULT_ROUTE_TYPE = 'normal'

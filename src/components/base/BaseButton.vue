@@ -1,6 +1,5 @@
 <script setup>
-import { computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, resolveComponent } from 'vue'
 import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
@@ -13,6 +12,9 @@ const props = defineProps({
   to: { type: [String, Object], default: null },
 })
 
+/* RouterLink is looked up from the app (registered by app.use(router)) rather than imported:
+   base components stay free of the router, stores and data (CLAUDE.md). */
+const RouterLink = resolveComponent('RouterLink')
 const tag = computed(() => (props.to ? RouterLink : 'button'))
 </script>
 

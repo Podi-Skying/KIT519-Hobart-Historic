@@ -14,7 +14,7 @@ defineProps({
   sites: { type: Array, required: true },
   selectedId: { type: Number, default: null },
   routePath: { type: Array, default: () => [] },
-  /** ROUTE_TYPES entry: `hex` for Google, `color` (token) for the illustration. */
+  /** ROUTE_TYPES entry: `color` is a design token, used by both maps (GoogleMap resolves it). */
   routeType: { type: Object, required: true },
   realRoute: { type: Boolean, default: false },
   /** Amenity stops on the route: { id, icon, label, position }. */
@@ -63,7 +63,7 @@ defineExpose({
     :sites="sites"
     :selected-id="selectedId"
     :route-path="routePath"
-    :route-color="routeType.hex"
+    :route-color="routeType.color"
     :real-route="realRoute"
     :amenities="amenities"
     :highlights="highlights"

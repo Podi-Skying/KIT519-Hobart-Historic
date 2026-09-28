@@ -157,7 +157,7 @@ export function useWalkingRoute(siteSource) {
       if (!option || seen.has(option)) return false
       seen.add(option)
       return true
-    }).map((type) => ({ key: type.key, path: options.value[type.key].path, hex: type.hex, color: type.color, label: t(`routeTypes.${type.key}.label`) }))
+    }).map((type) => ({ key: type.key, path: options.value[type.key].path, color: type.color, label: t(`routeTypes.${type.key}.label`) }))
   })
 
   return {

@@ -20,14 +20,15 @@ const props = defineProps({
   /** Points to draw as the route (empty = no route). */
   routePath: { type: Array, default: () => [] },
   /** Hex colour of the route line. */
-  routeColor: { type: String, default: '#7D3045' },
+  /** A design token such as 'var(--brand-600)'; resolved to a colour for Google (see tokenColor). */
+  routeColor: { type: String, default: 'var(--brand-600)' },
   /** true = follows real streets (solid line); false = straight-line estimate (dashed). */
   realRoute: { type: Boolean, default: false },
   /** Amenity stops on the route: { id, icon, label, position }. */
   amenities: { type: Array, default: () => [] },
   /** Labelled feature points of the route (steepest stretch, high point…): { id, icon, label, position }. */
   highlights: { type: Array, default: () => [] },
-  /** Other route types drawn faint so the difference shows; tap to switch: { key, path, hex, label }. */
+  /** Other route types drawn faint so the difference shows; tap to switch: { key, path, color, label }. */
   alternatives: { type: Array, default: () => [] },
   /** Live walker position (blue dot), or null. */
   user: { type: Object, default: null },
@@ -182,11 +183,21 @@ function syncSelection() {
   }
 }
 
+/**
+ * Google Maps draws on its own canvas and can't read CSS variables, so a token like
+ * 'var(--brand-600)' is resolved to its current value here (tokens stay the single source,
+ * and a high-contrast override would follow). Plain colours pass through.
+ */
+function tokenColor(value) {
+  const m = /^var\((--[\w-]+)\)$/.exec(String(value).trim())
+  if (!m) return value
+  return getComputedStyle(container.value ?? document.documentElement).getPropertyValue(m[1]).trim() || value
+}
 function syncRoute() {
   routeLine?.setMap(null)
   routeLine = null
   if (!map.value || props.routePath.length < 2) return
-  const color = props.routeColor
+  const color = tokenColor(props.routeColor)
   routeLine = new api.Polyline({
     map: map.value,
     path: props.routePath,
@@ -210,7 +221,7 @@ function syncAlternatives() {
       map: map.value,
       path: alt.path,
       geodesic: true,
-      strokeColor: alt.hex,
+      strokeColor: tokenColor(alt.color),
       strokeOpacity: 0.4,
       strokeWeight: 4,
       zIndex: 1,
