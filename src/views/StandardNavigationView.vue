@@ -173,7 +173,7 @@ const endRoute = () => router.push({ name: 'map' })
         >
           <span aria-hidden="true" />
         </button>
-        <p class="summary__eta">
+        <p class="summary__eta num">
           {{ t('common.minutes', { n: walk.minutes.value }) }}
           <span class="summary__distance">· {{ formatMeters(walk.distanceMeters.value) }}</span>
         </p>

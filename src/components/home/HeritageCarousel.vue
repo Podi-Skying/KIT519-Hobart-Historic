@@ -260,7 +260,7 @@ const scrub = {
   }
 }
 .controls__arrow:disabled {
-  opacity: 0.3;
+  opacity: var(--disabled-opacity);
   cursor: default;
 }
 .controls__dots {

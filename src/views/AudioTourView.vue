@@ -75,7 +75,7 @@ function seekTo(value) {
         @input="scrubbing = Number($event.target.value)"
         @change="seekTo(Number($event.target.value))"
       />
-      <div class="track__times">
+      <div class="track__times num">
         <span>{{ formatClock(shownPosition) }}</span>
         <span>-{{ formatClock(Math.max(0, player.duration - shownPosition)) }}</span>
       </div>

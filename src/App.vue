@@ -115,7 +115,7 @@ const statusBar = computed(() => {
 }
 .splash-leave-active {
   /* short, so Home is usable almost the moment you tap (the page is already rendered underneath) */
-  transition: opacity 300ms var(--ease), transform 300ms var(--ease);
+  transition: opacity var(--dur-page) var(--ease), transform var(--dur-page) var(--ease);
   pointer-events: none;
 }
 .splash-leave-to {

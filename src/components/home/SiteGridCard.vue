@@ -50,12 +50,17 @@ const likes = computed(() => favorites.likeCount(props.site))
   border: 1.5px solid var(--sand);
   border-radius: var(--r-lg);
   background: var(--paper);
-  transition: box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 /* The whole card is the link (stretched ::after), so the card itself shows the press. */
 .grid-card:has(.grid-card__link:active) {
   scale: var(--press-scale-card);
   transition-duration: 0ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .grid-card:has(.grid-card__link:active) {
+    opacity: 0.7; /* no shrink: the press still shows, as a dim */
+  }
 }
 @media (hover: hover) {
   .grid-card:hover {

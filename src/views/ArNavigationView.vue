@@ -225,11 +225,11 @@ function blockKeyMoves(e) {
       </span>
     </div>
     <div v-if="pano === 'ready'" class="ar-nav__steps" role="group" :aria-label="t('arNav.stepsLabel')" data-no-look>
-      <button type="button" class="ar-nav__step pressable" :disabled="!canBack || going" @click="walkBack">
+      <button type="button" class="ar-nav__step pressable" :disabled="!canBack" @click="walkBack">
         <AppIcon name="up" :size="18" :stroke-width="2.6" class="ar-nav__step-icon--back" />
         {{ t('arNav.stepBack') }}
       </button>
-      <button type="button" class="ar-nav__step ar-nav__step--primary pressable" :disabled="!canForward || going" @click="walkAhead">
+      <button type="button" class="ar-nav__step ar-nav__step--primary pressable" :disabled="!canForward" @click="walkAhead">
         <AppIcon name="up" :size="18" :stroke-width="2.6" />
         {{ t('arNav.walkAhead') }}
       </button>
@@ -381,7 +381,7 @@ function blockKeyMoves(e) {
   clip-path: ellipse(56% 100% at 50% 100%);
   background: var(--map-land);
   transform-origin: 50% 100%;
-  transition: scale var(--dur) var(--ease);
+  transition: scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 /* press feedback on touch-down: the map dips a little before the full map opens */
 .ar-nav__dome:has(.ar-nav__dome-open:active) .ar-nav__dome-map {
@@ -523,7 +523,7 @@ function blockKeyMoves(e) {
   background: var(--brand-700);
 }
 .ar-nav__step:disabled {
-  opacity: 0.45;
+  opacity: var(--disabled-opacity);
 }
 .ar-nav__step-icon--back {
   rotate: 180deg;
@@ -555,6 +555,10 @@ function blockKeyMoves(e) {
   opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
+  /* no shrink with reduced motion: the press still shows, as a dim */
+  .ar-nav__dome:has(.ar-nav__dome-open:active) .ar-nav__dome-map {
+    opacity: 0.7;
+  }
   .ar-nav__arrows svg {
     animation: none;
   }

@@ -34,7 +34,7 @@ defineProps({
 }
 .crossfade-enter-active,
 .crossfade-leave-active {
-  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  transition: opacity var(--dur-crossfade) var(--ease), transform var(--dur-crossfade) var(--ease);
 }
 .crossfade-enter-from {
   opacity: 0;

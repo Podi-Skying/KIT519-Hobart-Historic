@@ -319,7 +319,7 @@ function choose(code) {
 /* ---- entrance choreography ---- */
 .rise,
 .rise-tilted {
-  animation: 0.8s var(--ease) both;
+  animation: var(--dur-crossfade) var(--ease) both;
 }
 .rise { animation-name: rise; }
 .rise-tilted { animation-name: rise-tilted; animation-delay: 0.15s; }

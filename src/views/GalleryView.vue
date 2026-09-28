@@ -120,7 +120,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
 <template>
   <AppPage>
     <PageHeader :title="site.name" :fallback="{ name: 'site', params: { id } }">
-      <span class="counter">{{ current + 1 }} / {{ count }}</span>
+      <span class="counter num">{{ current + 1 }} / {{ count }}</span>
     </PageHeader>
 
     <figure class="viewer">
@@ -263,7 +263,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
 .thumbs {
   display: flex;
   gap: var(--s-2);
-  padding: 0 var(--gutter) var(--s-6);
+  padding: 4px var(--gutter) var(--s-6); /* room for the selection ring, which scrolling would clip */
   overflow-x: auto;
 }
 .thumbs__item {
@@ -271,13 +271,10 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   height: 68px;
   overflow: hidden;
   border-radius: var(--r-md); /* same as the photo rail on the site page */
-  border: 2px solid transparent;
-  opacity: 0.55;
-  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease);
 }
 .thumbs__item.is-active {
-  opacity: 1;
-  border-color: var(--brand-600);
+  box-shadow: var(--ring-selected); /* same mark as the AR Photos panel */
 }
 .thumbs__item img {
   width: 100%;

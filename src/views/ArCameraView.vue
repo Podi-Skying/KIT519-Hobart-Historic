@@ -393,7 +393,7 @@ function exit() {
     <Transition name="dock-card">
     <section v-show="!view360" class="timeline text-zoom" data-no-look :aria-label="t('compare.title')">
       <p class="timeline__head">
-        <b>{{ yearLabel(shownPhoto) }}</b>
+        <b class="num">{{ yearLabel(shownPhoto) }}</b>
         <span v-if="shownPhoto.archival" class="timeline__tag">{{ t('compare.archival') }}</span>
         · {{ shownPhoto.title || site.name }}
       </p>
@@ -608,16 +608,16 @@ function exit() {
   display: block;
   padding: 0;
   overflow: hidden;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md); /* photo thumbnails are 12 everywhere (Gallery, site rail) */
 }
 .panel__thumb.is-current {
-  box-shadow: 0 0 0 2px var(--cream), 0 0 0 4px var(--brand-600); /* the photo behind the card */
+  box-shadow: var(--ring-selected); /* the photo behind the card — same mark as the Gallery */
 }
 .panel__thumbs img {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
 }
 .ar-camera__stack {
   position: absolute;

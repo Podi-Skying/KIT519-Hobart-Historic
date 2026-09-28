@@ -49,6 +49,12 @@ body {
   font-variant-numeric: lining-nums !important;
 }
 
+/* Numbers that change while you watch (clock, ETA, counters, years): equal-width digits so the
+   line doesn't jiggle as they tick. Needs !important to beat the lining-nums rule above. */
+.num {
+  font-variant-numeric: lining-nums tabular-nums !important;
+}
+
 h1,
 h2,
 h3,

@@ -142,6 +142,7 @@
   --dur: 220ms;
   --dur-page: 380ms;
   --dur-slow: 400ms;
+  --dur-crossfade: 900ms; /* slow decorative cross-fades: condition icons, splash entrance */
   /* 1 = full movement · 0 under prefers-reduced-motion. Multiply every travel distance,
      zoom or tilt by it so motion turns into a plain cross-fade instead of vanishing. */
   --motion: 1;
@@ -150,6 +151,8 @@
   --press-scale: 0.96; /* small controls: buttons, chips, icon buttons */
   --press-scale-card: 0.98; /* large surfaces: cards, list rows */
   --press-dim: 0.55; /* text-only buttons */
+  --ring-selected: 0 0 0 2px var(--cream), 0 0 0 4px var(--brand-600); /* the current photo among thumbnails */
+  --disabled-opacity: 0.4; /* every disabled control looks the same */
 
   /* ---- Accessibility ---- */
   --hit: 44px; /* minimum touch target */
