@@ -85,17 +85,6 @@ const close = () => emit('close')
             </a>
             <div class="survey__how">
               <p>{{ t('survey.scan') }}</p>
-              <!-- an icon button: fits any column width (the text button overflowed) -->
-              <a
-                :href="current.url"
-                target="_blank"
-                rel="noopener"
-                class="survey__open pressable"
-                :aria-label="t('survey.open')"
-                :title="t('survey.open')"
-              >
-                <AppIcon name="external" :size="20" :stroke-width="2.2" />
-              </a>
             </div>
           </div>
         </div>
@@ -273,18 +262,6 @@ const close = () => emit('close')
   margin: 0;
   font: var(--t-body-sm);
   color: var(--ink-300);
-}
-.survey__open {
-  /* the panel's one primary action: an amber icon button (dark-surface action colour) */
-  width: var(--hit);
-  height: var(--hit);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--accent-100);
-  color: var(--ink-900);
-  transition: scale var(--dur) var(--ease);
 }
 .survey-swap-enter-active,
 .survey-swap-leave-active {

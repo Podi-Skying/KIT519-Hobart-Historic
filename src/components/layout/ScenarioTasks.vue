@@ -1,8 +1,10 @@
 <script setup>
 /**
- * Desktop "Scenario Task" › the chosen persona's Task 1–3 (right-hand card). Each task can be
- * ticked off (remembered per browser, per persona); when all three are done a short celebration
- * appears and points to the next step, the Google Form. Reduced motion: no burst, just a fade.
+ * Desktop "Scenario Task" › the chosen persona's Task 1–3 (right-hand card), one at a time:
+ * a segmented progress bar on top, finished tasks folded to one line (tap to reopen), the
+ * current task open with one clear "Done" button, later tasks locked until it's their turn.
+ * Progress is remembered per browser, per persona. When all three are done a short celebration
+ * points to the questionnaire (the QR code on the left). Reduced motion: no burst, just a fade.
  */
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -24,35 +26,35 @@ function load() {
   }
 }
 const progress = ref(load())
-const done = computed(() => progress.value[props.form.persona] ?? props.form.tasks.map(() => false))
-const count = computed(() => done.value.filter(Boolean).length)
-const allDone = computed(() => count.value === props.form.tasks.length)
+const total = computed(() => props.form.tasks.length)
+/** Tasks are done in order, so progress is one number: how many are finished. */
+const step = computed(() => {
+  const done = progress.value[props.form.persona] ?? []
+  const first = props.form.tasks.findIndex((_, i) => !done[i])
+  return first === -1 ? total.value : first
+})
+const allDone = computed(() => step.value === total.value)
 
-/** The burst plays only when the last task is ticked now, not when reopening a finished scenario. */
+/** The burst plays only when the last task is finished now, not when reopening a finished scenario. */
 const celebrate = ref(false)
-watch(allDone, (now, before) => (celebrate.value = now && before === false))
+watch(step, (now, before) => (celebrate.value = now === total.value && before < total.value))
 watch(
   () => props.form.persona,
   () => (celebrate.value = false),
 )
 
-function save() {
+function setStep(n) {
+  progress.value = { ...progress.value, [props.form.persona]: props.form.tasks.map((_, i) => i < n) }
   try {
     localStorage.setItem(KEY, JSON.stringify(progress.value))
   } catch {
     /* not remembered, still works */
   }
 }
-function toggle(i) {
-  const next = [...done.value]
-  next[i] = !next[i]
-  progress.value = { ...progress.value, [props.form.persona]: next }
-  save()
-}
-function reset() {
-  progress.value = { ...progress.value, [props.form.persona]: props.form.tasks.map(() => false) }
-  save()
-}
+const finish = () => setStep(step.value + 1)
+/** Reopening a finished task puts you back on it (and re-locks the ones after it). */
+const reopen = (i) => setStep(i)
+
 const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, props.person?.role].filter(Boolean).join(' · '))
 </script>
 
@@ -61,33 +63,56 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
     <header class="tasks__who">
       <PersonaAvatar :persona="form.persona" :size="40" />
       <div class="tasks__who-text">
-        <!-- the progress pill shares the eyebrow's line, so name and details keep the full width -->
-        <p class="tasks__eyebrow">
-          {{ t('survey.tasks') }}
-          <span class="tasks__count" :class="{ 'is-done': allDone }">{{ t('survey.progress', { n: count, total: form.tasks.length }) }}</span>
-        </p>
+        <p class="tasks__eyebrow">{{ t('survey.tasks') }}</p>
         <p class="tasks__name">{{ person?.name ?? form.persona }}</p>
         <p class="tasks__meta">{{ meta }}</p>
       </div>
     </header>
 
+    <!-- segmented progress: one segment per task, filled as each is finished -->
+    <div
+      class="tasks__progress"
+      role="progressbar"
+      :aria-valuemin="0"
+      :aria-valuemax="total"
+      :aria-valuenow="step"
+      :aria-valuetext="t('survey.progress', { n: step, total })"
+    >
+      <span v-for="(task, i) in form.tasks" :key="task.title" class="tasks__segment" :class="{ 'is-done': i < step, 'is-current': i === step }">
+        <i />
+      </span>
+    </div>
+    <p class="tasks__count">{{ allDone ? t('survey.done') : t('survey.stepOf', { n: step + 1, total }) }}</p>
+
     <ol class="tasks__list">
-      <li v-for="(task, i) in form.tasks" :key="task.title" class="task" :class="{ 'is-done': done[i] }">
-        <button
-          type="button"
-          role="checkbox"
-          class="task__check pressable"
-          :aria-checked="done[i]"
-          :aria-label="t('survey.markDone', { n: i + 1 })"
-          @click="toggle(i)"
-        >
-          <span class="task__box"><AppIcon name="check" :size="16" :stroke-width="3" /></span>
+      <li
+        v-for="(task, i) in form.tasks"
+        :key="task.title"
+        class="task"
+        :class="{ 'is-done': i < step, 'is-current': i === step, 'is-locked': i > step }"
+      >
+        <!-- finished: one line, tap to reopen -->
+        <button v-if="i < step" type="button" class="task__row pressable-dim" :aria-label="t('survey.reopen', { n: i + 1 })" @click="reopen(i)">
+          <span class="task__badge task__badge--done"><AppIcon name="check" :size="14" :stroke-width="3" /></span>
+          <span class="task__row-text"><b>Task {{ i + 1 }}</b> {{ task.title }}</span>
         </button>
-        <div class="task__body">
-          <p class="task__num">Task {{ i + 1 }}</p>
+
+        <!-- current: open, with one clear action -->
+        <div v-else-if="i === step" class="task__open">
+          <p class="task__num"><span class="task__badge">{{ i + 1 }}</span> Task {{ i + 1 }}</p>
           <p class="task__title">{{ task.title }}</p>
           <p class="task__text">{{ task.text }}</p>
+          <button type="button" class="task__done pressable" @click="finish">
+            <AppIcon name="check" :size="18" :stroke-width="2.6" />
+            {{ i + 1 < total ? t('survey.doneNextTask') : t('survey.doneLast') }}
+          </button>
         </div>
+
+        <!-- later: locked until it's their turn -->
+        <p v-else class="task__row task__row--locked">
+          <span class="task__badge task__badge--locked"><AppIcon name="lock" :size="13" :stroke-width="2.2" /></span>
+          <span class="task__row-text"><b>Task {{ i + 1 }}</b> {{ t('survey.locked', { n: i }) }}</span>
+        </p>
       </li>
     </ol>
 
@@ -99,11 +124,7 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
         </span>
         <p class="tasks__done-title">{{ t('survey.done') }}</p>
         <p class="tasks__done-text">{{ t('survey.doneNext', { form: form.form }) }}</p>
-        <a :href="form.url" target="_blank" rel="noopener" class="tasks__form pressable">
-          {{ t('survey.open') }}
-          <AppIcon name="chevron" :size="16" />
-        </a>
-        <button type="button" class="tasks__reset pressable-dim" @click="reset">{{ t('survey.reset') }}</button>
+        <button type="button" class="tasks__reset pressable-dim" @click="setStep(0)">{{ t('survey.reset') }}</button>
       </div>
     </Transition>
   </div>
@@ -120,10 +141,6 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   min-width: 0;
 }
 .tasks__eyebrow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-2);
   margin: 0;
   font: var(--t-caption);
   letter-spacing: var(--track-caption);
@@ -140,89 +157,129 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   font: var(--t-meta);
   color: var(--ink-300);
 }
-.tasks__count {
-  margin: 0;
-  letter-spacing: 0;
-  text-transform: none;
-  padding: 0.125rem var(--s-2);
+/* ---- progress ---- */
+.tasks__progress {
+  display: flex;
+  gap: var(--s-1);
+  margin-top: var(--s-4);
+}
+.tasks__segment {
+  flex: 1;
+  height: 6px;
+  overflow: hidden;
   border-radius: var(--r-pill);
-  background: var(--stage-card);
-  border: 1px solid var(--stage-line);
+  background: var(--stage-line);
+}
+.tasks__segment i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-100);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-slow) var(--ease-page);
+}
+.tasks__segment.is-done i {
+  transform: scaleX(1); /* fills left to right, the way the tasks run */
+}
+.tasks__segment.is-current {
+  background: var(--stage-leader);
+}
+.tasks__count {
+  margin: var(--s-2) 0 0;
   font: var(--t-label-sm);
   color: var(--ink-300);
-  white-space: nowrap;
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.tasks__count.is-done {
-  background: var(--accent-100);
-  border-color: var(--accent-100);
-  color: var(--ink-900);
-}
+/* ---- tasks ---- */
 .tasks__list {
-  margin: var(--s-3) 0 0;
+  margin: var(--s-2) 0 0;
   padding: 0;
   list-style: none;
 }
 .task {
-  display: flex;
-  gap: var(--s-2);
-  padding: var(--s-3) 0;
   border-top: 1px solid var(--stage-line);
 }
-.task__check {
-  flex-shrink: 0;
-  width: var(--hit);
-  height: var(--hit);
+.task__row {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin: calc(-1 * var(--s-2)) 0 0 calc(-1 * var(--s-2));
-  padding-top: var(--s-2);
-  transition: scale var(--dur) var(--ease);
+  align-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  min-height: var(--hit);
+  margin: 0;
+  padding: 0;
+  color: var(--ink-300);
+  font: var(--t-body-sm);
+  text-align: left;
+  transition: opacity var(--dur) var(--ease);
 }
-.task__box {
+.task__row-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.task__row-text b {
+  color: var(--cream);
+  font-weight: 600;
+}
+.task__row--locked {
+  opacity: 0.7;
+}
+.task__badge {
+  flex-shrink: 0;
   width: 24px;
   height: 24px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 2px solid var(--ink-300);
-  color: transparent;
-  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
-}
-@media (hover: hover) {
-  .task__check:hover .task__box {
-    border-color: var(--accent-100);
-  }
-}
-.task.is-done .task__box {
   background: var(--accent-100);
-  border-color: var(--accent-100);
   color: var(--ink-900);
+  font: var(--t-label-sm);
 }
-.task__body {
-  min-width: 0;
-  transition: opacity var(--dur) var(--ease);
+.task__badge--done {
+  background: var(--accent-100);
 }
-.task.is-done .task__body {
-  opacity: 0.6; /* done: steps back, like a ticked reminder */
+.task__badge--locked {
+  background: none;
+  border: 1.5px solid var(--stage-leader);
+  color: var(--ink-300);
+}
+.task__open {
+  padding: var(--s-3) 0 var(--s-4);
 }
 .task__num {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
   margin: 0;
   font: var(--t-label-sm);
   color: var(--accent-100);
 }
 .task__title {
-  margin: 0.125rem 0 0;
+  margin: var(--s-2) 0 0;
   font: var(--t-h3);
   font-weight: 600;
   color: var(--cream);
 }
 .task__text {
-  margin: 0.125rem 0 0;
+  margin: var(--s-1) 0 0;
   font: var(--t-body-sm);
   color: var(--cream);
+}
+.task__done {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  min-height: var(--hit);
+  margin-top: var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--accent-100);
+  color: var(--ink-900);
+  font: var(--t-button);
+  transition: scale var(--dur) var(--ease);
 }
 /* ---- all done ---- */
 .tasks__done {
@@ -290,6 +347,9 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   .is-celebrating .tasks__burst i {
     animation: none;
   }
+  .tasks__segment i {
+    transition-duration: 0ms;
+  }
 }
 .tasks__done-title {
   margin: 0;
@@ -297,21 +357,9 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   color: var(--cream);
 }
 .tasks__done-text {
-  margin: 0 0 var(--s-2);
+  margin: 0;
   font: var(--t-body-sm);
   color: var(--ink-300);
-}
-.tasks__form {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-1);
-  min-height: var(--hit);
-  padding: 0 var(--s-3) 0 var(--s-4);
-  border-radius: var(--r-pill);
-  background: var(--accent-100);
-  color: var(--ink-900);
-  font: var(--t-button);
-  transition: scale var(--dur) var(--ease);
 }
 .tasks__reset {
   min-height: var(--hit);
