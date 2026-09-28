@@ -61,11 +61,14 @@ function toggleNotes() {
 }
 .device {
   position: relative;
-  /* fills what's left after the padding, the gap and the one-line credit (t-meta = 1rem) */
+  /* Always a real phone width (390pt, iPhone 14/15), so the app lays out exactly as on a phone.
+     Only the height follows the window: on a short laptop screen it is a shorter phone (like a
+     browser with its bars showing), never a narrower one — shrinking the width squeezed the
+     layout (wrapped titles, cut-off cards). Height = what's left after padding, gap and credit. */
+  width: min(390px, calc(100vw - 2 * var(--s-5)));
   height: min(844px, calc(100vh - 2 * var(--s-5) - var(--s-3) - 1rem));
   height: min(844px, calc(100dvh - 2 * var(--s-5) - var(--s-3) - 1rem));
   flex-shrink: 0;
-  aspect-ratio: 390 / 844;
   display: flex;
   flex-direction: column;
   overflow: hidden;

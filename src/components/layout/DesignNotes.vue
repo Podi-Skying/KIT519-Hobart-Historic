@@ -72,6 +72,12 @@ const written = new WeakMap()
 /** Resting (collapsed) height per card: an opened note floats over its neighbours instead of
     pushing them — nothing moves that you aren't pointing at. */
 const restH = new WeakMap()
+/** Full (non-compact) height per card, and whether each column is in compact mode: on a short
+    window a column's notes show their title only (the line opens on hover), instead of piling
+    up on top of each other. */
+const fullH = new WeakMap()
+const compactSide = { left: false, right: false }
+const GAP = 10
 function write(el, key, value, apply) {
   const prev = written.get(el) ?? {}
   if (prev[key] === value) return
@@ -80,8 +86,8 @@ function write(el, key, value, apply) {
   apply(value)
 }
 
-function findAnchor(id, device, dev) {
-  for (const el of device.querySelectorAll(`[data-req~="${id}"]`)) {
+function findAnchor(id, scope, dev) {
+  for (const el of scope.querySelectorAll(`[data-req~="${id}"]`)) {
     const r = el.getBoundingClientRect()
     const top = Math.max(r.top, dev.top)
     const bottom = Math.min(r.bottom, dev.bottom)
@@ -106,8 +112,10 @@ function frame() {
   raf = requestAnimationFrame(frame)
   const device = document.querySelector('.device')
   if (!device || !layer.value) return
-  const splashOn = Boolean(device.querySelector('.splash'))
-  if (splashOn !== splash.value) splash.value = splashOn
+  const splashEl = device.querySelector('.splash')
+  if (Boolean(splashEl) !== splash.value) splash.value = Boolean(splashEl)
+  // while the Leading Page covers Home, only its own controls count (Home's are underneath)
+  const scope = splashEl ?? device
   const dev = device.getBoundingClientRect()
   const vw = window.innerWidth
   const vh = window.innerHeight
@@ -148,12 +156,13 @@ function frame() {
     for (const note of notes.value) {
       const el = cards.get(note.id)
       if (!el) continue
-      const a = note.everywhere ? null : findAnchor(note.id, device, dev)
+      const a = note.everywhere ? null : findAnchor(note.id, scope, dev)
       let side
       if (a) side = (a.left + a.right) / 2 < mid ? 'left' : 'right'
       else side = spare++ % 2 ? 'left' : 'right' // unanchored: shared out, at the bottom
       const y = a ? Math.min(Math.max((a.top + a.bottom) / 2, dev.top + 36), dev.bottom - 36) : Infinity
       if (hovered.value !== note.id || !restH.has(el)) restH.set(el, el.offsetHeight)
+      if (hovered.value !== note.id && !el.dataset.compact) fullH.set(el, el.offsetHeight)
       placed[side].push({ note, el, a, want: y, h: restH.get(el) })
     }
 
@@ -162,7 +171,15 @@ function frame() {
       // each leader gets its own elbow lane in the gap, so vertical runs never sit on top of each other
       const lanes = list.filter((it) => it.a).sort((p, q) => p.want - q.want)
       const top = side === 'left' ? Math.max(headBottom, dev.top) : dev.top
-      const tops = layoutColumn(list, { top, bottom: dev.bottom, gap: 10 })
+      const bottom = Math.max(dev.bottom, vh - EDGE)
+      const need = (hs) => hs.reduce((sum, h) => sum + h, 0) + GAP * Math.max(0, hs.length - 1)
+      if (!compactSide[side] && need(list.map((it) => it.h)) > bottom - top) compactSide[side] = true
+      else if (compactSide[side] && need(list.map((it) => fullH.get(it.el) ?? it.h)) <= bottom - top) compactSide[side] = false
+      for (const it of list) {
+        const c = compactSide[side] && hovered.value !== it.note.id ? '1' : ''
+        write(it.el, 'compact', c, (v) => (it.el.dataset.compact = v))
+      }
+      const tops = layoutColumn(list, { top, bottom, gap: GAP })
       list.forEach((it, i) => {
         const x = side === 'left' ? xL : xR
         const w = side === 'left' ? widthL : widthR
@@ -550,6 +567,9 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   outline: none;
   transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease),
     opacity var(--dur) var(--ease);
+}
+.note[data-compact='1'] .note__req {
+  display: none; /* short window: title only, the line comes back on hover */
 }
 .note--quiet {
   --rest-opacity: 0.8;
