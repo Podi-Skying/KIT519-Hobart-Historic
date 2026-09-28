@@ -92,7 +92,6 @@ const vLook = look.directive
 // terms): the panorama ends at the top of the map dome instead of running underneath it.
 const dome = ref(null)
 const summaryHeight = ref(0) // dome height: the panorama runs underneath it; its controls sit above
-/** Street View's image credit, shown in the dome (Google's own strip is under the dome now). */
 let domeObserver
 onMounted(() => {
   domeObserver = new ResizeObserver(() => (summaryHeight.value = dome.value?.offsetHeight ?? 0))
