@@ -83,13 +83,21 @@ const close = () => emit('close')
                 <path :d="current.qr.path" class="survey__qr-dots" />
               </svg>
             </a>
-            <p class="survey__how">{{ t('survey.scan') }}</p>
+            <div class="survey__how">
+              <p>{{ t('survey.scan') }}</p>
+              <!-- an icon button: fits any column width (the text button overflowed) -->
+              <a
+                :href="current.url"
+                target="_blank"
+                rel="noopener"
+                class="survey__open pressable"
+                :aria-label="t('survey.open')"
+                :title="t('survey.open')"
+              >
+                <AppIcon name="external" :size="20" :stroke-width="2.2" />
+              </a>
+            </div>
           </div>
-          <!-- full panel width: never pokes out of the panel on a narrow column -->
-          <a :href="current.url" target="_blank" rel="noopener" class="survey__open pressable">
-            {{ t('survey.open') }}
-            <AppIcon name="chevron" :size="16" />
-          </a>
         </div>
       </div>
     </Transition>
@@ -256,25 +264,26 @@ const close = () => emit('close')
 .survey__how {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+.survey__how p {
   margin: 0;
   font: var(--t-body-sm);
   color: var(--ink-300);
 }
 .survey__open {
-  /* the panel's one primary action: a filled pill in the dark-surface action colour, full width */
+  /* the panel's one primary action: an amber icon button (dark-surface action colour) */
+  width: var(--hit);
+  height: var(--hit);
   display: flex;
-  justify-content: center;
   align-items: center;
-  width: 100%;
-  margin-top: var(--s-3);
-  gap: var(--s-1);
-  min-height: var(--hit);
-  padding: 0 var(--s-3) 0 var(--s-4);
-  border-radius: var(--r-pill);
+  justify-content: center;
+  border-radius: 50%;
   background: var(--accent-100);
   color: var(--ink-900);
-  font: var(--t-button);
-  white-space: nowrap;
   transition: scale var(--dur) var(--ease);
 }
 .survey-swap-enter-active,

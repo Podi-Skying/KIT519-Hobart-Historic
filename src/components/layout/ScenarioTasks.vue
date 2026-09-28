@@ -61,11 +61,14 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
     <header class="tasks__who">
       <PersonaAvatar :persona="form.persona" :size="40" />
       <div class="tasks__who-text">
-        <p class="tasks__eyebrow">{{ t('survey.tasks') }}</p>
+        <!-- the progress pill shares the eyebrow's line, so name and details keep the full width -->
+        <p class="tasks__eyebrow">
+          {{ t('survey.tasks') }}
+          <span class="tasks__count" :class="{ 'is-done': allDone }">{{ t('survey.progress', { n: count, total: form.tasks.length }) }}</span>
+        </p>
         <p class="tasks__name">{{ person?.name ?? form.persona }}</p>
         <p class="tasks__meta">{{ meta }}</p>
       </div>
-      <p class="tasks__count" :class="{ 'is-done': allDone }">{{ t('survey.progress', { n: count, total: form.tasks.length }) }}</p>
     </header>
 
     <ol class="tasks__list">
@@ -117,6 +120,10 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   min-width: 0;
 }
 .tasks__eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
   margin: 0;
   font: var(--t-caption);
   letter-spacing: var(--track-caption);
@@ -134,8 +141,9 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   color: var(--ink-300);
 }
 .tasks__count {
-  align-self: flex-start;
   margin: 0;
+  letter-spacing: 0;
+  text-transform: none;
   padding: 0.125rem var(--s-2);
   border-radius: var(--r-pill);
   background: var(--stage-card);
