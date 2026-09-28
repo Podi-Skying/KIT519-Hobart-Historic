@@ -40,7 +40,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | FR1 Route calculation | FR1 | FR1 | Extended with real climb / slope (terrain data) |
 | FR2 AR live HUD | FR2 | FR2 | Phone AR (smart-glasses concept from A1 dropped for budget/hardware risk) |
 | FR3 Category filtering | FR3 | FR3 | + search |
-| FR4 Image galleries (AR overlays) | FR7 | FR7 + **FR13** | Split: gallery (FR7) and AR past/present compare (FR13) |
+| FR4 Image galleries (AR overlays) | FR7 | FR7 + **FR13** | Split: gallery (FR7) and AR through-time photos (FR13) |
 | FR5 Audio tours, auto-triggered | FR6 | FR6 + **FR15** | Split: player (FR6) and arrival trigger (FR15, Round 1) |
 | NFR1 Accessibility incl. font size / contrast | NFR1 | NFR1 + **FR14** | Font size / contrast was never built → FR14 (Round 1) |
 | NFR2 Offline | NFR2 | NFR2 | Paper map is the working fallback; offline tiles simulated |

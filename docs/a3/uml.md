@@ -46,7 +46,7 @@ flowchart LR
     UC10([UC10 Arrive at destination · FR15])
     UC6([UC6 Listen to audio tour · FR6 FR9])
     UC5([UC5 Print walking map & hand-out · FR12])
-    UC7([UC7 Explore landmark in AR / compare past · FR13])
+    UC7([UC7 Explore landmark in AR · through time · FR13])
     UC11([UC11 Like a site · FR16])
   end
 
@@ -192,14 +192,16 @@ classDiagram
 
 ## 3. Sequence diagram: planning the three route options (FR1, NFR3)
 
-`useWalkingRoute` is used by the Map, Navigate, Standard, AR and Print screens. Results are
-cached per origin, destination, stops and language, and re-planned only after 50 m of movement.
+`useWalkingRoute` is used by S6 Map, S7 Standard navigation, S8 AR navigation and S9 Printable
+map. Results are cached per origin, destination, stops and language. While walking, the route is
+re-planned only when the walker has moved ≥ 50 m since the last plan *and* is more than 80 m off
+the planned route (`needsReplan` in `lib/guidance.js`), never on every GPS fix.
 
 ```mermaid
 sequenceDiagram
   autonumber
   actor U as Walker
-  participant V as View (Map / Navigate)
+  participant V as View (Map / Standard navigation)
   participant W as useWalkingRoute
   participant P as routeOptions.planRouteOptions
   participant G as Google Routes API
@@ -223,7 +225,9 @@ sequenceDiagram
     P->>E: sample every candidate path
     E-->>P: elevations → climb, max grade (≥150 m runs)
     P->>C: candidates
-    C-->>P: {normal: fastest, accessible: min difficulty ≤1.6×, steep: max difficulty ≤1.9×}
+    Note over C: no terrain for a candidate → all three = Normal
+    C-->>P: {normal: fastest, accessible: min difficulty ≤1.6×, steep: best steepValue ≤1.9×}
+    Note over C: steep must beat Normal by ≥15 m climb or ≥2 % max slope (else = Normal),<br/>then wins on extra difficulty per extra minute (+ bonus via a hill-top); never the Accessible pick
     P-->>W: options (+ Naismith minutes)
     W-->>V: summaries, status = ready
   end
@@ -275,26 +279,30 @@ sequenceDiagram
 
 ## 5. Activity diagram: navigation with mode switching and arrival (W3, W4)
 
+Navigation always opens on S7 Standard navigation; route type is chosen in its summary, and the
+other modes are one tap away (AR button, or the *Change mode* sheet O6).
+
 ```mermaid
 flowchart TD
-  A((●)) --> B[Choose destination]
-  B --> C[Choose route type]
-  C --> D{Choose mode}
-  D -->|Standard map| E[Follow turn-by-turn card]
-  D -->|AR| F[Follow arrows over camera]
-  D -->|Printable| P[Print or save PDF] --> Z((◉))
-  E <-->|switch any time| F
+  A((●)) --> B[Choose destination · Go / Start walking route]
+  B --> S7[S7 Standard navigation opens]
+  S7 --> C[Choose route type in the summary]
+  C --> E[Follow turn-by-turn card · voice directions]
+  E -->|Change mode| D{O6 mode sheet}
+  D -->|AR navigation| F[S8 Follow arrows in Street View · Walk ahead / Step back]
+  D -->|Printable map| P[S9 Print or save PDF] --> Z((◉))
+  E <-->|AR button · map dome| F
   E --> G{Arrived?}
   F --> G
-  G -->|no| H{Moved ≥ 50 m since last plan?}
+  G -->|no| H{Moved ≥ 50 m and more than 80 m off the route?}
   H -->|yes| I[Re-plan route] --> G
   H -->|no| G
-  G -->|yes| J[Arrival sheet]
+  G -->|yes| J[O3 Arrival sheet]
   J --> K{Next}
-  K -->|Listen| L[Audio tour] --> Z
-  K -->|Scan| M[AR camera → compare past] --> Z
-  K -->|Details| N[Site page] --> Z
-  E -->|Add stop| O[Stop sheet] --> I
+  K -->|Listen| L[S5 Audio tour] --> Z
+  K -->|Scan| M[S10 AR camera → narration · through time] --> Z
+  K -->|Details| N[S3 Site page] --> Z
+  E -->|Add stop| O[O2 Stop sheet] --> I
 ```
 
 ---
@@ -326,11 +334,17 @@ stateDiagram-v2
 stateDiagram-v2
   [*] --> idle
   idle --> loading: destination set
+  idle --> fallback: destination set, no routing key
   loading --> ready: options chosen
-  loading --> fallback: no key / API error
-  ready --> loading: moved ≥ 50 m · stops or language changed
-  fallback --> loading: retry on change
+  loading --> fallback: API error
+  ready --> ready: re-plan (moved ≥ 50 m and more than 80 m off route · stops or language changed)
+  ready --> fallback: re-plan fails
+  fallback --> loading: retry on next change
   ready --> idle: destination cleared
+  note right of ready
+    While re-planning, the current route stays on screen
+    (pending = true); status stays ready.
+  end note
 ```
 
 ---

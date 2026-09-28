@@ -16,7 +16,7 @@ baseline) and appends new IDs, so earlier documents stay valid:
 | FR1 Route calculation | FR1 | FR1 | Extended with real climb / slope (terrain data) |
 | FR2 AR live HUD | FR2 | FR2 | Phone AR (smart-glasses concept from A1 dropped for budget/hardware risk) |
 | FR3 Category filtering | FR3 | FR3 | + search |
-| FR4 Image galleries (AR overlays) | FR7 | FR7 + **FR13** | Split: gallery (FR7) and AR past/present compare (FR13) |
+| FR4 Image galleries (AR overlays) | FR7 | FR7 + **FR13** | Split: gallery (FR7) and AR through-time photos (FR13) |
 | FR5 Audio tours, auto-triggered | FR6 | FR6 + **FR15** | Split: player (FR6) and arrival trigger (FR15, Round 1) |
 | NFR1 Accessibility incl. font size / contrast | NFR1 | NFR1 + **FR14** | Font size / contrast was never built → FR14 (Round 1) |
 | NFR2 Offline | NFR2 | NFR2 | Paper map is the working fallback; offline tiles simulated |
@@ -29,56 +29,56 @@ baseline) and appends new IDs, so earlier documents stay valid:
 
 | ID | Requirement | Pri. | Personas · Workflows | Screens | Verification | Evaluation evidence | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **FR1** | Users can compare Normal / Accessible / Steep walking routes with time, distance, climb and maximum slope | Must | P1 P2 P3 · W2 W6 W9 | Map /map › Route type, Standard nav /navigate/:id/map | tests/lib/terrain.spec.js (chooseOptions, elevationProfile, viaCandidates), tests/lib/routing.spec.js (parseRoute), usability T2 T6 T8 | H1 (time estimates differ between screens) — to verify in T8 | Implemented |
-| **FR2** | Users can navigate with an AR heads-up view (direction arrows over the camera) | Must | P1 · W3 | AR navigation /navigate/:id/ar | tests/lib/routing.spec.js (nextGuidance), usability T3 | Camera feed is simulated (prototype limitation) | Implemented (simulated camera) |
-| **FR3** | Users can filter and search heritage sites by category and name | Must | P1 · W1 | Home /home › filter bar | tests/lib/sites.spec.js (filterSites), usability T1 | — | Implemented |
-| **FR4** | Users can browse featured sites (Top 5 ranked by likes) | Should | P1 · W1 | Home /home › Top 5 carousel | tests/lib/sites.spec.js (rankByLikes), usability T1 | H3 (Top 5 repeats the full list of 5 sites) — to verify | Implemented |
-| **FR5** | Users can view heritage information (category, area, year, accessibility, description) | Must | P1 P3 · W1 W11 | Site detail /sites/:id | usability T1 | — | Implemented |
-| **FR6** | Users can listen to a narrated audio tour with playback controls | Must | P1 P2 · W4 | Audio tour /sites/:id/audio, Arrival sheet | tests/stores/stores.spec.js (player store), usability T3 | Round 1 R1-2: audio reachable in one tap on arrival | Implemented |
-| **FR7** | Users can view historical image galleries | Should | P1 P3 · W11 | Site detail › Through the years, Gallery /sites/:id/gallery/:index | usability T4 (optional) | — | Implemented |
-| **FR8** | Users can start navigation from a site page | Must | P1 · W1 W2 | Site detail › Start walking route → /navigate/:id | usability T2 | — | Implemented |
-| **FR9** | Users can read the audio transcript and choose the narration language | Must | P1 · W4 | Audio tour › Read transcript, Language & display sheet | tests/stores/stores.spec.js (narration in every language), usability T3 | — | Implemented |
-| **FR10** | Users can choose and switch navigation mode (standard map / AR / printable) | Must | P1 P2 P3 · W3 W7 W10 | Navigate /navigate/:id, Map ⇄ AR buttons | usability T3 T7 | — | Implemented |
-| **FR11** | Users can add up to 4 stops (heritage sites as real waypoints, amenities marked on the route at simulated positions) | Must | P2 P3 · W6 W9 | Map › Add a stop, Standard nav › Add stop | tests/stores/stores.spec.js (caps stops, removes on second toggle), tests/lib/geo.spec.js (placeAlongPath), usability T6 T8 | — | Implemented |
-| **FR12** | Users can print the route with steps, stops, per-stop key facts and space for notes | Must | P2 P3 · W7 W10 | Printable map /navigate/:id/print | usability T7 T9 | Round 1 R1-4: facts at each stop for group hand-outs | Implemented |
-| **FR13** | Users can recognise a landmark in AR and browse all its photos through time (newest to oldest, archival views marked) | Should | P1 P3 · W4 W11 | AR camera /ar/:id, Compare /ar/:id/compare | tests/lib/sites.spec.js (siteTimeline, yearOf), usability T4 | Detection is simulated (prototype limitation) | Implemented (simulated detection) |
-| **FR14** | Users can enlarge text and switch to high contrast | Must | P2 · W5 | Language & display sheet (🌐 EN · Aa) | tests/stores/stores.spec.js (prefs store), axe scan 22–25, usability T5 | Round 1 R1-1 (gap found in RTM review: A1 NFR1 never implemented) | Implemented in Round 1 |
-| **FR15** | Arriving at the destination opens its content (audio, AR, details) without autoplay | Should | P1 P2 · W4 | Arrival sheet in /navigate/:id/map and /navigate/:id/ar | tests/lib/routing.spec.js (announces arrival), usability T3 | Round 1 R1-2 (standard nav had no arrival state — consistency) | Implemented in Round 1 |
-| **FR16** | Users can like sites, likes rank the Top 5 | Could | P1 · W1 | Home cards, Site detail ♥ | tests/stores/stores.spec.js (favorites store) | — | Implemented |
-| **FR17** | The app suggests the nearest heritage site from the user's location (or a default origin) | Should | P2 · W6 | Map › Nearest heritage site | tests/lib/sites.spec.js (nearestSite), usability T6 | — | Implemented |
+| **FR1** | Users can compare Normal / Accessible / Steep walking routes with time, distance, climb and maximum slope | Must | P1 P2 P3 · W2 W6 W9 | S6 Map /map › Route type, S7 Standard navigation /navigate/:id/map › Route type | tests/lib/terrain.spec.js (chooseOptions, elevationProfile, viaCandidates), tests/lib/routing.spec.js (parseRoute), tests/lib/routeHighlights.spec.js, usability T2 T6 T8 | H1 (time estimates differ between screens) — to verify in T8 | Implemented |
+| **FR2** | Users can navigate with an AR heads-up view (direction arrows over the camera) | Must | P1 · W3 | S8 AR navigation /navigate/:id/ar (Street View 360° · Step back / Walk ahead · map dome) | tests/lib/routing.spec.js (nextGuidance), tests/lib/streetView.spec.js (pointAhead, bestLink), tests/lib/voicePrompt.spec.js, usability T3 | Camera feed is simulated: Street View 360° with a Maps key, otherwise a site photo (prototype limitation) | Implemented (simulated camera) |
+| **FR3** | Users can filter and search heritage sites by category and name | Must | P1 · W1 | S2 Home /home › filter bar | tests/lib/sites.spec.js (filterSites), usability T1 | — | Implemented |
+| **FR4** | Users can browse featured sites (Top 5 ranked by likes) | Should | P1 · W1 | S2 Home /home › Top 5 carousel | tests/lib/sites.spec.js (rankByLikes), usability T1 | H3 (Top 5 repeats the full list of 5 sites) — to verify | Implemented |
+| **FR5** | Users can view heritage information (category, area, year, accessibility, description) | Must | P1 P3 · W1 W11 | S3 Site detail /sites/:id | usability T1 | — | Implemented |
+| **FR6** | Users can listen to a narrated audio tour with playback controls | Must | P1 P2 · W4 | S5 Audio tour /sites/:id/audio, O3 Arrival sheet, S10 AR camera › Listen | tests/stores/stores.spec.js (player store), usability T3 | Round 1 R1-2: audio reachable in one tap on arrival | Implemented |
+| **FR7** | Users can view historical image galleries | Should | P1 P3 · W11 | S3 Site detail › Through the years, S4 Gallery /sites/:id/gallery/:index | usability T4 (optional) | — | Implemented |
+| **FR8** | Users can start navigation from a site page | Must | P1 · W1 W2 | S3 Site detail › Start walking route → S7 Standard navigation /navigate/:id/map | usability T2 | — | Implemented |
+| **FR9** | Users can read the audio transcript and choose the narration language | Must | P1 · W4 | S5 Audio tour › Read transcript, O1 Language & display sheet | tests/stores/stores.spec.js (narration in every language), usability T3 | — | Implemented |
+| **FR10** | Users can choose and switch navigation mode (standard map / AR / printable) | Must | P1 P2 P3 · W3 W7 W10 | S7 Standard navigation › Change mode (O6 Navigation mode sheet), S7 ⇄ S8 AR / map buttons | usability T3 T7 | — | Implemented |
+| **FR11** | Users can add up to 4 stops (heritage sites as real waypoints, amenities marked on the route at simulated positions) | Must | P2 P3 · W6 W9 | S6 Map › Add a stop, S7 Standard navigation › Add stop (O2) | tests/stores/stores.spec.js (caps stops, removes on second toggle), tests/lib/geo.spec.js (placeAlongPath), usability T6 T8 | — | Implemented |
+| **FR12** | Users can print the route with steps, stops, per-stop key facts and space for notes | Must | P2 P3 · W7 W10 | S9 Printable map /navigate/:id/print | usability T7 T9 | Round 1 R1-4: facts at each stop for group hand-outs | Implemented |
+| **FR13** | Users can recognise a landmark in AR and browse all its photos through time (newest to oldest, archival views marked) | Should | P1 P3 · W4 W11 | S10 AR camera /ar/:id › Through time (inside the camera, /ar/:id/compare redirects) · 360° Street View | tests/lib/sites.spec.js (siteTimeline, yearOf), tests/lib/timeline.spec.js, tests/lib/streetView.spec.js (facingPov), usability T4 | Detection is simulated (prototype limitation) | Implemented (simulated detection) |
+| **FR14** | Users can enlarge text and switch to high contrast | Must | P2 · W5 | O1 Language & display sheet (🌐 EN · Aa) | tests/stores/stores.spec.js (prefs store), axe scan 22–25, usability T5 | Round 1 R1-1 (gap found in RTM review: A1 NFR1 never implemented) | Implemented in Round 1 |
+| **FR15** | Arriving at the destination opens its content (audio, AR, details) without autoplay | Should | P1 P2 · W4 | O3 Arrival sheet in S7 /navigate/:id/map and S8 /navigate/:id/ar | tests/lib/routing.spec.js (announces arrival), usability T3 | Round 1 R1-2 (standard nav had no arrival state — consistency) | Implemented in Round 1 |
+| **FR16** | Users can like sites, likes rank the Top 5 | Could | P1 · W1 | S2 Home cards, S3 Site detail ♥ | tests/stores/stores.spec.js (favorites store) | — | Implemented |
+| **FR17** | The app suggests the nearest heritage site from the user's location (or a default origin) | Should | P2 · W6 | S6 Map › Nearest heritage site | tests/lib/sites.spec.js (nearestSite), usability T6 | — | Implemented |
 | **NFR1** | Accessible by default: WCAG 2.2 AA, 44px targets, accessible routes, no forced gestures | Must | P1 P2 P3 · all | All screens | axe-core scans (evidence/before → after), tests/composables/sheetDrag.spec.js, heuristic + cognitive walkthrough | A11Y-1…A11Y-4 fixed in Round 1 | Partly verified — manual screen-reader test pending |
-| **NFR2** | Usable with limited connectivity | Should | P2 P3 · W7 W10 | Printable map, Save map offline toggle | usability T7 T9 | Offline mode is simulated, paper map is the real fallback (limitation) | Partial |
-| **NFR3** | Responsive and stable navigation (re-route only after 50 m, cached routes, graceful fallback) | Should | P1 · W3 | Standard / AR navigation | tests/lib/routing.spec.js, tests/lib/terrain.spec.js | — | Implemented |
-| **NFR4** | Clear walking-weather information that feeds route planning | Should | P1 P2 P3 · W2 W8 | Weather /weather | usability T2 T8 | Round 1 R1-3: Plan an accessible walk, data is static (limitation) | Implemented (static data) |
+| **NFR2** | Usable with limited connectivity | Should | P2 P3 · W7 W10 | S9 Printable map, S6 Map › Save map offline toggle | usability T7 T9 | Offline mode is simulated, paper map is the real fallback (limitation) | Partial |
+| **NFR3** | Responsive and stable navigation (re-route only after 50 m of movement and off the planned route, cached routes, graceful fallback) | Should | P1 · W3 | S7 Standard navigation, S8 AR navigation | tests/lib/routing.spec.js (needsReplan), tests/lib/terrain.spec.js | — | Implemented |
+| **NFR4** | Clear walking-weather information that feeds route planning | Should | P1 P2 P3 · W2 W8 | S11 Weather /weather › Step-free walk to … → S7 (Accessible route) | tests/lib/sites.spec.js (nearestAccessibleSite), usability T2 T8 | Round 1 R1-3: Plan an accessible walk, data is static (limitation) | Implemented (static data) |
 | **NFR5** | Simple and consistent navigation (persistent tab bar, one action colour, back everywhere) | Must | P1 P2 P3 · all | Tab bar, PageHeader | heuristic evaluation (H4 consistency) | — | Implemented |
 | **NFR6** | Clear hierarchy and outdoor readability (contrast ≥ 4.5:1, one primary button per screen) | Must | P1 P2 P3 · all | All screens | axe color-contrast, heuristic evaluation | — | Implemented |
-| **NFR7** | All interface text, site content and narration in 5 languages | Must | P1 · W1–W4 | Language & display sheet | tests/i18n/i18n.spec.js (identical keys & placeholders in every locale) | — | Implemented |
+| **NFR7** | All interface text, site content and narration in 5 languages | Must | P1 · W1–W4 | S1 Leading Page › Choose your language, O1 Language & display sheet | tests/i18n/i18n.spec.js (identical keys & placeholders in every locale) | — | Implemented |
 
 ## Backward trace: source and implementation
 
 | ID | Source (earlier ID · stakeholder need) | Implementation (`src/…`) |
 | --- | --- | --- |
-| **FR1** | A1 FR1 · A2 FR1 · visitors & older adults need exact effort before walking | services/routeOptions.js (chooseOptions), services/routes.js, services/elevation.js, composables/useWalkingRoute.js, components/map/RouteTypePicker.vue |
-| **FR2** | A1 FR2 · A2 FR2 · hands-free wayfinding | views/ArNavigationView.vue, lib/guidance.js (nextGuidance) |
+| **FR1** | A1 FR1 · A2 FR1 · visitors & older adults need exact effort before walking | services/routeOptions.js (chooseOptions, steepValue), services/routes.js, services/elevation.js, composables/useWalkingRoute.js, components/map/RouteTypePicker.vue, lib/routeHighlights.js |
+| **FR2** | A1 FR2 · A2 FR2 · hands-free wayfinding | views/ArNavigationView.vue, components/ar/StreetView360.vue, lib/streetView.js (pointAhead, bestLink, orientationToPov), lib/guidance.js (nextGuidance), composables/useVoiceGuidance.js |
 | **FR3** | A1 FR3 · A2 FR3 · reduce information overload | views/HomeView.vue, components/base/ChipGroup.vue, components/home/SearchField.vue, lib/sites.js (filterSites) |
 | **FR4** | A2 FR4 · A2 pilot strength S1 (recognition over recall) | components/home/HeritageCarousel.vue, lib/sites.js (rankByLikes) |
 | **FR5** | A2 FR5 · heritage officers: accurate interpretation | views/SiteDetailView.vue, data/sites.js, i18n/content |
-| **FR6** | A1 FR5 · A2 FR6 · older adults can't read long text while walking | stores/player.js, services/speech.js (Web Speech API), views/AudioTourView.vue, components/map/ArrivalSheet.vue |
+| **FR6** | A1 FR5 · A2 FR6 · older adults can't read long text while walking | stores/player.js, services/speech.js (Web Speech API), views/AudioTourView.vue, components/map/ArrivalSheet.vue, views/ArCameraView.vue (narration starts on detection) |
 | **FR7** | A1 FR4 · A2 FR7 · visual archives without new signage | components/site/GalleryRail.vue, views/GalleryView.vue |
 | **FR8** | A2 FR8 · smooth transition from information to wayfinding | views/SiteDetailView.vue, stores/trip.js (setDestination) |
 | **FR9** | A2 FR9 · non-native English speakers | views/AudioTourView.vue, components/layout/LanguageSheet.vue, i18n/index.js (LOCALES speech tags) |
-| **FR10** | A2 FR10 · A2 pilot finding F1 (AR felt forced) | views/NavigationModesView.vue, views/StandardNavigationView.vue, views/ArNavigationView.vue |
+| **FR10** | A2 FR10 · A2 pilot finding F1 (AR felt forced) | components/map/NavigationModeSheet.vue, data/navigation.js (NAVIGATION_MODES), views/StandardNavigationView.vue, views/ArNavigationView.vue |
 | **FR11** | A2 FR11 · A2 pilot finding F2 (route felt fixed) | components/map/StopPicker.vue, components/map/WaypointSheet.vue, stores/trip.js (toggleStop), data/navigation.js (WAYPOINTS, MAX_STOPS), lib/geo.js (placeAlongPath) |
 | **FR12** | A2 FR12 · A2 pilot finding F3 · schools & walking groups | views/PrintableMapView.vue |
-| **FR13** | A1 FR4 (historic photos as AR overlays) · heritage officers: interpretation | views/ArCameraView.vue, views/ArCompareView.vue, lib/sites.js (siteTimeline), components/ar/* |
+| **FR13** | A1 FR4 (historic photos as AR overlays) · heritage officers: interpretation | views/ArCameraView.vue, lib/timeline.js (advancePosition, arTimeline), lib/sites.js (siteTimeline), lib/streetView.js (facingPov), components/ar/* |
 | **FR14** | A1 NFR1 (adjustable font size / high contrast) · older adults with low vision | stores/prefs.js, components/layout/LanguageSheet.vue, styles/tokens.css (data-contrast), styles/base.css (.text-zoom) |
 | **FR15** | A1 FR5 (location-triggered narration) · safety while walking | components/map/ArrivalSheet.vue, lib/guidance.js (arrived < 20 m) |
 | **FR16** | A2 UML Like_Function · engagement success measure | stores/favorites.js |
 | **FR17** | A1 challenge: visitors miss points of interest | views/MapView.vue, lib/sites.js (nearestSite), stores/location.js |
 | **NFR1** | A1 NFR1 · A2 NFR1 · improve accessibility (client objective) | README §5.8 checklist, ChipGroup radiogroup, aria labels, useSheetDrag (drag has button alternative) |
 | **NFR2** | A1 NFR2 · A2 NFR2 · variable connectivity (case constraint) | views/PrintableMapView.vue, stores/trip.js (offlineMap — simulated) |
-| **NFR3** | A1 NFR3 · A2 NFR3 | composables/useWalkingRoute.js (REROUTE_METERS, cache, 'fallback' status) |
-| **NFR4** | A1 NFR4 · A2 NFR4 · weather affects outdoor experience (case challenge) | views/WeatherView.vue, data/weather.js (static) |
+| **NFR3** | A1 NFR3 · A2 NFR3 | composables/useWalkingRoute.js (cache, 'fallback' status), lib/guidance.js (needsReplan: REROUTE_METERS, OFF_ROUTE_METERS), services/routeOptions.js (per-trip cache) |
+| **NFR4** | A1 NFR4 · A2 NFR4 · weather affects outdoor experience (case challenge) | views/WeatherView.vue, data/weather.js (static), lib/sites.js (nearestAccessibleSite) |
 | **NFR5** | A2 NFR5 · simple navigation (design consideration) | components/layout/TabBar.vue, router meta (tab, hideTabBar) |
 | **NFR6** | A2 NFR6 · clear information hierarchy | styles/tokens.css (AA/AAA contrast tokens) |
 | **NFR7** | A2 FR9 (extended) · international visitors | i18n/messages/*.js, i18n/content/*.js, i18n/index.js |

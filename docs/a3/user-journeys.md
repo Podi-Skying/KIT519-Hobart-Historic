@@ -37,7 +37,7 @@ journey
 | Choose | Top 5 carousel, category chips, search | "Which one is worth it for my studies?" · curious | Information scattered across sources | Curated Top 5, category filter and search (FR3, FR4) |
 | Plan | Opens Map, selects a site, compares route types | "Can my leg handle this?" · worried | Steepness invisible on normal maps | Normal/Accessible/Steep with real climb and max slope (FR1, NFR1) |
 | Walk | AR arrows; taps **Map** when unsure | "Am I going the right way?" · unsure → reassured | Fear of getting lost; AR unfamiliar | AR HUD plus one-tap switch to the standard map (FR2, FR10) |
-| Learn | Arrival sheet → **Listen to the audio tour**; AR → Compare | "I want to understand this place" · engaged | Text-heavy signage | Arrival sheet, Korean narration with transcript, past/present compare (FR6, FR7, FR13) |
+| Learn | Arrival sheet → **Listen to the audio tour**; AR camera → Through time | "I want to understand this place" · engaged | Text-heavy signage | Arrival sheet, Korean narration with transcript, through-time photo playback in the AR camera (FR6, FR7, FR13) |
 
 **Moments that matter:** choosing the route type (where anxiety is highest) and arrival (where
 the payoff comes).
@@ -68,8 +68,8 @@ journey
 | Set up | Taps "🌐 EN · Aa" → Language & display → Larger text, High contrast | "I can't read this grey writing" · frustrated → relieved | Small, low-contrast text; the setting was never built (A1 NFR1) | Display switches, persisted; outlines ≥ 3:1 (NFR1, **Round 1 R1-1**) |
 | Plan | Map → Nearest heritage site → Accessible | "Not up those hills again" · cautious | Route difficulty unknown | Accessible route with climb and slope; the note warns about steps (FR1, NFR1) |
 | Plan | Add a stop → Toilets, Coffee | "Where can I rest?" · reassured | No rest information | Amenity stops, up to 4 (FR11) |
-| Prepare | Go → Printable map → Print | "I like having it on paper" · confident | Battery and screen glare outdoors | Printable map with steps and notes (FR12, NFR2) |
-| Arrive | Arrival sheet → Listen to the audio tour | "Only when I ask for it" · in control | Apps that talk unprompted | Audio is one tap away, never autoplays (FR6, WCAG 1.4.2) |
+| Prepare | Go → Change mode → Printable map → Print | "I like having it on paper" · confident | Battery and screen glare outdoors | Printable map with steps and notes (FR12, NFR2) |
+| Arrive | Arrival sheet → Listen to the audio tour | "Only when I ask for it" · in control | Apps that talk unprompted | Audio is one tap away and never autoplays on arrival (FR6, FR15, WCAG 1.4.2) |
 
 **Moment that matters:** finding the text-size setting. If she can't find it, nothing else is
 readable. Task T5 tests its discoverability directly.

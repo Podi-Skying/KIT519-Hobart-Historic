@@ -48,10 +48,10 @@ RTM and evaluation tasks is defined here.
 
 | ID | Workflow | Main screens (routes) |
 | --- | --- | --- |
-| W1 | Discover and choose a heritage site | Home `/home` → Site detail `/sites/:id` |
-| W2 | Check conditions and plan an accessible route | Weather `/weather` → Map `/map` (Accessible preselected) |
-| W3 | Navigate by map or AR and switch modes | Navigate `/navigate/:id` → `/navigate/:id/map` ⇄ `/navigate/:id/ar` |
-| W4 | Learn on site (arrival → audio, transcript, AR, past vs present) | Arrival sheet → `/sites/:id/audio`, `/ar/:id`, `/ar/:id/compare` |
+| W1 | Discover and choose a heritage site | S2 Home `/home` → S3 Site detail `/sites/:id` |
+| W2 | Check conditions and plan an accessible route | S11 Weather `/weather` → S7 Standard navigation `/navigate/:id/map` (Accessible selected), or → S6 Map `/map` (Accessible preselected) |
+| W3 | Navigate by map or AR and switch modes | S7 Standard navigation `/navigate/:id/map` ⇄ S8 AR navigation `/navigate/:id/ar` (AR button · O6 mode sheet) |
+| W4 | Learn on site (arrival → audio, transcript, AR, past vs present) | O3 Arrival sheet → S5 Audio tour `/sites/:id/audio`, S10 AR camera · Through time `/ar/:id` |
 
 ---
 
@@ -87,10 +87,10 @@ RTM and evaluation tasks is defined here.
 
 | ID | Workflow | Main screens (routes) |
 | --- | --- | --- |
-| W5 | Set up reading comfort (larger text, high contrast) | Language & display sheet (from the "🌐 EN · Aa" button) |
-| W6 | Plan a gentle walk with rest stops | Map `/map` → nearest site → Accessible → Add a stop |
-| W7 | Take the route on paper | Navigate `/navigate/:id` → Printable map `/navigate/:id/print` |
-| (W4) | Hear the story on arrival | Arrival sheet → Audio tour |
+| W5 | Set up reading comfort (larger text, high contrast) | O1 Language & display sheet (from the "🌐 EN · Aa" button) |
+| W6 | Plan a gentle walk with rest stops | S6 Map `/map` → nearest site → Accessible → Add a stop |
+| W7 | Take the route on paper | S7 Standard navigation › Change mode (O6) → S9 Printable map `/navigate/:id/print` |
+| (W4) | Hear the story on arrival | O3 Arrival sheet → S5 Audio tour |
 
 ---
 
@@ -121,7 +121,7 @@ RTM and evaluation tasks is defined here.
 
 | ID | Workflow | Main screens (routes) |
 | --- | --- | --- |
-| W8 | Check the forecast for a future day | Weather `/weather` › This week |
-| W9 | Plan a multi-stop group route | Map `/map` → destination → Add a stop (up to 4) → Accessible |
-| W10 | Produce a class hand-out | Printable map `/navigate/:id/print` › At each stop → Print or save as PDF |
-| W11 | Prepare classroom material | Site detail › Through the years → Gallery; AR › Compare today with 1844 |
+| W8 | Check the forecast for a future day | S11 Weather `/weather` › This week |
+| W9 | Plan a multi-stop group route | S6 Map `/map` → destination → Add a stop (up to 4) → Accessible |
+| W10 | Produce a class hand-out | S9 Printable map `/navigate/:id/print` › At each stop → Print or save as PDF |
+| W11 | Prepare classroom material | S3 Site detail › Through the years → S4 Gallery; S10 AR camera › Through time |

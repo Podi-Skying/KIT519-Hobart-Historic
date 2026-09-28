@@ -34,6 +34,18 @@ test (§2).
 - H1: the static walking times on Home and Nearest.
 - H5: adding stops from the selected-destination panel.
 
+**Changed since Round 1 (design, not evaluation results).** The screenshots above show the
+Round 1 build. Since then:
+- **R1-6 / R1-8:** the separate "How would you like to navigate?" page (`/navigate/:id`) has
+  been removed. *Go* and *Start walking route* open S7 Standard navigation directly, with the
+  route-type picker in its summary; AR and printable are chosen in the *Change mode* sheet.
+- **R1-3:** the Weather button now names its destination ("Step-free walk to … · n min") and
+  opens S7 with the Accessible route selected; *Choose another place* opens the Map with
+  Accessible preselected.
+- **H1:** Home cards and the site page no longer show walking times; the straight-line
+  estimate remains on the Map's *Nearest* card.
+- **Through time** now plays inside the AR camera (S10); `/ar/:id/compare` redirects there.
+
 ---
 
 ## 2. Hypotheses for the usability test
