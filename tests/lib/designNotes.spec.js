@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { RATIONALE, SCREENS } from '@/data/designRationale'
 import { EVERY_SCREEN, ROUTE_REQUIREMENTS, expandIds, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
 
 const rows = parseCsv(readFileSync('docs/a3/rtm.csv', 'utf8'))
@@ -17,7 +18,7 @@ describe('design notes (RTM beside the desktop mock-up)', () => {
   it('keys are real route names', () => {
     const router = readFileSync('src/router/index.js', 'utf8')
     const names = new Set([...router.matchAll(/name: '([^']+)'/g)].map((m) => m[1]))
-    for (const name of Object.keys(ROUTE_REQUIREMENTS)) expect(names.has(name), name).toBe(true)
+    for (const name of Object.keys(ROUTE_REQUIREMENTS)) if (name !== 'splash') expect(names.has(name), name).toBe(true)
   })
   it('reads persona names and workflow titles from personas.md', () => {
     expect(docs.personas.P1).toMatch(/^Minzi/)
@@ -37,13 +38,33 @@ describe('design notes (RTM beside the desktop mock-up)', () => {
   })
   it('puts every anchored screen requirement on an element (data-req) in the source', () => {
     const src = [
-      ...['views', 'components/home', 'components/layout', 'components/map', 'components/site'].flatMap((d) =>
+      ...['views', 'components/home', 'components/layout', 'components/map', 'components/site', 'components/splash'].flatMap((d) =>
         readdirSync(`src/${d}`).filter((f) => f.endsWith('.vue')).map((f) => readFileSync(`src/${d}/${f}`, 'utf8')),
       ),
     ].join('\n')
     const anchored = new Set([...src.matchAll(/data-req="([^"]+)"/g)].flatMap((m) => m[1].split(' ')))
     const unanchored = new Set(['NFR3']) // real-time performance: no single control
     for (const id of new Set(Object.values(ROUTE_REQUIREMENTS).flat())) if (!unanchored.has(id)) expect(anchored.has(id), id).toBe(true)
+  })
+})
+
+describe('design rationale', () => {
+  it('numbers the screens S1…S11 in order, one per screen with notes', () => {
+    expect(SCREENS.map((s) => s.id)).toEqual(SCREENS.map((_, i) => `S${i + 1}`))
+    expect(SCREENS.map((s) => s.key).sort()).toEqual(Object.keys(ROUTE_REQUIREMENTS).sort())
+    for (const s of SCREENS) expect(s.name && s.intent, s.id).toBeTruthy()
+  })
+  it('has a complete rationale for every note shown', () => {
+    const keys = [
+      ...Object.entries(ROUTE_REQUIREMENTS).flatMap(([screen, list]) => list.map((id) => `${screen}:${id}`)),
+      ...EVERY_SCREEN.map((id) => `*:${id}`),
+    ]
+    for (const key of keys) {
+      const r = RATIONALE[key]
+      expect(r, key).toBeTruthy()
+      for (const field of ['title', 'why', 'principle', 'evidence', 'tradeoff']) expect(r[field], `${key}.${field}`).toBeTruthy()
+    }
+    expect(Object.keys(RATIONALE).sort()).toEqual([...keys].sort()) // nothing orphaned
   })
 })
 

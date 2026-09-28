@@ -1,10 +1,11 @@
 <script setup>
 /**
- * Desktop only: callouts in the dark space either side of the phone, each tied by a leader line
- * to the control it describes (elements marked data-req="FR3" …), like an annotated screen
- * figure. Text is quoted verbatim from docs/a3/rtm.csv and personas.md — never rewritten here
- * (assignment GenAI rule). Nothing is drawn over the phone except a highlight while you hover
- * a note. Loaded as its own chunk, so phones never download it.
+ * Desktop only: an annotated screen figure. Callouts in the dark space either side of the phone,
+ * each tied by a leader line to the control it describes (elements marked data-req="FR3" …).
+ * Each note = design rationale (data/designRationale.js: title, why, principle, evidence,
+ * trade-off) + its trace to the RTM (docs/a3/rtm.csv, personas.md, quoted as written).
+ * Screens are numbered S1–S11. Nothing is drawn over the phone except a highlight while you
+ * hover a note. Loaded as its own chunk, so phones never download it.
  */
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -12,21 +13,25 @@ import { useI18n } from 'vue-i18n'
 import rtmCsv from '../../../docs/a3/rtm.csv?raw'
 import personasMd from '../../../docs/a3/personas.md?raw'
 import AppIcon from '@/components/base/AppIcon.vue'
+import { RATIONALE, SCREENS } from '@/data/designRationale'
 import { EVERY_SCREEN, ROUTE_REQUIREMENTS, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
 
 const props = defineProps({ open: { type: Boolean, default: true } })
 const emit = defineEmits(['toggle'])
 
-const { t, te } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 const rows = parseCsv(rtmCsv)
 const docs = parsePersonas(personasMd)
 
-const screen = computed(() => (ROUTE_REQUIREMENTS[route.name] ? route.name : 'home'))
-const screenName = computed(() => (te(`designNotes.screens.${screen.value}`) ? t(`designNotes.screens.${screen.value}`) : ''))
+/** S1 Leading Page is an overlay on Home at launch, not a route: the frame loop notices it. */
+const splash = ref(false)
+const screen = computed(() => (splash.value ? 'splash' : ROUTE_REQUIREMENTS[route.name] ? route.name : 'home'))
+const meta = computed(() => SCREENS.find((s) => s.key === screen.value))
+const withRationale = (key) => (n) => ({ ...n, ...(RATIONALE[`${key}:${n.id}`] ?? RATIONALE[`*:${n.id}`]) })
 const notes = computed(() => [
-  ...notesFor(ROUTE_REQUIREMENTS[screen.value], rows, docs),
-  ...notesFor(EVERY_SCREEN, rows, docs).map((n) => ({ ...n, everywhere: true })),
+  ...notesFor(ROUTE_REQUIREMENTS[screen.value], rows, docs).map(withRationale(screen.value)),
+  ...notesFor(EVERY_SCREEN, rows, docs).map((n) => ({ ...withRationale('*')(n), everywhere: true })),
 ])
 const hovered = ref(null)
 
@@ -70,7 +75,10 @@ function findAnchor(id, device, dev) {
 function frame() {
   raf = requestAnimationFrame(frame)
   const device = document.querySelector('.device')
-  if (!device || !layer.value || !props.open) return
+  if (!device) return
+  const splashOn = Boolean(device.querySelector('.splash'))
+  if (splashOn !== splash.value) splash.value = splashOn
+  if (!layer.value || !props.open) return
   const dev = device.getBoundingClientRect()
   const vw = window.innerWidth
   const widthL = Math.min(MAX_W, dev.left - GAP_PHONE - EDGE)
@@ -165,7 +173,10 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
     <header ref="head" class="notes__head">
       <div>
         <p class="notes__eyebrow">{{ t('designNotes.title') }}</p>
-        <h2 class="notes__screen">{{ screenName }}</h2>
+        <h2 class="notes__screen" lang="en">
+          <span class="notes__num">{{ meta?.id }}</span> {{ meta?.name }}
+        </h2>
+        <p class="notes__intent" lang="en">{{ meta?.intent }}</p>
         <p class="notes__subtitle">{{ t('designNotes.subtitle') }}</p>
       </div>
       <button type="button" class="notes__hide pressable-dim" :aria-label="t('designNotes.hide')" @click="emit('toggle')">
@@ -188,23 +199,26 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
     >
       <p class="note__title">
         <b>{{ note.id }}</b>
+        <span class="note__name">{{ note.title }}</span>
         <span v-if="note.everywhere" class="note__tag">{{ t('designNotes.everyScreen') }}</span>
       </p>
-      <p class="note__req">{{ note.requirement }}</p>
+      <p class="note__req">{{ note.why }}</p>
       <!-- the details open on hover / focus, so the resting figure stays calm -->
       <dl v-if="hovered === note.id" class="note__facts">
-        <dt>{{ t('designNotes.why') }}</dt>
-        <dd>{{ note.why }}</dd>
+        <dt>{{ t('designNotes.principle') }}</dt>
+        <dd>{{ note.principle }}</dd>
+        <dt>{{ t('designNotes.evidence') }}</dt>
+        <dd>{{ note.evidence }}</dd>
+        <dt>{{ t('designNotes.tradeoff') }}</dt>
+        <dd>{{ note.tradeoff }}</dd>
+        <dt>{{ t('designNotes.requirement') }}</dt>
+        <dd>{{ note.requirement }}</dd>
         <template v-if="note.personas.length">
           <dt>{{ t('designNotes.whoFor') }}</dt>
           <dd>
             <span v-for="p in note.personas" :key="p.id" class="note__line">{{ p.id }} {{ p.name }}</span>
             <span v-for="w in note.workflows" :key="w.id" class="note__line">{{ w.id }} {{ w.title }}</span>
           </dd>
-        </template>
-        <template v-if="note.evidence">
-          <dt>{{ t('designNotes.evidence') }}</dt>
-          <dd>{{ note.evidence }}</dd>
         </template>
         <dt>{{ note.priority }}</dt>
         <dd>{{ note.status }}</dd>
@@ -268,8 +282,16 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   letter-spacing: var(--track-h1);
   color: var(--cream);
 }
+.notes__num {
+  color: var(--accent-100);
+}
+.notes__intent {
+  margin: var(--s-2) 0 0;
+  font: var(--t-body-sm);
+  color: var(--cream);
+}
 .notes__subtitle {
-  margin: var(--s-1) 0 0;
+  margin: var(--s-2) 0 0;
   font: var(--t-meta);
   color: var(--ink-300);
 }
@@ -326,6 +348,9 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   margin: 0;
   font: var(--t-label);
   color: var(--accent-100);
+}
+.note__name {
+  color: var(--cream);
 }
 .note__tag {
   font: var(--t-micro);

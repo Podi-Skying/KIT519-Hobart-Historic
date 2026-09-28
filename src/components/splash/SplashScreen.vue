@@ -72,11 +72,12 @@ function choose(code) {
     <div class="splash__cta">
       <!-- Both steps share one grid cell and cross over at once (no out-in wait) -->
       <Transition name="cta">
-        <TapToStart v-if="step === 'tap'" key="tap" class="splash__tap rise d4" :label="t('splash.tap')" />
+        <TapToStart v-if="step === 'tap'" key="tap" data-req="NFR7" class="splash__tap rise d4" :label="t('splash.tap')" />
         <section
           v-else
           key="language"
           class="lang-card"
+          data-req="NFR7"
           role="dialog"
           aria-labelledby="splash-lang-title"
           @click.stop

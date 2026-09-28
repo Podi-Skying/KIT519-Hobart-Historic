@@ -1,12 +1,12 @@
 /**
- * Design notes beside the desktop phone mock-up: which requirements (docs/a3/rtm.csv) a screen
- * implements, and why they exist — shown verbatim from the team's own documents, never
- * rewritten here (assignment GenAI rule: no AI-written rationale).
+ * Design notes around the desktop phone mock-up: which requirements (docs/a3/rtm.csv) each
+ * screen implements (the rationale text itself lives in data/designRationale.js).
  */
 export { parseCsv } from '../../docs/a3/evaluation/analysis/metrics.mjs'
 
 /** Requirements each screen (route name) implements, most visible first. */
 export const ROUTE_REQUIREMENTS = {
+  splash: ['NFR7'], // S1 Leading Page: shown over Home at launch, not a route
   home: ['FR3', 'FR4', 'FR16', 'FR14', 'NFR7', 'NFR5'],
   site: ['FR5', 'FR8', 'FR7', 'FR16'],
   gallery: ['FR7'],
