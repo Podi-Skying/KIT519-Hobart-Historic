@@ -3,15 +3,48 @@
  * Phone mock-up only on desktops/laptops (wide screen + mouse). Phones and tablets get the app
  * full-bleed at the screen's own size — same query as tokens.css (--safe-top) and StatusBar.vue.
  */
+import { defineAsyncComponent, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+
+/* Design notes (RTM) beside the phone — only on a desktop wide enough for them. Its own chunk,
+   loaded only then; open/closed is remembered per browser. */
+const DesignNotes = defineAsyncComponent(() => import('./DesignNotes.vue'))
+const wideQuery = window.matchMedia('(min-width: 960px) and (hover: hover) and (pointer: fine)')
+const wide = ref(wideQuery.matches)
+const onWide = (e) => (wide.value = e.matches)
+wideQuery.addEventListener('change', onWide)
+onBeforeUnmount(() => wideQuery.removeEventListener('change', onWide))
+
+const NOTES_KEY = 'design-notes-open'
+let saved = null
+try {
+  saved = localStorage.getItem(NOTES_KEY)
+} catch {
+  /* storage blocked: default to open */
+}
+const notesOpen = ref(saved !== '0')
+function toggleNotes() {
+  notesOpen.value = !notesOpen.value
+  try {
+    localStorage.setItem(NOTES_KEY, notesOpen.value ? '1' : '0')
+  } catch {
+    /* not remembered, still works */
+  }
+}
 </script>
 
 <template>
   <div class="stage">
-    <div class="device">
-      <slot />
+    <div class="stage__row">
+      <span class="stage__side" aria-hidden="true" />
+      <div class="device">
+        <slot />
+      </div>
+      <div class="stage__side stage__side--notes no-print">
+        <DesignNotes v-if="wide" :open="notesOpen" @toggle="toggleNotes" />
+      </div>
     </div>
     <p class="stage__credit no-print">{{ t('common.credit') }}</p>
   </div>
@@ -29,6 +62,22 @@ const { t } = useI18n()
   justify-content: center;
   gap: var(--s-3);
   padding: var(--s-5) 0;
+}
+.stage__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr; /* the phone stays centred; notes use the right-hand space */
+  align-items: center;
+  gap: var(--s-8);
+  width: 100%;
+  padding: 0 var(--s-8);
+}
+.stage__side--notes {
+  align-self: stretch;
+  display: flex;
+  min-width: 0;
+  max-width: 24rem;
+  /* same height as the phone, so the notes scroll inside it and the page never does */
+  height: min(844px, calc(100dvh - 2 * var(--s-5) - var(--s-3) - 1rem));
 }
 .device {
   position: relative;
@@ -70,6 +119,13 @@ const { t } = useI18n()
   .stage__credit {
     display: none;
   }
+  .stage__row {
+    display: block;
+    padding: 0;
+  }
+  .stage__side {
+    display: none;
+  }
 }
 @media print {
   .stage {
@@ -77,6 +133,13 @@ const { t } = useI18n()
     height: auto;
     overflow: visible;
     padding: 0;
+  }
+  .stage__row {
+    display: block;
+    padding: 0;
+  }
+  .stage__side {
+    display: none;
   }
   .device {
     height: auto;

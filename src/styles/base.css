@@ -30,7 +30,7 @@ body {
 @media (min-width: 601px) and (hover: hover) and (pointer: fine) {
   html,
   body {
-    background: #1f1a12;
+    background: var(--stage-bg);
     overflow: hidden; /* the phone mock-up always fits the window; the page itself never scrolls */
   }
 }

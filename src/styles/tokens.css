@@ -46,6 +46,10 @@
   --camera-bg: #000; /* behind camera / Street View imagery while it loads */
   --like-glass: rgba(125, 48, 69, 0.88); /* like counter over a photo (brand-600, lets the photo tint it) */
   --stage-text: #8c826f; /* desktop backdrop credit, on the dark stage only */
+  /* desktop stage around the phone mock-up (design notes live here) */
+  --stage-bg: #1f1a12;
+  --stage-card: rgba(245, 239, 230, 0.05);
+  --stage-line: rgba(245, 239, 230, 0.12);
 
   /* ---- Overlays ---- */
   --scrim: rgba(44, 36, 23, 0.55); /* modal backdrop */

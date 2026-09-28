@@ -1,0 +1,38 @@
+import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { EVERY_SCREEN, ROUTE_REQUIREMENTS, expandIds, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
+
+const rows = parseCsv(readFileSync('docs/a3/rtm.csv', 'utf8'))
+const docs = parsePersonas(readFileSync('docs/a3/personas.md', 'utf8'))
+const ids = new Set(rows.map((r) => r.ID))
+
+describe('design notes (RTM beside the desktop mock-up)', () => {
+  it('only names requirements that exist in rtm.csv', () => {
+    for (const id of [...Object.values(ROUTE_REQUIREMENTS).flat(), ...EVERY_SCREEN]) expect(ids.has(id), id).toBe(true)
+  })
+  it('shows every requirement on at least one screen', () => {
+    const shown = new Set([...Object.values(ROUTE_REQUIREMENTS).flat(), ...EVERY_SCREEN])
+    expect([...ids].filter((id) => !shown.has(id))).toEqual([])
+  })
+  it('keys are real route names', () => {
+    const router = readFileSync('src/router/index.js', 'utf8')
+    const names = new Set([...router.matchAll(/name: '([^']+)'/g)].map((m) => m[1]))
+    for (const name of Object.keys(ROUTE_REQUIREMENTS)) expect(names.has(name), name).toBe(true)
+  })
+  it('reads persona names and workflow titles from personas.md', () => {
+    expect(docs.personas.P1).toMatch(/^Minzi/)
+    expect(Object.keys(docs.workflows)).toContain('W11')
+  })
+  it('expands ID lists and ranges', () => {
+    expect(expandIds('W1–W4 W9')).toEqual(['W1', 'W2', 'W3', 'W4', 'W9'])
+    expect(expandIds('all')).toEqual([])
+  })
+  it('builds notes verbatim from the CSV, in the order asked', () => {
+    const [a, b] = notesFor(['FR2', 'FR1'], rows, docs)
+    expect(a.id).toBe('FR2')
+    expect(b.id).toBe('FR1')
+    expect(a.requirement).toBe(rows.find((r) => r.ID === 'FR2').Requirement)
+    expect(a.personas[0]).toEqual({ id: 'P1', name: docs.personas.P1 })
+    expect(notesFor(['FR3'], rows, docs)[0].evidence).toBe('') // "—" means none
+  })
+})
