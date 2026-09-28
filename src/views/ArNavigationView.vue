@@ -447,14 +447,15 @@ async function walkBack() {
   width: 110px;
   height: 68px;
   overflow: visible;
-  /* solid blue face, white rim, a deeper blue extrusion under it = a chunky 3D chevron that
-     reads on any street (the thin outline one vanished on bright pavement) */
-  filter: drop-shadow(0 8px 0 var(--info-700)) drop-shadow(0 14px 12px rgba(0, 0, 0, 0.4));
+  /* AR-layer cyan face (README §5.2: navigation arrows are the AR overlay colour, not the
+     "you are here" blue), paper rim, a deeper cyan extrusion = a chunky 3D chevron that reads
+     on any street */
+  filter: drop-shadow(0 8px 0 var(--ar-700)) drop-shadow(0 14px 12px rgba(0, 0, 0, 0.4));
   animation: chev-flow 1.5s var(--ease) infinite;
   animation-delay: calc(var(--i) * 0.18s);
 }
 .ar-nav__chev path {
-  fill: var(--info-600);
+  fill: var(--ar-400);
   stroke: var(--paper);
   stroke-width: 6;
   stroke-linejoin: round;
@@ -490,8 +491,11 @@ async function walkBack() {
   transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease);
 }
 .ar-nav__step--primary {
-  background: var(--info-600); /* the main action, same blue as the ground arrows */
+  background: var(--brand-600); /* the one action colour (README §5.2) */
   color: var(--paper);
+}
+.ar-nav__step--primary:active:not(:disabled) {
+  background: var(--brand-700);
 }
 .ar-nav__step:disabled {
   opacity: 0.45;

@@ -36,8 +36,8 @@
   --success-600: #4a6741; /* accessible route, good conditions, arrived */
   --success-50: #e8efe6;
   --info-600: #2f6fed; /* "you are here" */
-  --info-700: #1d4fb8; /* extrusion under the AR ground arrows */
   --ar-400: #38bdf8; /* digital AR layer — camera views only */
+  --ar-700: #0369a1; /* AR layer, shaded side: extrusion under the 3D ground arrows */
   --ar-arrow: rgba(56, 189, 248, 0.9); /* AR direction arrows (slightly see-through over the street) */
   --camera-bg: #000; /* behind camera / Street View imagery while it loads */
   --like-glass: rgba(125, 48, 69, 0.88); /* like counter over a photo (brand-600, lets the photo tint it) */
