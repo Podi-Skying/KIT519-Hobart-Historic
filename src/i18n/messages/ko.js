@@ -329,7 +329,6 @@ export default {
     tradeoff: '트레이드오프',
     requirement: '요구사항',
     whoFor: '대상 사용자',
-    hide: '디자인 노트 숨기기',
     show: '디자인 노트',
   },
   survey: {

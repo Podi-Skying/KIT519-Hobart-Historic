@@ -329,7 +329,6 @@ export default {
     tradeoff: 'Đánh đổi',
     requirement: 'Yêu cầu',
     whoFor: 'Dành cho',
-    hide: 'Ẩn ghi chú thiết kế',
     show: 'Ghi chú thiết kế',
   },
   survey: {

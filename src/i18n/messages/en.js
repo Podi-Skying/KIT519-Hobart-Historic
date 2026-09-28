@@ -332,7 +332,6 @@ export default {
     tradeoff: 'Trade-off',
     requirement: 'Requirement',
     whoFor: 'Who it’s for',
-    hide: 'Hide design notes',
     show: 'Design notes',
   },
   survey: {

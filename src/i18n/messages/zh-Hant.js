@@ -329,7 +329,6 @@ export default {
     tradeoff: '取捨',
     requirement: '需求',
     whoFor: '為誰設計',
-    hide: '隱藏設計說明',
     show: '設計說明',
   },
   survey: {

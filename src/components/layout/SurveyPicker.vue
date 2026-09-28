@@ -13,8 +13,7 @@ import AppIcon from '@/components/base/AppIcon.vue'
 import { SURVEY_FORMS } from '@/data/surveyForms'
 import { parsePersonas, parseTasks, scenarioFor } from '@/lib/designNotes'
 
-const props = defineProps({ open: { type: Boolean, default: false } })
-const emit = defineEmits(['update:open'])
+const emit = defineEmits(['close'])
 const { t } = useI18n()
 
 const { personas } = parsePersonas(personasMd)
@@ -26,67 +25,51 @@ const scenarios = SURVEY_FORMS.map((f) => {
 
 const chosen = ref(null)
 const current = computed(() => scenarios.find((s) => s.persona === chosen.value))
-const toggle = () => {
-  emit('update:open', !props.open)
-  if (props.open) chosen.value = null
-}
-function close() {
-  emit('update:open', false)
-  chosen.value = null
-}
+const close = () => emit('close')
 </script>
 
 <template>
-  <div class="survey" @keydown.esc="close">
-    <button
-      type="button"
-      class="survey__button pressable"
-      :class="{ 'is-open': open }"
-      :aria-expanded="open"
-      aria-controls="survey-panel"
-      @click="toggle"
-    >
-      <AppIcon name="check" :size="18" :stroke-width="2.4" />
-      {{ t('survey.button') }}
-    </button>
-
-    <Transition name="survey-grow">
-      <section v-if="open" id="survey-panel" class="survey__panel" :aria-label="t('survey.title')">
-        <Transition name="survey-swap" mode="out-in">
-          <!-- step 1: pick a persona -->
-          <div v-if="!current" key="list">
-            <h3 class="survey__title">{{ t('survey.title') }}</h3>
-            <p class="survey__lead">{{ t('survey.lead') }}</p>
-            <ul class="survey__list">
-              <li v-for="s in scenarios" :key="s.persona">
-                <button type="button" class="scenario pressable-card" @click="chosen = s.persona">
-                  <span class="scenario__tile" lang="en">{{ s.persona }}</span>
-                  <span class="scenario__text" lang="en">
-                    <b>{{ s.name }}</b>
-                    <small>{{ s.role }} · Form {{ s.form }}</small>
-                  </span>
-                  <AppIcon name="chevron" :size="18" class="scenario__chevron" />
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          <!-- step 2: the scenario's tasks + its questionnaire -->
-          <div v-else key="detail">
-            <button type="button" class="survey__back pressable-dim" @click="chosen = null">
-              <AppIcon name="back" :size="16" />
-              {{ t('survey.back') }}
+  <section id="survey-panel" class="survey" :aria-label="t('survey.title')" @keydown.esc="close">
+    <Transition name="survey-swap" mode="out-in">
+      <!-- step 1: pick a persona -->
+      <div v-if="!current" key="list" class="survey__step">
+        <h3 class="survey__title">{{ t('survey.title') }}</h3>
+        <p class="survey__lead">{{ t('survey.lead') }}</p>
+        <ul class="survey__list">
+          <li v-for="s in scenarios" :key="s.persona">
+            <button type="button" class="scenario pressable-card" @click="chosen = s.persona">
+              <span class="scenario__tile" lang="en">{{ s.persona }}</span>
+              <span class="scenario__text" lang="en">
+                <b>{{ s.name }}</b>
+                <small>{{ s.role }} · Form {{ s.form }}</small>
+              </span>
+              <AppIcon name="chevron" :size="18" class="scenario__chevron" />
             </button>
-            <h3 class="survey__title" lang="en">{{ current.persona }} · {{ current.name }}</h3>
-            <p class="survey__label">{{ t('survey.tasks') }}</p>
-            <ol class="survey__tasks" lang="en">
-              <li v-for="task in current.tasks" :key="task.id">
-                <b>{{ task.id }}</b>
-                <span>{{ task.scenario }}</span>
-              </li>
-            </ol>
-            <p class="survey__label">{{ t('survey.answer', { form: current.form }) }}</p>
-            <div class="survey__answer">
+          </li>
+        </ul>
+      </div>
+
+      <!-- step 2: the scenario's tasks (scroll inside) + its questionnaire (always in view) -->
+      <div v-else key="detail" class="survey__step survey__step--detail">
+        <div class="survey__scroll">
+          <button type="button" class="survey__back pressable-dim" @click="chosen = null">
+            <AppIcon name="back" :size="16" />
+            {{ t('survey.back') }}
+          </button>
+          <h3 class="survey__title" lang="en">{{ current.persona }} · {{ current.name }}</h3>
+          <p class="survey__label">{{ t('survey.tasks') }}</p>
+          <ol class="survey__tasks" lang="en">
+            <li v-for="task in current.tasks" :key="task.id">
+              <b>{{ task.id }}</b>
+              <span>{{ task.scenario }}</span>
+            </li>
+          </ol>
+        </div>
+        <div class="survey__answer">
+          <p class="survey__label">{{ t('survey.answer', { form: current.form }) }}</p>
+          <div class="survey__ways">
+            <!-- the QR code is a link too: click it on a big screen, scan it with a phone -->
+            <a :href="current.url" target="_blank" rel="noopener" class="survey__qr-link pressable" :aria-label="t('survey.open', { form: current.form })">
               <svg
                 class="survey__qr"
                 :viewBox="`-4 -4 ${current.qr.size + 8} ${current.qr.size + 8}`"
@@ -97,52 +80,56 @@ function close() {
                 <rect x="-4" y="-4" :width="current.qr.size + 8" :height="current.qr.size + 8" class="survey__qr-bg" />
                 <path :d="current.qr.path" class="survey__qr-dots" />
               </svg>
-              <div class="survey__ways">
-                <p>{{ t('survey.scan') }}</p>
-                <a :href="current.url" target="_blank" rel="noopener" class="survey__open pressable">
-                  {{ t('survey.open', { form: current.form }) }}
-                  <AppIcon name="chevron" :size="16" />
-                </a>
-              </div>
+            </a>
+            <div class="survey__how">
+              <p>{{ t('survey.scan') }}</p>
+              <a :href="current.url" target="_blank" rel="noopener" class="survey__url pressable-dim">{{ current.url.replace('https://', '') }}</a>
+              <a :href="current.url" target="_blank" rel="noopener" class="survey__open pressable">
+                {{ t('survey.open', { form: current.form }) }}
+                <AppIcon name="chevron" :size="16" />
+              </a>
             </div>
           </div>
-        </Transition>
-      </section>
+        </div>
+      </div>
     </Transition>
-  </div>
+  </section>
 </template>
-
 <style scoped>
 .survey {
-  margin-top: var(--s-3);
-}
-.survey__button {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  min-height: var(--hit);
-  padding: 0 var(--s-4);
-  border-radius: var(--r-pill);
-  background: var(--accent-100); /* the action colour on dark surfaces (README §5.2) */
-  color: var(--ink-900);
-  font: var(--t-button);
-  transition: scale var(--dur) var(--ease), background var(--dur) var(--ease);
-}
-.survey__button.is-open {
-  background: var(--cream);
-}
-.survey__panel {
-  margin-top: var(--s-2);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding: var(--s-4);
-  max-height: calc(100vh - 16rem);
-  overflow-y: auto;
   border-radius: var(--r-lg);
   background: var(--stage-card-strong);
   border: 1px solid var(--stage-line);
   box-shadow: var(--e-2);
-  transform-origin: 0 0; /* grows out of the button above it */
+}
+.survey__step {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--stage-line) transparent;
+}
+.survey__step--detail {
+  overflow: visible;
+}
+.survey__scroll {
+  flex: 1 1 auto;
+  min-height: 4rem;
+  overflow-y: auto; /* long task lists scroll here; the form below always stays in view */
+  scrollbar-width: thin;
+  scrollbar-color: var(--stage-line) transparent;
+}
+.survey__answer {
+  flex-shrink: 0;
+  margin-top: var(--s-2);
+  padding-top: var(--s-1);
+  border-top: 1px solid var(--stage-line);
 }
 .survey__title {
   margin: 0;
@@ -242,15 +229,10 @@ function close() {
 .survey__tasks b {
   color: var(--accent-100);
 }
-.survey__answer {
-  display: flex;
-  flex-wrap: wrap; /* narrow window: the link drops under the QR code */
-  align-items: center;
-  gap: var(--s-3);
-}
 .survey__qr {
-  width: 132px;
-  height: 132px;
+  display: block;
+  width: 112px;
+  height: 112px;
   flex-shrink: 0;
   border-radius: var(--r-sm);
 }
@@ -262,11 +244,37 @@ function close() {
 }
 .survey__ways {
   display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.survey__qr-link {
+  flex-shrink: 0;
+  display: block;
+  border-radius: var(--r-sm);
+  transition: scale var(--dur) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+@media (hover: hover) {
+  .survey__qr-link:hover {
+    box-shadow: 0 0 0 3px var(--accent-100);
+  }
+}
+.survey__how {
+  display: flex;
   flex-direction: column;
-  gap: var(--s-2);
+  gap: var(--s-1);
   min-width: 0;
 }
-.survey__ways p {
+.survey__url {
+  display: flex;
+  align-items: center;
+  min-height: var(--hit);
+  color: var(--cream);
+  font: var(--t-label-sm);
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.survey__how p {
   margin: 0;
   font: var(--t-body-sm);
   color: var(--ink-300);
@@ -281,16 +289,6 @@ function close() {
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: scale var(--dur) var(--ease);
-}
-/* grows from the button and shrinks back into it (same path both ways) */
-.survey-grow-enter-active,
-.survey-grow-leave-active {
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
-.survey-grow-enter-from,
-.survey-grow-leave-to {
-  opacity: 0;
-  transform: scale(calc(1 - 0.06 * var(--motion))) translateY(calc(-6px * var(--motion)));
 }
 .survey-swap-enter-active,
 .survey-swap-leave-active {

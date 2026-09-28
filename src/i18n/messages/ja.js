@@ -329,7 +329,6 @@ export default {
     tradeoff: 'トレードオフ',
     requirement: '要求',
     whoFor: '対象ユーザー',
-    hide: 'デザインノートを隠す',
     show: 'デザインノート',
   },
   survey: {

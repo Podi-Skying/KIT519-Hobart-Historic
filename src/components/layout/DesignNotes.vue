@@ -7,7 +7,7 @@
  * Screens are numbered S1–S11. Nothing is drawn over the phone except a highlight while you
  * hover a note. Loaded as its own chunk, so phones never download it.
  */
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import rtmCsv from '../../../docs/a3/rtm.csv?raw'
@@ -35,15 +35,20 @@ const notes = computed(() => [
   ...notesFor(EVERY_SCREEN, rows, docs).map((n) => ({ ...withRationale('*')(n), everywhere: true })),
 ])
 const hovered = ref(null)
+watch(
+  () => props.open,
+  () => (hovered.value = null),
+)
 /** While a participant picks a scenario, the callouts step aside (focus on one task). */
 const surveyOpen = ref(false)
 
 /* ---- per-frame placement (no re-render: styles and paths are written directly) ---- */
 const layer = ref(null)
-const head = ref(null)
+const bar = ref(null)
+const clip = ref(null)
+const ring = ref(null)
 const cards = new Map() // id -> element
 const leaders = new Map() // id -> <path>
-const highlight = ref(null)
 const setCard = (id) => (el) => (el ? cards.set(id, el) : cards.delete(id))
 const setLeader = (id) => (el) => (el ? leaders.set(id, el) : leaders.delete(id))
 
@@ -51,6 +56,7 @@ const GAP_PHONE = 44 // between the phone and the notes: the leader lines run he
 const EDGE = 24
 const MAX_W = 272
 const MIN_W = 168
+const RING_OUTSET = 0 // the ring box is the control itself; its halo + brand stroke sit just outside the edge
 let raf = 0
 const written = new WeakMap()
 /** Resting (collapsed) height per card: an opened note floats over its neighbours instead of
@@ -73,20 +79,28 @@ function findAnchor(id, device, dev) {
     const right = Math.min(r.right, dev.right)
     if (r.width < 2 || bottom - top < 6 || right - left < 6) continue // hidden or scrolled away
     if (getComputedStyle(el).visibility === 'hidden') continue
-    return { top, bottom, left, right }
+    return { el, rect: r, top, bottom, left, right }
   }
   return null
+}
+
+/** The control's own corner radius (px, % or pill), so the ring follows its shape. */
+function radiusOf(el, r) {
+  const raw = getComputedStyle(el).borderTopLeftRadius
+  const short = Math.min(r.width, r.height)
+  const v = parseFloat(raw) || 0
+  return Math.min(raw.endsWith('%') ? (v / 100) * short : v, short / 2)
 }
 
 function frame() {
   raf = requestAnimationFrame(frame)
   const device = document.querySelector('.device')
-  if (!device) return
+  if (!device || !layer.value) return
   const splashOn = Boolean(device.querySelector('.splash'))
   if (splashOn !== splash.value) splash.value = splashOn
-  if (!layer.value || !props.open) return
   const dev = device.getBoundingClientRect()
   const vw = window.innerWidth
+  const vh = window.innerHeight
   const widthL = Math.min(MAX_W, dev.left - GAP_PHONE - EDGE)
   const widthR = Math.min(MAX_W, vw - dev.right - GAP_PHONE - EDGE)
   const room = Math.min(widthL, widthR) >= MIN_W
@@ -95,63 +109,83 @@ function frame() {
 
   const xL = dev.left - GAP_PHONE - widthL
   const xR = dev.right + GAP_PHONE
-  if (head.value) {
-    write(head.value, 'box', `${xL},${widthL}`, () => {
-      head.value.style.left = `${xL}px`
-      head.value.style.width = `${widthL}px`
+  if (bar.value) {
+    write(bar.value, 'box', `${xL},${widthL}`, () => {
+      bar.value.style.left = `${xL}px`
+      bar.value.style.width = `${widthL}px`
     })
   }
-  const headBottom = head.value ? head.value.getBoundingClientRect().bottom + 16 : dev.top
-  const mid = (dev.left + dev.right) / 2
-
-  // anchor + side for each note
-  const placed = { left: [], right: [] }
-  let spare = 0
-  for (const note of notes.value) {
-    const el = cards.get(note.id)
-    if (!el) continue
-    const a = note.everywhere ? null : findAnchor(note.id, device, dev)
-    let side
-    if (a) side = (a.left + a.right) / 2 < mid ? 'left' : 'right'
-    else side = spare++ % 2 ? 'left' : 'right' // unanchored: shared out, at the bottom
-    const y = a ? Math.min(Math.max((a.top + a.bottom) / 2, dev.top + 36), dev.bottom - 36) : Infinity
-    if (hovered.value !== note.id || !restH.has(el)) restH.set(el, el.offsetHeight)
-    placed[side].push({ note, el, a, want: y, h: restH.get(el) })
+  if (clip.value) {
+    write(clip.value, 'box', `${dev.left},${dev.top},${dev.width},${dev.height}`, () => {
+      Object.assign(clip.value.style, { left: `${dev.left}px`, top: `${dev.top}px`, width: `${dev.width}px`, height: `${dev.height}px` })
+    })
   }
+  let ringBox = 'off'
+  if (props.open && !surveyOpen.value) {
+    const headBottom = bar.value ? bar.value.getBoundingClientRect().bottom + 16 : dev.top
+    const mid = (dev.left + dev.right) / 2
 
-  let hl = ''
-  for (const side of ['left', 'right']) {
-    const list = placed[side]
-    // each leader gets its own elbow lane in the gap, so vertical runs never sit on top of each other
-    const lanes = list.filter((it) => it.a).sort((p, q) => p.want - q.want)
-    const top = side === 'left' ? Math.max(headBottom, dev.top) : dev.top
-    const tops = layoutColumn(list, { top, bottom: dev.bottom, gap: 10 })
-    list.forEach((it, i) => {
-      const x = side === 'left' ? xL : xR
-      const w = side === 'left' ? widthL : widthR
-      write(it.el, 'box', `${x},${tops[i]},${w}`, () => {
-        it.el.style.transform = `translate3d(${x}px, ${tops[i]}px, 0)`
-        it.el.style.width = `${w}px`
-        it.el.style.setProperty('--placed', '1') // fades in only once it is where it belongs (a style, so Vue's class patching can't undo it)
-      })
-      const path = leaders.get(it.note.id)
-      let d = ''
-      if (it.a) {
-        // card edge → elbow in the gap → the phone's edge, level with the control
-        const cy = Math.min(Math.max(it.want, tops[i] + 16), tops[i] + it.h - 16)
-        const cx = side === 'left' ? x + w : x
-        const px = side === 'left' ? dev.left - 6 : dev.right + 6
-        const lane = 12 + ((lanes.indexOf(it) * 7) % 26) // 12…33 px from the phone
-        const ex = side === 'left' ? dev.left - lane : dev.right + lane
-        d = `M${cx},${cy} H${ex} V${it.want} H${px}`
-        if (hovered.value === it.note.id) {
-          hl = `M${it.a.left + 10},${it.a.top} H${it.a.right - 10} Q${it.a.right},${it.a.top} ${it.a.right},${it.a.top + 10} V${it.a.bottom - 10} Q${it.a.right},${it.a.bottom} ${it.a.right - 10},${it.a.bottom} H${it.a.left + 10} Q${it.a.left},${it.a.bottom} ${it.a.left},${it.a.bottom - 10} V${it.a.top + 10} Q${it.a.left},${it.a.top} ${it.a.left + 10},${it.a.top} Z`
+    // anchor + side for each note
+    const placed = { left: [], right: [] }
+    let spare = 0
+    for (const note of notes.value) {
+      const el = cards.get(note.id)
+      if (!el) continue
+      const a = note.everywhere ? null : findAnchor(note.id, device, dev)
+      let side
+      if (a) side = (a.left + a.right) / 2 < mid ? 'left' : 'right'
+      else side = spare++ % 2 ? 'left' : 'right' // unanchored: shared out, at the bottom
+      const y = a ? Math.min(Math.max((a.top + a.bottom) / 2, dev.top + 36), dev.bottom - 36) : Infinity
+      if (hovered.value !== note.id || !restH.has(el)) restH.set(el, el.offsetHeight)
+      placed[side].push({ note, el, a, want: y, h: restH.get(el) })
+    }
+
+    for (const side of ['left', 'right']) {
+      const list = placed[side]
+      // each leader gets its own elbow lane in the gap, so vertical runs never sit on top of each other
+      const lanes = list.filter((it) => it.a).sort((p, q) => p.want - q.want)
+      const top = side === 'left' ? Math.max(headBottom, dev.top) : dev.top
+      const tops = layoutColumn(list, { top, bottom: dev.bottom, gap: 10 })
+      list.forEach((it, i) => {
+        const x = side === 'left' ? xL : xR
+        const w = side === 'left' ? widthL : widthR
+        let y = tops[i]
+        // an opened note that would run off the bottom of the window slides up to fit
+        if (hovered.value === it.note.id) y = Math.max(EDGE, Math.min(y, vh - EDGE - it.el.offsetHeight))
+        write(it.el, 'box', `${x},${y},${w}`, () => {
+          it.el.style.transform = `translate3d(${x}px, ${y}px, 0)`
+          it.el.style.width = `${w}px`
+          it.el.style.setProperty('--placed', '1') // fades in only once it is where it belongs (a style, so Vue's class patching can't undo it)
+        })
+        const path = leaders.get(it.note.id)
+        let d = ''
+        if (it.a) {
+          // card edge → elbow in the gap → the phone's edge, level with the control
+          const h = hovered.value === it.note.id ? it.el.offsetHeight : it.h
+          const cy = Math.min(Math.max(it.want, y + 16), y + h - 16)
+          const cx = side === 'left' ? x + w : x
+          const px = side === 'left' ? dev.left - 6 : dev.right + 6
+          const lane = 12 + ((lanes.indexOf(it) * 7) % 26) // 12…33 px from the phone
+          const ex = side === 'left' ? dev.left - lane : dev.right + lane
+          d = `M${cx},${cy} H${ex} V${it.want} H${px}`
+          if (hovered.value === it.note.id) {
+            const r = it.a.rect
+            const rad = radiusOf(it.a.el, r) + RING_OUTSET
+            ringBox = `${r.left - dev.left - RING_OUTSET},${r.top - dev.top - RING_OUTSET},${r.width + RING_OUTSET * 2},${r.height + RING_OUTSET * 2},${rad}`
+          }
         }
-      }
-      if (path) write(path, 'd', d, (v) => path.setAttribute('d', v))
+        if (path) write(path, 'd', d, (v) => path.setAttribute('d', v))
+      })
+    }
+  }
+  if (ring.value) {
+    write(ring.value, 'box', ringBox, (v) => {
+      if (v === 'off') return ring.value.classList.remove('is-on')
+      const [x, y, w, h, rad] = v.split(',')
+      Object.assign(ring.value.style, { transform: `translate(${x}px, ${y}px)`, width: `${w}px`, height: `${h}px`, borderRadius: `${rad}px` })
+      ring.value.classList.add('is-on')
     })
   }
-  if (highlight.value) write(highlight.value, 'd', hl, (v) => highlight.value.setAttribute('d', v))
 }
 
 onMounted(() => (raf = requestAnimationFrame(frame)))
@@ -159,10 +193,13 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 </script>
 
 <template>
-  <div v-if="!open" class="notes-toggle">
-    <button type="button" class="notes__show pressable" @click="emit('toggle')">{{ t('designNotes.show') }}</button>
-  </div>
-  <div v-else ref="layer" class="notes" :class="{ 'is-surveying': surveyOpen }" :aria-label="t('designNotes.title')" role="complementary">
+  <div
+    ref="layer"
+    class="notes"
+    :class="{ 'is-surveying': surveyOpen, 'is-closed': !open }"
+    :aria-label="t('designNotes.title')"
+    role="complementary"
+  >
     <svg class="notes__lines" aria-hidden="true">
       <defs>
         <marker id="notes-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto">
@@ -172,73 +209,97 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
           <path d="M0,0 L8,4 L0,8 Z" class="notes__arrowhead notes__arrowhead--on" />
         </marker>
       </defs>
-      <path ref="highlight" class="notes__highlight" d="" />
-      <path
-        v-for="note in notes"
-        :key="note.id"
-        :ref="setLeader(note.id)"
-        class="notes__leader"
-        :class="{ 'is-hovered': hovered === note.id }"
-        d=""
-        :marker-end="hovered === note.id ? 'url(#notes-arrow-on)' : 'url(#notes-arrow)'"
-      />
+      <template v-if="open">
+        <path
+          v-for="note in notes"
+          :key="note.id"
+          :ref="setLeader(note.id)"
+          class="notes__leader"
+          :class="{ 'is-hovered': hovered === note.id }"
+          d=""
+          :marker-end="hovered === note.id ? 'url(#notes-arrow-on)' : 'url(#notes-arrow)'"
+        />
+      </template>
     </svg>
 
-    <header ref="head" class="notes__head">
-      <div>
-        <p class="notes__eyebrow">{{ t('designNotes.title') }}</p>
-        <h2 class="notes__screen" lang="en">
-          <span class="notes__num">{{ meta?.id }}</span> {{ meta?.name }}
-        </h2>
-        <p class="notes__intent" lang="en">{{ meta?.intent }}</p>
-        <p class="notes__subtitle">{{ t('designNotes.subtitle') }}</p>
-        <SurveyPicker v-model:open="surveyOpen" />
-      </div>
-      <button type="button" class="notes__hide pressable-dim" :aria-label="t('designNotes.hide')" @click="emit('toggle')">
-        <AppIcon name="close" :size="18" />
-      </button>
-    </header>
+    <!-- the hovered note's control, ringed like a focus ring (clipped to the phone's screen) -->
+    <div ref="clip" class="notes__clip" aria-hidden="true"><span ref="ring" class="notes__ring" /></div>
 
-    <article
-      v-for="note in notes"
-      :key="`${screen}-${note.id}`"
-      :ref="setCard(note.id)"
-      class="note"
-      :class="{ 'note--quiet': note.everywhere, 'is-hovered': hovered === note.id }"
-      tabindex="0"
-      lang="en"
-      @mouseenter="hovered = note.id"
-      @mouseleave="hovered = null"
-      @focus="hovered = note.id"
-      @blur="hovered = null"
-    >
-      <p class="note__title">
-        <b>{{ note.id }}</b>
-        <span class="note__name">{{ note.title }}</span>
-        <span v-if="note.everywhere" class="note__tag">{{ t('designNotes.everyScreen') }}</span>
-      </p>
-      <p class="note__req">{{ note.why }}</p>
-      <!-- the details open on hover / focus, so the resting figure stays calm -->
-      <dl v-if="hovered === note.id" class="note__facts">
-        <dt>{{ t('designNotes.principle') }}</dt>
-        <dd>{{ note.principle }}</dd>
-        <dt>{{ t('designNotes.evidence') }}</dt>
-        <dd>{{ note.evidence }}</dd>
-        <dt>{{ t('designNotes.tradeoff') }}</dt>
-        <dd>{{ note.tradeoff }}</dd>
-        <dt>{{ t('designNotes.requirement') }}</dt>
-        <dd>{{ note.requirement }}</dd>
-        <template v-if="note.personas.length">
-          <dt>{{ t('designNotes.whoFor') }}</dt>
-          <dd>
-            <span v-for="p in note.personas" :key="p.id" class="note__line">{{ p.id }} {{ p.name }}</span>
-            <span v-for="w in note.workflows" :key="w.id" class="note__line">{{ w.id }} {{ w.title }}</span>
-          </dd>
-        </template>
-        <dt>{{ note.priority }}</dt>
-        <dd>{{ note.status }}</dd>
-      </dl>
-    </article>
+    <div ref="bar" class="notes__bar">
+      <!-- two peers: show/hide the notes · take part in the evaluation -->
+      <div class="notes__buttons">
+        <button type="button" class="stage-btn pressable" :class="{ 'is-on': open }" :aria-pressed="open" @click="emit('toggle')">
+          <AppIcon name="info" :size="18" />
+          {{ t('designNotes.show') }}
+        </button>
+        <button
+          type="button"
+          class="stage-btn pressable"
+          :class="{ 'is-on': surveyOpen }"
+          :aria-expanded="surveyOpen"
+          aria-controls="survey-panel"
+          @click="surveyOpen = !surveyOpen"
+        >
+          <AppIcon name="check" :size="18" :stroke-width="2.4" />
+          {{ t('survey.button') }}
+        </button>
+      </div>
+
+      <Transition name="bar-swap" mode="out-in">
+        <SurveyPicker v-if="surveyOpen" key="survey" class="notes__panel" @close="surveyOpen = false" />
+        <header v-else-if="open" key="head" class="notes__head">
+          <p class="notes__eyebrow">{{ t('designNotes.title') }}</p>
+          <h2 class="notes__screen" lang="en">
+            <span class="notes__num">{{ meta?.id }}</span> {{ meta?.name }}
+          </h2>
+          <p class="notes__intent" lang="en">{{ meta?.intent }}</p>
+          <p class="notes__subtitle">{{ t('designNotes.subtitle') }}</p>
+        </header>
+      </Transition>
+    </div>
+
+    <template v-if="open">
+      <article
+        v-for="note in notes"
+        :key="`${screen}-${note.id}`"
+        :ref="setCard(note.id)"
+        class="note"
+        :class="{ 'note--quiet': note.everywhere, 'is-hovered': hovered === note.id }"
+        tabindex="0"
+        lang="en"
+        @mouseenter="hovered = note.id"
+        @mouseleave="hovered = null"
+        @focus="hovered = note.id"
+        @blur="hovered = null"
+      >
+        <p class="note__title">
+          <b>{{ note.id }}</b>
+          <span class="note__name">{{ note.title }}</span>
+          <span v-if="note.everywhere" class="note__tag">{{ t('designNotes.everyScreen') }}</span>
+        </p>
+        <p class="note__req">{{ note.why }}</p>
+        <!-- the details open on hover / focus, so the resting figure stays calm -->
+        <dl v-if="hovered === note.id" class="note__facts">
+          <dt>{{ t('designNotes.principle') }}</dt>
+          <dd>{{ note.principle }}</dd>
+          <dt>{{ t('designNotes.evidence') }}</dt>
+          <dd>{{ note.evidence }}</dd>
+          <dt>{{ t('designNotes.tradeoff') }}</dt>
+          <dd>{{ note.tradeoff }}</dd>
+          <dt>{{ t('designNotes.requirement') }}</dt>
+          <dd>{{ note.requirement }}</dd>
+          <template v-if="note.personas.length">
+            <dt>{{ t('designNotes.whoFor') }}</dt>
+            <dd>
+              <span v-for="p in note.personas" :key="p.id" class="note__line">{{ p.id }} {{ p.name }}</span>
+              <span v-for="w in note.workflows" :key="w.id" class="note__line">{{ w.id }} {{ w.title }}</span>
+            </dd>
+          </template>
+          <dt>{{ note.priority }}</dt>
+          <dd>{{ note.status }}</dd>
+        </dl>
+      </article>
+    </template>
   </div>
 </template>
 
@@ -278,22 +339,75 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 .notes__arrowhead--on {
   fill: var(--accent-100);
 }
-.notes__highlight {
-  fill: none;
-  stroke: var(--accent-100);
-  stroke-width: 2;
+.notes__clip {
+  position: fixed;
+  overflow: hidden;
+  border-radius: 44px; /* the phone's screen corners: the ring never spills onto the frame */
+  pointer-events: none;
 }
-.notes__head {
+.notes__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  /* a focus ring: a thin paper halo, then the brand colour, so it reads on cream screens and
+     on camera views alike, and it hugs the control's own shape */
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4.5px var(--brand-600), 0 0 18px 4px var(--brand-halo);
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.notes__ring.is-on {
+  opacity: 1;
+}
+.notes.is-closed .notes__lines,
+.notes.is-closed .notes__clip {
+  display: none;
+}
+.notes__bar {
   position: absolute;
   top: var(--s-6); /* left and width follow the left-hand column (set each frame) */
   display: flex;
-  align-items: flex-start;
-  gap: var(--s-2);
+  flex-direction: column;
+  gap: var(--s-4);
+  max-height: calc(100vh - 2 * var(--s-6)); /* the page never scrolls; a long panel scrolls inside */
   pointer-events: auto;
 }
-.notes__head > div {
-  flex: 1;
-  min-width: 0;
+.notes__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+.stage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--hit);
+  padding: 0 var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--stage-card);
+  border: 1px solid var(--stage-line);
+  color: var(--cream);
+  font: var(--t-button);
+  text-align: left;
+  transition: scale var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.stage-btn.is-on {
+  background: var(--accent-100); /* on: the action colour on dark surfaces (README §5.2) */
+  border-color: var(--accent-100);
+  color: var(--ink-900);
+}
+.notes__panel {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.bar-swap-enter-active,
+.bar-swap-leave-active {
+  transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.bar-swap-enter-from,
+.bar-swap-leave-to {
+  opacity: 0;
+  transform: translateY(calc(-6px * var(--motion)));
 }
 .notes__eyebrow {
   margin: 0;
@@ -321,34 +435,10 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   font: var(--t-meta);
   color: var(--ink-300);
 }
-.notes__hide {
-  flex-shrink: 0;
-  width: var(--hit);
-  height: var(--hit);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: calc(-1 * var(--s-2)) 0 0;
-  border-radius: 50%;
-  color: var(--ink-300);
-}
-.notes-toggle {
-  position: fixed;
-  top: var(--s-6);
-  left: var(--s-6);
-  z-index: 5;
-}
-.notes__show {
-  min-height: var(--hit);
-  padding: 0 var(--s-4);
-  border-radius: var(--r-pill);
-  background: var(--stage-card);
-  border: 1px solid var(--stage-line);
-  color: var(--cream);
-  font: var(--t-button);
-}
 .note {
   position: absolute;
+  max-height: calc(100vh - 3rem); /* a very long opened note scrolls inside, never off-screen */
+  overflow-y: auto;
   top: 0;
   left: 0;
   opacity: calc(var(--placed, 0) * var(--rest-opacity, 1));
