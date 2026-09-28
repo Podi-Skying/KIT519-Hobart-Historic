@@ -19,6 +19,8 @@
  */
 import { decodePolyline } from '@/lib/polyline'
 import { i18n, localeInfo } from '@/i18n'
+import { sharedCache } from '@/lib/ttlCache'
+
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? ''
 const ENDPOINT = 'https://routes.googleapis.com/directions/v2:computeRoutes'
@@ -34,8 +36,8 @@ const FIELD_MASK = [
 
 export const isRoutingConfigured = () => API_KEY.trim().length > 0
 
-/** In-memory cache so re-renders and back-navigation don't re-bill the same request. */
-const cache = new Map()
+/** Short-lived cache (3 min) so re-renders and back-navigation don't re-bill the same request. */
+const cache = sharedCache()
 const round = (n) => n.toFixed(4) // ~10 m — small GPS jitter reuses the cached route
 const cacheKey = (points) => points.map((p) => `${round(p.lat)},${round(p.lng)}`).join('|')
 

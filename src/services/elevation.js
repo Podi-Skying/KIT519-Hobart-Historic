@@ -5,6 +5,7 @@
  */
 import { distanceKm } from '@/lib/geo'
 import { storage } from '@/lib/storage'
+import { sharedCache } from '@/lib/ttlCache'
 
 const ENDPOINT = 'https://api.open-meteo.com/v1/elevation'
 const MAX_PER_REQUEST = 100
@@ -13,17 +14,12 @@ const SAMPLE_SPACING_M = 45
 const MAX_SAMPLES = 80
 
 /**
- * Elevations never change, so lookups are kept across visits (localStorage, capped) —
- * returning users re-plan routes without calling the elevation API again.
+ * Lookups are cached in memory for 3 minutes only (lib/ttlCache), like every API result.
+ * Earlier builds kept up to 4000 elevations in localStorage: that old store is removed once.
  */
-const STORE_KEY = 'hh.elevations.v1'
-const STORE_MAX = 4000
-const cache = new Map(Object.entries(storage.read(STORE_KEY) ?? {}))
+const cache = sharedCache({ max: 4000 })
+storage.remove('hh.elevations.v1')
 const keyOf = (p) => `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`
-function persist() {
-  const entries = [...cache.entries()].slice(-STORE_MAX) // newest kept
-  storage.write(STORE_KEY, Object.fromEntries(entries))
-}
 
 /** Elevation (m) for each point, batching requests and caching repeats. */
 export async function fetchElevations(points) {
@@ -39,7 +35,6 @@ export async function fetchElevations(points) {
     const { elevation } = await response.json()
     batch.forEach((k, j) => cache.set(k, elevation[j]))
   }
-  if (missing.length) persist()
   return points.map((p) => cache.get(keyOf(p)))
 }
 

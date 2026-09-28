@@ -19,6 +19,13 @@ export const storage = {
       return null
     }
   },
+  remove(key) {
+    try {
+      backend()?.removeItem(key)
+    } catch {
+      /* unavailable — nothing to remove */
+    }
+  },
   write(key, value) {
     try {
       backend()?.setItem(key, JSON.stringify(value))

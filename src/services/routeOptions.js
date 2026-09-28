@@ -15,6 +15,8 @@ import { ROUTE_VIA_POINTS } from '@/data/navigation'
 import { distanceKm } from '@/lib/geo'
 import { fetchWalkingRoutes } from './routes'
 import { routeProfile } from './elevation'
+import { sharedCache } from '@/lib/ttlCache'
+
 
 /** A via-point is only tried if it adds at most this much to the straight-line distance. */
 const MAX_VIA_DETOUR = 1.6
@@ -91,7 +93,8 @@ export function viaCandidates(origin, destination, kind) {
     .slice(0, VIAS_PER_KIND)
 }
 
-const cache = new Map()
+/** Planned options live 3 minutes (lib/ttlCache): enough for back-and-forth, never stale. */
+const cache = sharedCache()
 const keyOf = (points) => points.map((p) => `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`).join('|')
 
 /**
