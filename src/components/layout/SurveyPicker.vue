@@ -228,7 +228,7 @@ const close = () => emit('close')
   width: 112px;
   height: 112px;
   flex-shrink: 0;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
 }
 .survey__qr-bg {
   fill: var(--paper); /* dark modules on white with a quiet zone: every phone camera reads it */
@@ -244,7 +244,7 @@ const close = () => emit('close')
 .survey__qr-link {
   flex-shrink: 0;
   display: block;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-md);
   transition: scale var(--dur) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
 @media (hover: hover) {
@@ -264,14 +264,18 @@ const close = () => emit('close')
   color: var(--ink-300);
 }
 .survey__open {
+  /* the panel's one primary action: a filled pill in the dark-surface action colour */
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: var(--s-1);
   min-height: var(--hit);
-  color: var(--accent-100);
+  padding: 0 var(--s-3) 0 var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--accent-100);
+  color: var(--ink-900);
   font: var(--t-button);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  white-space: nowrap;
   transition: scale var(--dur) var(--ease);
 }
 .survey-swap-enter-active,

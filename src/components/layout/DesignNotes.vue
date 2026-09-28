@@ -14,6 +14,7 @@ import rtmCsv from '../../../docs/a3/rtm.csv?raw'
 import personasMd from '../../../docs/a3/personas.md?raw'
 import AppIcon from '@/components/base/AppIcon.vue'
 import SurveyPicker from './SurveyPicker.vue'
+import PersonaAvatar from './PersonaAvatar.vue'
 import { RATIONALE, SCREENS } from '@/data/designRationale'
 import { SURVEY_FORMS } from '@/data/surveyForms'
 import { EVERY_SCREEN, ROUTE_REQUIREMENTS, layoutColumn, notesFor, parseCsv, parsePersonas } from '@/lib/designNotes'
@@ -46,6 +47,8 @@ const surveyOpen = ref(false)
     column holds who you are and where to answer, and neither side gets crowded. */
 const chosen = ref(null)
 const chosenForm = computed(() => SURVEY_FORMS.find((f) => f.persona === chosen.value))
+/** Whose tasks these are, so the right-hand card makes sense on its own. */
+const chosenName = computed(() => (docs.personas[chosen.value] ?? '').split(/:\s*/)[0])
 watch(surveyOpen, (on) => on || (chosen.value = null))
 
 /* ---- per-frame placement (no re-render: styles and paths are written directly) ---- */
@@ -275,7 +278,13 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
     <!-- Scenario Task: the chosen persona's tasks, in the right-hand column -->
     <Transition name="tasks-in">
       <section v-if="surveyOpen && chosenForm" ref="tasksEl" :key="chosenForm.persona" class="notes__tasks" lang="en" :aria-label="t('survey.tasks')">
-        <p class="notes__eyebrow">{{ t('survey.tasks') }}</p>
+        <div class="notes__tasks-who">
+          <PersonaAvatar :persona="chosenForm.persona" :size="32" />
+          <div>
+            <p class="notes__eyebrow">{{ t('survey.tasks') }}</p>
+            <p class="notes__tasks-name">{{ chosenName }}</p>
+          </div>
+        </div>
         <ol class="notes__task-list">
           <li v-for="(task, i) in chosenForm.tasks" :key="task.title" class="notes__task">
             <b>Task {{ i + 1 }}</b>
@@ -339,6 +348,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 }
 .notes {
   z-index: 5;
+  --focus-ring: 0 0 0 3px var(--accent-100); /* keyboard focus stays visible on the dark stage */
   visibility: hidden; /* shown by the first frame, once everything has a place */
   color: var(--cream);
 }
@@ -445,6 +455,16 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
 .notes__task:first-child {
   border-top: 0;
   padding-top: var(--s-1);
+}
+.notes__tasks-who {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.notes__tasks-name {
+  margin: 0.125rem 0 0;
+  font: var(--t-title);
+  color: var(--cream);
 }
 .notes__task-list {
   display: grid;

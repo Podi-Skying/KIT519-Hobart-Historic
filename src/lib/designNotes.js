@@ -25,13 +25,14 @@ export const EVERY_SCREEN = ['NFR1', 'NFR6']
 /**
  * Persona names and workflow titles from personas.md:
  * "## P1 · Minzi (22): international exchange student" and "| W1 | Discover and choose … |".
+ * A bare age is spelled out for readers who never saw the persona sheet: "Minzi (Age: 22): …".
  */
 export function parsePersonas(markdown) {
   const personas = {}
   const workflows = {}
   for (const line of markdown.split('\n')) {
     const p = line.match(/^##\s+(P\d+)\s+·\s+(.+?)\s*$/)
-    if (p) personas[p[1]] = p[2]
+    if (p) personas[p[1]] = p[2].replace(/\((\d+)\)/, '(Age: $1)')
     const w = line.match(/^\|\s*(W\d+)\s*\|\s*([^|]+?)\s*\|/)
     if (w) workflows[w[1]] = w[2]
   }
