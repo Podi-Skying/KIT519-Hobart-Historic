@@ -713,32 +713,6 @@ const CATALOGUE = [
     ],
   },
   {
-    id: 13,
-    thr: 972,
-    name: 'Kangaroo Bluff Battery',
-    shortName: 'Kangaroo Bluff',
-    category: 'military',
-    categoryLabel: 'Military Heritage',
-    area: 'Bellerive',
-    builtYear: '1885',
-    coordinates: { lat: -42.8819, lng: 147.36718 }, // the battery on Gunning St (OpenStreetMap); THR 972
-    accessible: false, // step-free access not yet verified from an official source
-    baseLikes: 55,
-    ...singlePhoto(
-      'https://live.staticflickr.com/7150/6658642811_f627cbe362_b.jpg',
-      'Gun emplacement',
-      '2011',
-      'One of the battery’s guns, looking across the Derwent to Hobart.',
-      credit('jeffowenphotos', 'CC BY 2.0', 'https://www.flickr.com/photos/48264126@N00/6658642811'),
-    ),
-    description:
-      'Across the river at Bellerive, this battery was begun in 1878 and completed in 1885 to defend the Derwent. It was manned during the First World War and in use until the 1920s. Its stone trenches and walls are now part of a community park looking back to Hobart.',
-    sources: [
-      thrEntry(972, 'Kangaroo Bluff Battery'),
-      thrEntry(1653, 'Mulgrave Battery and Signal Station (Hobart defences history)'),
-    ],
-  },
-  {
     id: 14,
     thr: 12148,
     name: 'Franklin Square',
@@ -837,56 +811,6 @@ const CATALOGUE = [
       'The Tasmanian Public Library opened here in 1907, the only library building in Tasmania funded by the philanthropist Andrew Carnegie. The two-storey red brick building on sandstone foundations shows bold Edwardian Baroque detail. The Maritime Museum of Tasmania moved into it in 1999.',
     sources: [
       thrEntry(12038, 'Tasmanian Public Library/Carnegie Building'),
-    ],
-  },
-  {
-    id: 18,
-    thr: 2626,
-    name: 'Alexandra Battery',
-    shortName: 'Alexandra',
-    category: 'military',
-    categoryLabel: 'Military Heritage',
-    area: 'Sandy Bay',
-    builtYear: '1885',
-    coordinates: { lat: -42.91502, lng: 147.35839 }, // the battery on Sandy Bay Rd (OpenStreetMap); THR 2626
-    accessible: false, // step-free access not yet verified from an official source
-    baseLikes: 47,
-    ...singlePhoto(
-      'https://live.staticflickr.com/8462/8014793717_85d523ab04_b.jpg',
-      'Inside the passageways',
-      '2012',
-      'A stone passage leading through the battery’s earthworks.',
-      credit('Raam Dev', 'CC BY-NC-SA 2.0', 'https://www.flickr.com/photos/89743353@N00/8014793717'),
-    ),
-    description:
-      'Work on this battery began in 1871 and, after a pause, was completed in 1885 to guard the river approaches to Hobart. Troops camped here during the First World War, and it served as a military training camp until the Second. It opened as a public park in 1964, with stone passageways still to explore.',
-    sources: [
-      thrEntry(2626, 'Alexandra Battery'),
-    ],
-  },
-  {
-    id: 19,
-    thr: 12100,
-    name: 'Runnymede',
-    shortName: 'Runnymede',
-    category: 'colonial',
-    categoryLabel: 'Colonial Living',
-    area: 'New Town',
-    builtYear: 'c.1836',
-    coordinates: { lat: -42.85277, lng: 147.3119 }, // 61 Bay Rd (OpenStreetMap); THR 12100
-    accessible: false, // step-free access not yet verified from an official source
-    baseLikes: 64,
-    ...singlePhoto(
-      'https://live.staticflickr.com/3773/11184769603_fa73491e18_b.jpg',
-      'Runnymede House',
-      '2011',
-      'The verandah and French doors of the house.',
-      credit('denisbin', 'CC BY-ND 2.0', 'https://www.flickr.com/photos/82134796@N03/11184769603'),
-    ),
-    description:
-      'This Regency-style marine villa was built for Robert Pitcairn, who bought the land in 1836. Bishop Francis Nixon lived here from 1850, and in 1863 Captain Charles Bayley renamed it Runnymede after one of his ships. The State Government bought it in 1965, and since 2011 it has been owned by the National Trust.',
-    sources: [
-      thrEntry(12100, 'Runnymede'),
     ],
   },
 ]

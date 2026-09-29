@@ -145,12 +145,6 @@ export default {
         '1818 年、川を守るためこの岬に Mulgrave 砲台が築かれ、1841〜42 年に Prince of Wales 砲台として再建されました。ここの信号所は、ホバートに近づく船の知らせを Mount Nelson から中継していました。当時の土塁や弾薬庫、信号所の小屋は、今は静かな水辺の公園の中にあります。',
       gallery: [{ caption: 'Princes Park', description: '公園から見渡す Derwent 川。' }],
     },
-    13: {
-      categoryLabel: '軍事遺産',
-      description:
-        '対岸の Bellerive にあるこの砲台は、Derwent 川を守るため 1878 年に着工し、1885 年に完成しました。第一次世界大戦中も兵が配置され、1920 年代まで使われました。石造りの塹壕や壁は、今ではホバートを望む地域の公園の一部です。',
-      gallery: [{ caption: '砲座', description: 'Derwent 川越しにホバートを望む砲台の大砲。' }],
-    },
     14: {
       categoryLabel: '植民地時代の遺産',
       description:
@@ -174,18 +168,6 @@ export default {
       description:
         'タスマニア公共図書館は 1907 年にここで開館しました。慈善家 Andrew Carnegie の資金で建てられた、タスマニアで唯一の図書館建築です。砂岩の基礎に建つ 2 階建ての赤れんがの建物には、大胆なエドワード朝バロック様式の装飾が見られ、1999 年にタスマニア海事博物館が移ってきました。',
       gallery: [{ caption: 'Carnegie ビル', description: '海事博物館となった赤れんがの図書館建築。' }],
-    },
-    18: {
-      categoryLabel: '軍事遺産',
-      description:
-        'この砲台は 1871 年に着工し、中断を経て 1885 年に完成して、ホバートへの川の入り口を守りました。第一次世界大戦中は兵士がここで野営し、第二次世界大戦まで軍の訓練キャンプとして使われました。1964 年に公園として開放され、今も石造りの通路を探検できます。',
-      gallery: [{ caption: '砲台の通路', description: '砲台の土塁を抜ける石造りの通路。' }],
-    },
-    19: {
-      categoryLabel: '植民地時代の暮らし',
-      description:
-        'このリージェンシー様式の海辺の邸宅は、1836 年に土地を買った Robert Pitcairn のために建てられました。1850 年から Francis Nixon 主教が住み、1863 年に Charles Bayley 船長が自分の船の名から Runnymede と改名しました。1965 年に州政府が買い取り、2011 年からはナショナル・トラストが所有しています。',
-      gallery: [{ caption: 'Runnymede 邸', description: '邸宅のベランダとフランス窓。' }],
     },
   },
   narration: {

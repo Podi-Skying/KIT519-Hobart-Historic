@@ -145,12 +145,6 @@ export default {
         'Mulgrave 砲台於 1818 年建在這處岬角上守衛河道，1841 至 42 年重建並改名為威爾斯親王砲台。這裡的信號站負責轉傳 Mount Nelson 傳來、有船隻駛近荷巴特的消息。昔日的土壘、彈藥庫和信號站小屋，如今都座落在一座寧靜的濱水公園裡。',
       gallery: [{ caption: 'Princes Park', description: '從公園眺望 Derwent 河。' }],
     },
-    13: {
-      categoryLabel: '軍事遺產',
-      description:
-        '位於對岸 Bellerive 的這座砲台於 1878 年動工、1885 年完工，用來防衛 Derwent 河。第一次世界大戰期間仍有駐軍，一直使用到 1920 年代。如今它的石砌壕溝與牆垣成了社區公園的一部分，可遠眺荷巴特。',
-      gallery: [{ caption: '砲位', description: '砲台的一門大砲，隔著 Derwent 河望向荷巴特。' }],
-    },
     14: {
       categoryLabel: '殖民遺產',
       description:
@@ -174,18 +168,6 @@ export default {
       description:
         '塔斯馬尼亞公共圖書館於 1907 年在此開館，這是塔斯馬尼亞唯一由慈善家 Andrew Carnegie 出資興建的圖書館建築。這棟兩層樓紅磚建築立在砂岩地基上，展現大膽的愛德華巴洛克細節。塔斯馬尼亞海事博物館在 1999 年遷入。',
       gallery: [{ caption: 'Carnegie 大樓', description: '這棟紅磚圖書館建築如今是海事博物館。' }],
-    },
-    18: {
-      categoryLabel: '軍事遺產',
-      description:
-        '這座砲台於 1871 年動工，中途停工後在 1885 年完工，用來守衛通往荷巴特的河道。第一次世界大戰期間有部隊在此紮營，並作為軍事訓練營一直使用到第二次世界大戰。它在 1964 年成為公園，至今仍能探索石砌通道。',
-      gallery: [{ caption: '砲台內的通道', description: '穿過砲台土壘的一條石砌通道。' }],
-    },
-    19: {
-      categoryLabel: '殖民生活',
-      description:
-        '這棟攝政風格的濱海別墅是為 Robert Pitcairn 建造，他在 1836 年買下這塊地。Francis Nixon 主教從 1850 年起住在這裡，1863 年捕鯨船長 Charles Bayley 以自己的一艘船為名，將它改名為 Runnymede。州政府在 1965 年買下它，自 2011 年起由國民信託擁有。',
-      gallery: [{ caption: 'Runnymede 宅邸', description: '宅邸的遊廊與落地窗。' }],
     },
   },
   narration: {

@@ -117,7 +117,7 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 
 ### 景點照片與授權
 
-五個導覽景點（Cascades、St George’s、Salamanca、Penitentiary、Narryna）各至少 10 張照片；其餘 14 個由塔斯馬尼亞遺產登錄冊（THR）核對過的景點各有 1 張開放授權照片（`singlePhoto`），語音導覽由描述逐句朗讀。新增的照片來自 Wikimedia Commons 與 Flickr 的開放授權作品（CC0、公有領域、CC BY／BY-SA／BY-ND／BY-NC 等），直接連結原站、不另存；相簿每張照片下方都會顯示作者與授權並連回來源頁（授權要求的署名）。資料在 `src/data/sites.js`（`openPhoto` + `credit`）。室內與特寫照片標記 `detail`，不放進 AR「穿越時光」播放。
+五個導覽景點（Cascades、St George’s、Salamanca、Penitentiary、Narryna）各至少 10 張照片；其餘 11 個由塔斯馬尼亞遺產登錄冊（THR）核對過的景點（範圍：Hobart、North Hobart、South Hobart，含 Battery Point 與 Queens Domain）各有 1 張開放授權照片（`singlePhoto`），語音導覽由描述逐句朗讀。新增的照片來自 Wikimedia Commons 與 Flickr 的開放授權作品（CC0、公有領域、CC BY／BY-SA／BY-ND／BY-NC 等），直接連結原站、不另存；相簿每張照片下方都會顯示作者與授權並連回來源頁（授權要求的署名）。資料在 `src/data/sites.js`（`openPhoto` + `credit`）。室內與特寫照片標記 `detail`，不放進 AR「穿越時光」播放。
 
 ## 2. 技術架構
 

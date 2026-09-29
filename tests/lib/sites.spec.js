@@ -19,7 +19,7 @@ describe('filterSites', () => {
   it('matches name, area and category label case-insensitively', () => {
     expect(filterSites(SITES, { query: 'SALA' }).map((s) => s.id)).toEqual([3])
     expect(filterSites(SITES, { query: 'battery point' }).map((s) => s.id)).toEqual([2, 5, 6, 12])
-    expect(filterSites(SITES, { query: 'colonial living' }).map((s) => s.id)).toEqual([5, 19])
+    expect(filterSites(SITES, { query: 'colonial living' }).map((s) => s.id)).toEqual([5])
   })
 
   it('combines category and query', () => {

@@ -145,12 +145,6 @@ export default {
         '1818년 강을 지키기 위해 이 곶에 Mulgrave 포대가 세워졌고, 1841~42년에 Prince of Wales 포대로 다시 지어졌습니다. 이곳의 신호소는 호바트로 다가오는 배 소식을 Mount Nelson에서 받아 전했습니다. 옛 토루와 탄약고, 신호소 오두막은 이제 조용한 물가 공원 안에 남아 있습니다.',
       gallery: [{ caption: 'Princes Park', description: '공원에서 바라본 Derwent 강.' }],
     },
-    13: {
-      categoryLabel: '군사 유산',
-      description:
-        '강 건너 Bellerive에 있는 이 포대는 Derwent 강을 지키기 위해 1878년에 공사를 시작해 1885년에 완공되었습니다. 제1차 세계대전 동안에도 병력이 배치되었고 1920년대까지 쓰였습니다. 돌로 쌓은 참호와 벽은 이제 호바트를 바라보는 지역 공원의 일부입니다.',
-      gallery: [{ caption: '포좌', description: 'Derwent 강 너머 호바트를 향한 포대의 대포.' }],
-    },
     14: {
       categoryLabel: '식민지 유산',
       description:
@@ -174,18 +168,6 @@ export default {
       description:
         '태즈메이니아 공공도서관이 1907년 이곳에서 문을 열었으며, 자선가 Andrew Carnegie의 기금으로 지어진 태즈메이니아 유일의 도서관 건물입니다. 사암 기초 위의 2층 붉은 벽돌 건물에는 대담한 에드워드 시대 바로크 장식이 돋보입니다. 1999년에 태즈메이니아 해양 박물관이 이곳으로 옮겨 왔습니다.',
       gallery: [{ caption: 'Carnegie 빌딩', description: '지금은 해양 박물관이 된 붉은 벽돌 도서관 건물.' }],
-    },
-    18: {
-      categoryLabel: '군사 유산',
-      description:
-        '이 포대는 1871년에 공사를 시작해 중단을 거쳐 1885년에 완공되었고, 호바트로 드는 강 입구를 지켰습니다. 제1차 세계대전 동안 병사들이 이곳에서 야영했고, 제2차 세계대전까지 군사 훈련소로 쓰였습니다. 1964년에 공원으로 개방되어 지금도 돌로 된 통로를 둘러볼 수 있습니다.',
-      gallery: [{ caption: '포대 안의 통로', description: '포대의 토루를 가로지르는 돌 통로.' }],
-    },
-    19: {
-      categoryLabel: '식민지 생활',
-      description:
-        '이 리젠시 양식의 해변 저택은 1836년에 땅을 산 Robert Pitcairn을 위해 지어졌습니다. 1850년부터 Francis Nixon 주교가 살았고, 1863년 Charles Bayley 선장이 자신의 배 이름을 따 Runnymede로 바꾸었습니다. 1965년 주 정부가 사들였고, 2011년부터는 내셔널 트러스트가 소유하고 있습니다.',
-      gallery: [{ caption: 'Runnymede 저택', description: '저택의 베란다와 프렌치 도어.' }],
     },
   },
   narration: {

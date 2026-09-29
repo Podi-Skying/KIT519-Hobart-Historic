@@ -145,12 +145,6 @@ export default {
         'Pháo đài Mulgrave được xây trên mũi đất này năm 1818 để canh giữ dòng sông, và được xây lại năm 1841–42 với tên Prince of Wales Battery. Trạm tín hiệu tại đây chuyển tiếp tin tức từ Mount Nelson về những con tàu đang đến gần Hobart. Ụ đất, kho đạn và căn nhà tín hiệu xưa nay nằm trong một công viên yên tĩnh bên bờ nước.',
       gallery: [{ caption: 'Princes Park', description: 'Nhìn ra sông Derwent từ công viên.' }],
     },
-    13: {
-      categoryLabel: 'Di sản quân sự',
-      description:
-        'Nằm bên kia sông ở Bellerive, pháo đài này khởi công năm 1878 và hoàn thành năm 1885 để bảo vệ sông Derwent. Nơi đây có quân đồn trú trong Thế chiến thứ nhất và được dùng đến thập niên 1920. Các hào và tường đá nay là một phần của công viên cộng đồng nhìn về Hobart.',
-      gallery: [{ caption: 'Ụ pháo', description: 'Một khẩu pháo của pháo đài hướng qua sông Derwent về Hobart.' }],
-    },
     14: {
       categoryLabel: 'Di sản thuộc địa',
       description:
@@ -174,18 +168,6 @@ export default {
       description:
         'Thư viện Công cộng Tasmania khai trương tại đây năm 1907, là tòa thư viện duy nhất ở Tasmania do nhà hảo tâm Andrew Carnegie tài trợ. Tòa nhà gạch đỏ hai tầng trên nền sa thạch mang những chi tiết Baroque thời Edward đầy ấn tượng. Bảo tàng Hàng hải Tasmania chuyển về đây năm 1999.',
       gallery: [{ caption: 'Tòa nhà Carnegie', description: 'Tòa thư viện gạch đỏ, nay là Bảo tàng Hàng hải.' }],
-    },
-    18: {
-      categoryLabel: 'Di sản quân sự',
-      description:
-        'Pháo đài này khởi công năm 1871 và sau một thời gian gián đoạn đã hoàn thành năm 1885 để canh giữ lối vào Hobart theo đường sông. Binh lính đóng trại tại đây trong Thế chiến thứ nhất, và nơi này làm trại huấn luyện quân sự đến Thế chiến thứ hai. Pháo đài mở cửa thành công viên năm 1964, vẫn còn những lối đi bằng đá để khám phá.',
-      gallery: [{ caption: 'Lối đi bên trong', description: 'Một lối đi bằng đá xuyên qua ụ đất của pháo đài.' }],
-    },
-    19: {
-      categoryLabel: 'Đời sống thuộc địa',
-      description:
-        'Ngôi biệt thự ven biển phong cách Regency này được xây cho Robert Pitcairn, người mua khu đất năm 1836. Giám mục Francis Nixon sống ở đây từ năm 1850, và năm 1863 thuyền trưởng Charles Bayley đổi tên nó thành Runnymede theo tên một con tàu của ông. Chính quyền bang mua lại năm 1965, và từ năm 2011 ngôi nhà thuộc sở hữu của National Trust.',
-      gallery: [{ caption: 'Nhà Runnymede', description: 'Hiên và cửa kiểu Pháp của ngôi nhà.' }],
     },
   },
   narration: {
