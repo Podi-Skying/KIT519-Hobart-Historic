@@ -67,18 +67,21 @@ function startRoute() {
       </ul>
 
       <p class="t-body sheet__description">{{ site.description }}</p>
-      <!-- Provenance: the official register entry this site comes from -->
-      <a
-        v-if="site.thr"
-        class="register pressable-dim"
-        :href="`https://onlineregister.heritage.tas.gov.au/Place/${site.thr}`"
-        target="_blank"
-        rel="noopener"
-      >
-        <AppIcon name="check" :size="16" />
-        <span>{{ t('site.heritageRegister', { id: site.thr }) }}</span>
-        <AppIcon name="external" :size="14" />
-      </a>
+      <!-- Provenance: where every fact above comes from (official Tasmanian sources first) -->
+      <section v-if="site.sources?.length" class="sources" :aria-labelledby="`sources-${site.id}`">
+        <h2 :id="`sources-${site.id}`" class="sources__title">{{ t('site.sources') }}</h2>
+        <ul class="sources__list">
+          <li v-for="source in site.sources" :key="source.url">
+            <a class="source pressable-dim" :href="source.url" target="_blank" rel="noopener">
+              <span class="source__text">
+                <span class="source__name">{{ source.title }}</span>
+                <span class="source__publisher">{{ source.thr ? t('site.sourceThr', { id: source.thr }) : source.publisher }}</span>
+              </span>
+              <AppIcon name="external" :size="14" class="source__icon" />
+            </a>
+          </li>
+        </ul>
+      </section>
 
       <BaseButton block icon="navigate" data-req="FR8" @click="startRoute">{{ t('site.startRoute') }}</BaseButton>
       <div class="sheet__actions">
@@ -145,22 +148,54 @@ function startRoute() {
 .sheet__description {
   margin-bottom: var(--s-6);
 }
-.sheet__description:has(+ .register) {
-  margin-bottom: var(--s-2);
-}
-/* A quiet source line under the story: full-height tap target, underlined like other outbound links */
-.register {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  min-height: var(--hit);
+.sheet__description:has(+ .sources) {
   margin-bottom: var(--s-4);
-  color: var(--ink-500);
-  font: var(--t-body-sm);
 }
-.register span {
+/* Sources read as a footnote to the story: small, secondary ink, a hairline above,
+   each row a full 44px tap target that opens the source in a new tab. */
+.sources {
+  margin-bottom: var(--s-5);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--sand);
+}
+.sources__title {
+  font: var(--t-label-sm);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+.sources__list {
+  margin: var(--s-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.source {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: var(--hit);
+  padding: var(--s-1) 0;
+  color: var(--ink-700);
+}
+.source__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.source__name {
+  font: var(--t-body-sm);
   text-decoration: underline;
+  text-decoration-color: var(--sand-dark);
   text-underline-offset: 2px;
+}
+.source__publisher {
+  font: var(--t-meta);
+  color: var(--ink-500);
+}
+.source__icon {
+  flex-shrink: 0;
+  color: var(--ink-500);
 }
 .sheet__actions {
   display: grid;

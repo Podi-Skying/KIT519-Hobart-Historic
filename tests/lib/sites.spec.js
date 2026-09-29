@@ -143,6 +143,18 @@ describe('site catalogue', () => {
     }
   })
 
+  it('every description lists its sources, official register entry first when the site has one', () => {
+    for (const site of SITES) {
+      expect(site.sources?.length, site.name).toBeGreaterThan(0)
+      for (const source of site.sources) {
+        expect(source.url).toMatch(/^https:\/\//)
+        expect(source.title).toBeTruthy()
+        expect(source.thr || source.publisher).toBeTruthy()
+      }
+      if (site.thr) expect(site.sources[0]).toMatchObject({ thr: site.thr, url: `https://onlineregister.heritage.tas.gov.au/Place/${site.thr}` })
+    }
+  })
+
   it('a site with one photo uses it for the hero and both AR views', () => {
     for (const site of SITES.filter((s) => s.gallery.length === 1)) {
       expect(site.arImage).toBe(site.image)

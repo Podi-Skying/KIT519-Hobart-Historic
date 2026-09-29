@@ -78,7 +78,8 @@ export default {
   },
   site: {
     keyFacts: 'Thông tin chính',
-    heritageRegister: 'Danh mục Di sản Tasmania · THR {id}',
+    sources: 'Nguồn tham khảo',
+    sourceThr: 'Danh mục Di sản Tasmania · THR {id}',
     startRoute: 'Bắt đầu lộ trình đi bộ',
     audioTour: 'Thuyết minh',
     viewInAr: 'Xem bằng AR',

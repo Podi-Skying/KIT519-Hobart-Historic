@@ -78,7 +78,8 @@ export default {
   },
   site: {
     keyFacts: '重點資訊',
-    heritageRegister: '塔斯馬尼亞遺產登錄冊 · THR {id}',
+    sources: '資料來源',
+    sourceThr: '塔斯馬尼亞遺產登錄冊 · THR {id}',
     startRoute: '開始步行導航',
     audioTour: '語音導覽',
     viewInAr: '用 AR 查看',

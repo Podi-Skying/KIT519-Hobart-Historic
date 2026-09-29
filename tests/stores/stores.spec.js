@@ -139,7 +139,7 @@ describe('player store', () => {
     expect(zh.title).toBe("Kelly's Steps")
     expect(zh.transcript).toHaveLength(3)
     expect(zh.transcript.join('')).toBe(localizeSite(getSiteById(6), 'zh-Hant').description)
-    expect(localizeNarration(6, 'en').transcript[0]).toMatch(/^Whaler and explorer James Kelly/)
+    expect(localizeNarration(6, 'en').transcript[0]).toMatch(/^Captain James Kelly/)
     expect(localizeNarration(999, 'en')).toBeNull()
   })
 

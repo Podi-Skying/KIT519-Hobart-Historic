@@ -8,6 +8,7 @@
  * @property {string} caption
  * @property {string} year
  * @property {string} description
+ * @property {{title:string, url:string, thr?:number, publisher?:string}[]} sources  Official sources for the description
  *
  * @typedef {Object} HeritageSite
  * @property {number} id
@@ -73,6 +74,13 @@ const singlePhoto = (image, caption, year, description, photoCredit) => ({
   gallery: [openPhoto(image, caption, year, description, photoCredit)],
 })
 /**
+ * Where a site's facts come from, listed under its description (SiteDetailView). Prefer official
+ * Tasmanian sources: the Heritage Register entry first (its datasheet holds the history), then
+ * the site's own custodian. Every fact in a description must be traceable to one of these.
+ */
+const thrEntry = (id, title) => ({ thr: id, title, url: `https://onlineregister.heritage.tas.gov.au/Place/${id}` })
+const webSource = (publisher, title, url) => ({ publisher, title, url })
+/**
  * A ~330px version for thumbnails and photo rails (both hosts serve resized copies by URL):
  * Commons `…/1280px-x.jpg` or an original → `…/thumb/…/330px-x.jpg` (Commons only serves standard widths); Flickr `_b` (1024) → `_n` (320).
  */
@@ -116,6 +124,10 @@ const CATALOGUE = [
     arApproachImage: landmarkImage('cascade-gallery-1.webp'),
     description:
       "One of Australia's most significant convict heritage sites. This sandstone complex held female convicts and their children in the colonial era, and its preserved yards tell stories of resilience, labour and survival.",
+    sources: [
+      thrEntry(10851, 'Cascades Female Factory'),
+      webSource('Cascades Female Factory Historic Site', 'Cascades Female Factory', 'https://www.femalefactory.org.au/'),
+    ],
     gallery: [
       photo('cascade-gallery-1.webp', 'World Heritage entrance', 'Present day', 'The entrance to the historic precinct.'),
       photo('cascade-gallery-2.webp', 'Factory yard panorama', 'Present day', 'Looking across the surviving sandstone yards.'),
@@ -204,7 +216,11 @@ const CATALOGUE = [
     arImage: landmarkImage('st-georges-main.webp'),
     arApproachImage: landmarkImage('st-georges-gallery-2.webp'),
     description:
-      'A fine example of Georgian church architecture. Its sandstone façade and tower have overlooked Battery Point for almost two centuries, and it is still an active place of worship.',
+      "Designed by John Lee Archer, this sandstone church was built in 1836–38 in the Old Colonial Grecian style, and James Blackburn's tower was added in 1847. It has overlooked Battery Point for almost two centuries, and it is still an active place of worship.",
+    sources: [
+      thrEntry(1688, "St George's Church and Schoolhouse"),
+      webSource("St George's Battery Point", "St George's Anglican Church", 'https://stgeorgesbatterypoint.org/'),
+    ],
     gallery: [
       photo('st-georges-gallery-1.webp', "St George's Church", '2013', 'The tower and sandstone façade.', credit('Annette Teng', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Hobart_Convict_Era_Church_-_panoramio.jpg')),
       photo('st-georges-gallery-2.webp', 'From Battery Point', '2022', 'The church within the Battery Point streetscape.', credit('Paris Buttfield-Addison', 'CC BY 2.0', "https://commons.wikimedia.org/wiki/File:DSC00110_St_George's_2022.jpg")),
@@ -281,6 +297,11 @@ const CATALOGUE = [
     arApproachImage: landmarkImage('salamanca-gallery-1.webp'),
     description:
       'Rows of sandstone warehouses that once stored whaling and trading goods. Today the precinct hosts markets, galleries and restaurants while keeping its colonial character.',
+    sources: [
+      thrEntry(12029, 'Former warehouses, 31–35 Salamanca Place'),
+      thrEntry(1944, 'Salamanca Arts Centre'),
+      webSource('City of Hobart', 'Salamanca Market', 'https://www.salamancamarket.com.au/Home'),
+    ],
     gallery: [
       photo('salamanca-gallery-1.webp', 'Salamanca streetscape', '2008', 'The row of convict-built warehouses.', credit('Adam Selwood', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:SalamancaPlace2008.jpg')),
       photo('salamanca-gallery-2.webp', 'Warehouse corner', '2007', 'Sandstone warehouses on a quiet weekday.', credit('Synyan', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Salamanca_market_in_Hobart.JPG')),
@@ -362,7 +383,11 @@ const CATALOGUE = [
     arImage: landmarkImage('penitentiary-main.webp'),
     arApproachImage: landmarkImage('penitentiary-gallery-1.webp'),
     description:
-      "A convict-built chapel (1831–34, designed by John Lee Archer) with cells beneath its floor, linked by tunnels to the criminal courts added later. One of Hobart's most atmospheric heritage experiences.",
+      "A chapel built in 1831–34 to John Lee Archer's design, with 36 solitary cells beneath its raked floor. In 1859–60 part of the chapel became the Supreme Criminal Courts, which sat here until 1983. Today the National Trust leads tours through the chapel, courts and cells.",
+    sources: [
+      thrEntry(12092, 'Penitentiary Chapel and Criminal Courts Complex'),
+      webSource('National Trust Tasmania', 'Unshackled: Hobart Penitentiary', 'https://www.nationaltrust.org.au/places/penitentiary/'),
+    ],
     gallery: [
       photo('penitentiary-gallery-1.webp', 'Chapel exterior', '2017', 'The surviving chapel complex.'),
       photo('penitentiary-gallery-2.webp', 'Old Trinity and Penitentiary', 'c.1900', 'An archival view of the precinct.', credit('Tasmanian Archive and Heritage Office', 'No known copyright restrictions', 'https://commons.wikimedia.org/wiki/File:Hobart,_Old_Trinity_and_Penitentiary_from_the_Domain_(c1900)_(11229289114).jpg')),
@@ -447,6 +472,10 @@ const CATALOGUE = [
     arApproachImage: landmarkImage('narryna-gallery-3.webp'),
     description:
       "A Greek Revival merchant's house built in 1835–40 for Captain Andrew Haig. In 1955 it became Australia's first folk museum, and its rooms give an intimate picture of family life in early Van Diemen's Land.",
+    sources: [
+      thrEntry(1771, 'Narryna Heritage Museum'),
+      webSource('Narryna', 'About Narryna', 'https://www.narryna.com.au/about'),
+    ],
     gallery: [
       photo('narryna-gallery-1.webp', "Narryna merchant's house", 'Present day', 'The Greek Revival façade and fountain.'),
       photo('narryna-gallery-2.webp', 'Narryna courtyard', '2015', 'The working courtyard.'),
@@ -515,9 +544,9 @@ const CATALOGUE = [
     category: 'colonial',
     categoryLabel: 'Colonial Streetscape',
     area: 'Battery Point',
-    builtYear: '1839',
+    builtYear: '1830s', // steps advertised by 1834; pillar dated January 1840 (THR 11993)
     coordinates: { lat: -42.88717, lng: 147.33403 }, // foot of the steps (OpenStreetMap); THR 11993
-    accessible: false, // a steep flight of stone steps
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 98,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0e/Kelly%27s_Steps.jpg/1280px-Kelly%27s_Steps.jpg',
@@ -527,7 +556,10 @@ const CATALOGUE = [
       credit('Travis', 'CC BY 2.0', 'https://commons.wikimedia.org/wiki/File:Kelly%27s_Steps.jpg'),
     ),
     description:
-      'Whaler and explorer James Kelly cut these sandstone steps into the cliff in 1839 to link Battery Point with the wharves below. The warehouses of Salamanca Place were built from stone quarried out of the same cliff. A carved pillar at the top still carries the street name and the date January 1840.',
+      'Captain James Kelly, whaler and harbour master, laid out these steps down the rocky escarpment so Battery Point residents could reach the waterfront. A flight of steps is advertised here as early as 1834, and the pillar at the top is inscribed with the street name, the date January 1840 and his initials. The steps have been a public walkway to Salamanca Place ever since.',
+    sources: [
+      thrEntry(11993, "Kelly's Steps"),
+    ],
   },
   {
     id: 7,
@@ -539,7 +571,7 @@ const CATALOGUE = [
     area: 'Waterfront',
     builtYear: '1840',
     coordinates: { lat: -42.88551, lng: 147.33042 }, // the building on Salamanca Place (OpenStreetMap); THR 2525
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 118,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Parliament_House_Hobart_Panorama.jpg/1280px-Parliament_House_Hobart_Panorama.jpg',
@@ -549,7 +581,10 @@ const CATALOGUE = [
       credit('Barrylb', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Parliament_House_Hobart_Panorama.jpg'),
     ),
     description:
-      "Convicts built this sandstone building between 1830 and 1840 as the colony's Custom House. The Legislative Council first met here in 1841, and it has been the home of Tasmania's Parliament ever since. The lawns in front were laid out as Parliament Gardens in 1901.",
+      "Designed by colonial architect John Lee Archer, this sandstone building was built between 1830 and 1840 as the Custom House. The Legislative Council moved into its Long Room in 1841, and it has been the seat of Tasmania's Parliament ever since. The gardens in front were landscaped in 1901 for a royal visit.",
+    sources: [
+      thrEntry(2525, 'Parliament House and Gardens'),
+    ],
   },
   {
     id: 8,
@@ -561,7 +596,7 @@ const CATALOGUE = [
     area: 'CBD',
     builtYear: '1874',
     coordinates: { lat: -42.88353, lng: 147.3284 }, // 23 Murray St (OpenStreetMap); THR 2517
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 104,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Hobart_convict_era_Church_-_panoramio.jpg/1280px-Hobart_convict_era_Church_-_panoramio.jpg',
@@ -571,7 +606,11 @@ const CATALOGUE = [
       credit('Annette Teng', 'CC BY 3.0', 'https://commons.wikimedia.org/wiki/File:Hobart_convict_era_Church_-_panoramio.jpg'),
     ),
     description:
-      'Prince Alfred laid the foundation stone in 1868, and the cathedral was consecrated in 1874. English architect George Frederick Bodley designed it in the Gothic Revival style, and building work went on until 1936. It is the seat of the Anglican Bishop of Tasmania.',
+      'Prince Alfred laid the foundation stone in 1868, and the nave was consecrated in 1874. English architect George Frederick Bodley designed the cathedral, and the bell tower completed his plans in 1936. It is the seat of the Anglican Bishop of Tasmania.',
+    sources: [
+      thrEntry(2517, "St David's Cathedral"),
+      webSource("St David's Cathedral", 'History', 'https://saintdavids.org.au/history/'),
+    ],
   },
   {
     id: 9,
@@ -583,7 +622,7 @@ const CATALOGUE = [
     area: 'CBD',
     builtYear: '1834',
     coordinates: { lat: -42.87955, lng: 147.33112 }, // 29 Campbell St (LIST address point); THR 12110
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 92,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/98/Theatre_Royal_Hobart.jpg/1280px-Theatre_Royal_Hobart.jpg',
@@ -593,7 +632,10 @@ const CATALOGUE = [
       credit('Canley', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Theatre_Royal_Hobart.jpg'),
     ),
     description:
-      'Work began in 1834 on what is now the oldest continually operating theatre in Australia. Its Victorian Classical façade dates mostly from 1857, and much of the interior was rebuilt after a fire in 1984. In the 1940s Laurence Olivier led a national appeal to save it.',
+      'Architect John Lee Archer laid the foundation stone in 1834, and the theatre opened in 1837. It is recognised as the oldest remaining working theatre in Australia, behind a façade that dates mostly from 1857. After a fire in 1984 it was restored and reopened in 1986.',
+    sources: [
+      thrEntry(12110, 'Theatre Royal'),
+    ],
   },
   {
     id: 10,
@@ -605,7 +647,7 @@ const CATALOGUE = [
     area: 'Queens Domain',
     builtYear: '1818',
     coordinates: { lat: -42.86349, lng: 147.32959 }, // the gardens on Lower Domain Rd (OpenStreetMap); THR 11999
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 115,
     ...singlePhoto(
       'https://upload.wikimedia.org/wikipedia/commons/a/ae/Hobart_Botanical_Gardens_Entrance.png',
@@ -615,7 +657,10 @@ const CATALOGUE = [
       credit('Barrylb', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Hobart_Botanical_Gardens_Entrance.png'),
     ),
     description:
-      "Established in 1818 on the Queens Domain, these are the second-oldest botanical gardens in Australia. The convict-built Arthur Wall of 1829 still runs along the western edge, and the ornate main gates date from 1878. The gardens are also home to the world's only Subantarctic Plant House.",
+      'Established in 1818 on the Queens Domain, these are the second-oldest botanical gardens in Australia. The convict-built Arthur Wall of 1829 still runs along the western boundary. The ornamental main gates, modelled on those at Kew, date from 1878.',
+    sources: [
+      thrEntry(11999, 'Royal Tasmanian Botanical Gardens'),
+    ],
   },
   {
     id: 11,
@@ -627,7 +672,7 @@ const CATALOGUE = [
     area: 'Queens Domain',
     builtYear: '1925',
     coordinates: { lat: -42.87781, lng: 147.33655 }, // the memorial (OpenStreetMap); THR 7137
-    accessible: false, // reached by sloping paths and grass
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 77,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Hobart_Cenotaph%2C_Tasmania%2C_Australia_-_with_wreaths_for_ANZAC_Day.jpg/1280px-Hobart_Cenotaph%2C_Tasmania%2C_Australia_-_with_wreaths_for_ANZAC_Day.jpg',
@@ -637,7 +682,10 @@ const CATALOGUE = [
       credit('Edoddridge', 'CC BY-SA 3.0', 'https://commons.wikimedia.org/wiki/File:Hobart_Cenotaph,_Tasmania,_Australia_-_with_wreaths_for_ANZAC_Day.jpg'),
     ),
     description:
-      "Tasmania's main war memorial stands on a rise of the Queens Domain, above the site of the old Queen's Battery. The Art Deco obelisk dates from 1925 and first honoured those who died in the First World War. Each Anzac Day, the dawn service gathers here as the Last Post sounds.",
+      "Tasmania's main war memorial was unveiled on the Queens Domain in December 1925, directly on top of the remains of the old Queen's Battery. The granite obelisk was designed to honour Tasmanians who died in the First World War and now remembers later conflicts too. The site has held Hobart's Anzac Day and Remembrance Day services since 1919.",
+    sources: [
+      thrEntry(7137, "Cenotaph, Anzac Parade and Queen's Battery"),
+    ],
   },
   {
     id: 12,
@@ -649,7 +697,7 @@ const CATALOGUE = [
     area: 'Battery Point',
     builtYear: '1818',
     coordinates: { lat: -42.88761, lng: 147.33702 }, // centre of the listed area (THR 1653, Mulgrave Battery and Signal Station)
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 58,
     ...singlePhoto(
       'https://live.staticflickr.com/4012/4333232593_b1589cbe15_b.jpg',
@@ -660,6 +708,9 @@ const CATALOGUE = [
     ),
     description:
       'The Mulgrave Battery was built on this point in 1818 to guard the river, and rebuilt in 1841–42 as the Prince of Wales Battery. The signal station here passed on news of ships approaching Hobart from Mount Nelson. The old earthworks, magazine and signal cottage now sit inside a quiet waterside park.',
+    sources: [
+      thrEntry(1653, 'Mulgrave Battery and Signal Station'),
+    ],
   },
   {
     id: 13,
@@ -671,7 +722,7 @@ const CATALOGUE = [
     area: 'Bellerive',
     builtYear: '1885',
     coordinates: { lat: -42.8819, lng: 147.36718 }, // the battery on Gunning St (OpenStreetMap); THR 972
-    accessible: false, // uneven ground, ditches and steps
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 55,
     ...singlePhoto(
       'https://live.staticflickr.com/7150/6658642811_f627cbe362_b.jpg',
@@ -681,7 +732,11 @@ const CATALOGUE = [
       credit('jeffowenphotos', 'CC BY 2.0', 'https://www.flickr.com/photos/48264126@N00/6658642811'),
     ),
     description:
-      'Across the river at Bellerive, this fort was built between 1878 and 1885, when the colony feared an attack by sea. It was manned during the First World War and stayed in use until the 1920s. Its gun pits, ditch and tunnels are now a public park with wide views back to Hobart.',
+      'Across the river at Bellerive, this battery was begun in 1878 and completed in 1885 to defend the Derwent. It was manned during the First World War and in use until the 1920s. Its stone trenches and walls are now part of a community park looking back to Hobart.',
+    sources: [
+      thrEntry(972, 'Kangaroo Bluff Battery'),
+      thrEntry(1653, 'Mulgrave Battery and Signal Station (Hobart defences history)'),
+    ],
   },
   {
     id: 14,
@@ -693,7 +748,7 @@ const CATALOGUE = [
     area: 'CBD',
     builtYear: '1860s',
     coordinates: { lat: -42.88338, lng: 147.3303 }, // the square (OpenStreetMap); THR 12148, Franklin Square and the site of Old Government House
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 85,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Franklin_Square_Hobart_20171120-002.jpg/1280px-Franklin_Square_Hobart_20171120-002.jpg',
@@ -703,7 +758,10 @@ const CATALOGUE = [
       credit('Gary Houston', 'CC0', 'https://commons.wikimedia.org/wiki/File:Franklin_Square_Hobart_20171120-002.jpg'),
     ),
     description:
-      "This leafy square covers the site of Old Government House, the colony's seat of power from 1804 until it was demolished in 1858. It is named after Sir John Franklin, Lieutenant-Governor and Arctic explorer, whose statue stands at its centre. Today it is the city's meeting place for markets, gatherings and buses.",
+      'Old Government House, the seat of the colonial government, stood here from 1804 until it was demolished in 1858. The site was levelled in 1863 and named after Sir John Franklin, Lieutenant-Governor from 1837 to 1843 and Arctic explorer. His statue was installed at the centre of the square in 1865.',
+    sources: [
+      thrEntry(12148, 'Franklin Square and the site of Old Government House'),
+    ],
   },
   {
     id: 15,
@@ -715,7 +773,7 @@ const CATALOGUE = [
     area: 'Macquarie Point',
     builtYear: '1915',
     coordinates: { lat: -42.88044, lng: 147.33695 }, // centre of the listed area (THR 10995)
-    accessible: false, // inside the Macquarie Point redevelopment
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 29,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Macquarie_Point_Hobart_Goods_Shed.jpg/1280px-Macquarie_Point_Hobart_Goods_Shed.jpg',
@@ -725,7 +783,10 @@ const CATALOGUE = [
       credit('Chuq', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Macquarie_Point_Hobart_Goods_Shed.jpg'),
     ),
     description:
-      "Completed in December 1915, this long timber-framed shed handled a surge of fruit exports through Hobart's railway yards. It was lengthened in the 1940s and saw its last train in 2014. It stands within the Macquarie Point redevelopment, so access can be limited.",
+      "Completed in December 1915, this long timber-framed shed handled fruit exports and goods from all over Tasmania through Hobart's railway yards. It was lengthened by six bays in the late 1940s, and rail goods operations moved to Brighton in 2014. It stands within the Macquarie Point redevelopment, so access can be limited.",
+    sources: [
+      thrEntry(10995, 'Hobart Railway Goods Shed'),
+    ],
   },
   {
     id: 16,
@@ -737,7 +798,7 @@ const CATALOGUE = [
     area: 'CBD',
     builtYear: '1980',
     coordinates: { lat: -42.88623, lng: 147.32989 }, // centre of the listed area on Salamanca Place (THR 10047)
-    accessible: true,
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 36,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Supreme_Court_of_Tasmania_building_in_Hobart.jpg/1280px-Supreme_Court_of_Tasmania_building_in_Hobart.jpg',
@@ -747,7 +808,11 @@ const CATALOGUE = [
       credit('Barrylb', 'Public domain', 'https://commons.wikimedia.org/wiki/File:Supreme_Court_of_Tasmania_building_in_Hobart.jpg'),
     ),
     description:
-      "The Supreme Court of Van Diemen's Land first sat in 1824, making it the oldest Supreme Court in Australia. This modernist complex beside St David's Park was designed by the Department of Public Works, and its final stage opened in 1980. In 2010 it won a national award for enduring architecture.",
+      "The Supreme Court of Van Diemen's Land first sat in 1824, making it the oldest Supreme Court in Australia. This modernist complex beside St David's Park was designed by the Department of Public Works, and its final stage opened in 1980. In 2010 it received the Australian Institute of Architects' 25 Year Award.",
+    sources: [
+      thrEntry(10047, 'Hobart Supreme Court Complex'),
+      webSource('Supreme Court of Tasmania', 'History of the Court', 'https://www.supremecourt.tas.gov.au/the-court/history/'),
+    ],
   },
   {
     id: 17,
@@ -759,7 +824,7 @@ const CATALOGUE = [
     area: 'Waterfront',
     builtYear: '1907',
     coordinates: { lat: -42.88263, lng: 147.33162 }, // 16 Argyle St (OpenStreetMap); THR 12038
-    accessible: false, // step-free access not confirmed
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 51,
     ...singlePhoto(
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Maritime_Museum_of_Tasmania_%282023%29.jpg/1280px-Maritime_Museum_of_Tasmania_%282023%29.jpg',
@@ -769,7 +834,10 @@ const CATALOGUE = [
       credit('Canley', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Maritime_Museum_of_Tasmania_(2023).jpg'),
     ),
     description:
-      "Hobart's first public library opened here in 1907, funded by the Scottish-American philanthropist Andrew Carnegie. The red brick building on sandstone foundations shows bold Edwardian Baroque detail. It is now home to the Maritime Museum of Tasmania.",
+      'The Tasmanian Public Library opened here in 1907, the only library building in Tasmania funded by the philanthropist Andrew Carnegie. The two-storey red brick building on sandstone foundations shows bold Edwardian Baroque detail. The Maritime Museum of Tasmania moved into it in 1999.',
+    sources: [
+      thrEntry(12038, 'Tasmanian Public Library/Carnegie Building'),
+    ],
   },
   {
     id: 18,
@@ -781,7 +849,7 @@ const CATALOGUE = [
     area: 'Sandy Bay',
     builtYear: '1885',
     coordinates: { lat: -42.91502, lng: 147.35839 }, // the battery on Sandy Bay Rd (OpenStreetMap); THR 2626
-    accessible: false, // hilltop earthworks and tunnels
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 47,
     ...singlePhoto(
       'https://live.staticflickr.com/8462/8014793717_85d523ab04_b.jpg',
@@ -791,7 +859,10 @@ const CATALOGUE = [
       credit('Raam Dev', 'CC BY-NC-SA 2.0', 'https://www.flickr.com/photos/89743353@N00/8014793717'),
     ),
     description:
-      'Work on this hilltop fort began in 1871 and was finished in 1885 to guard the river approach to Hobart. It was manned through the First World War and used as a training camp until the Second. Since 1964 it has been a public park, with tunnels to explore and wide views over the Derwent.',
+      'Work on this battery began in 1871 and, after a pause, was completed in 1885 to guard the river approaches to Hobart. Troops camped here during the First World War, and it served as a military training camp until the Second. It opened as a public park in 1964, with stone passageways still to explore.',
+    sources: [
+      thrEntry(2626, 'Alexandra Battery'),
+    ],
   },
   {
     id: 19,
@@ -801,9 +872,9 @@ const CATALOGUE = [
     category: 'colonial',
     categoryLabel: 'Colonial Living',
     area: 'New Town',
-    builtYear: '1836',
+    builtYear: 'c.1836',
     coordinates: { lat: -42.85277, lng: 147.3119 }, // 61 Bay Rd (OpenStreetMap); THR 12100
-    accessible: false, // historic house with steps
+    accessible: false, // step-free access not yet verified from an official source
     baseLikes: 64,
     ...singlePhoto(
       'https://live.staticflickr.com/3773/11184769603_fa73491e18_b.jpg',
@@ -813,7 +884,10 @@ const CATALOGUE = [
       credit('denisbin', 'CC BY-ND 2.0', 'https://www.flickr.com/photos/82134796@N03/11184769603'),
     ),
     description:
-      "This Regency sandstone house was built around 1836 for the lawyer Robert Pitcairn. Tasmania's first Anglican bishop, Francis Nixon, later lived here, and whaling captain Charles Bayley renamed it Runnymede after one of his ships. The National Trust now cares for the house, its garden, coach house and stables.",
+      'This Regency-style marine villa was built for Robert Pitcairn, who bought the land in 1836. Bishop Francis Nixon lived here from 1850, and in 1863 Captain Charles Bayley renamed it Runnymede after one of his ships. The State Government bought it in 1965, and since 2011 it has been owned by the National Trust.',
+    sources: [
+      thrEntry(12100, 'Runnymede'),
+    ],
   },
 ]
 

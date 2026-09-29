@@ -29,7 +29,7 @@ export default {
     2: {
       categoryLabel: '宗教遺產',
       description:
-        '喬治亞式教堂建築的經典之作。砂岩立面與鐘樓俯瞰 Battery Point 將近兩個世紀，至今仍是活躍的禮拜場所。',
+        '這座砂岩教堂由 John Lee Archer 設計，於 1836–38 年以殖民時期希臘復興風格建成，James Blackburn 設計的鐘樓則在 1847 年完工。它俯瞰 Battery Point 將近兩個世紀，至今仍是活躍的禮拜場所。',
       gallery: [
         { caption: 'St George’s 教堂', description: '鐘樓與砂岩立面。' },
         { caption: '從 Battery Point 眺望', description: '教堂與 Battery Point 的街景。' },
@@ -66,7 +66,7 @@ export default {
     4: {
       categoryLabel: '流放犯遺產',
       description:
-        '由流放犯建造的禮拜堂（1831–1834 年，John Lee Archer 設計），地板下有牢房，並以地下通道連接後來改建的刑事法庭，是荷伯特最具氛圍的歷史景點之一。',
+        '這座禮拜堂依 John Lee Archer 的設計建於 1831–34 年，傾斜的地板下有 36 間單人牢房。1859–60 年，禮拜堂的一部分改建為最高刑事法庭，一直使用到 1983 年。如今由國民信託帶領遊客參觀禮拜堂、法庭與牢房。',
       gallery: [
         { caption: '禮拜堂外觀', description: '倖存至今的禮拜堂建築群。' },
         { caption: 'Old Trinity 與監獄', description: '監獄園區的檔案照片。' },
@@ -106,37 +106,37 @@ export default {
     6: {
       categoryLabel: '殖民街景',
       description:
-        '捕鯨人兼探險家 James Kelly 在 1839 年把這段砂岩階梯鑿進崖壁，連接 Battery Point 與下方的碼頭。Salamanca Place 的倉庫，正是用從同一片崖壁開採的石材建成。階梯頂端的石柱上，至今仍刻著街名與「1840 年 1 月」的日期。',
+        '捕鯨人兼港務長 James Kelly 船長沿著岩石陡坡闢建這段階梯，讓 Battery Point 的居民能走到海濱。早在 1834 年的廣告中就提到這裡的階梯，頂端的石柱上刻有街名、1840 年 1 月的日期和他的姓名縮寫。此後這段階梯一直是通往 Salamanca Place 的公共步道。',
       gallery: [{ caption: "Kelly's Steps", description: '從 Salamanca Place 爬上 Battery Point 的石階。' }],
     },
     7: {
       categoryLabel: '公共建築遺產',
       description:
-        '1830 至 1840 年間，流放犯建造了這棟砂岩建築，作為殖民地的海關大樓。立法會於 1841 年首度在此開會，此後這裡一直是塔斯馬尼亞議會的所在地。前方的草坪在 1901 年闢建為議會花園。',
+        '這棟砂岩建築由殖民地建築師 John Lee Archer 設計，於 1830 至 1840 年間建成，原本是海關大樓。立法會在 1841 年遷入它的長廳，此後這裡一直是塔斯馬尼亞議會的所在地。前方的花園在 1901 年為迎接皇室訪問而整建。',
       gallery: [{ caption: '議會大樓', description: '隔著花園望見的議會大樓砂岩正面。' }],
     },
     8: {
       categoryLabel: '宗教遺產',
       description:
-        'Alfred 王子於 1868 年為大教堂奠基，1874 年祝聖啟用。英國建築師 George Frederick Bodley 以哥德復興式風格設計，工程一直持續到 1936 年。這裡是塔斯馬尼亞聖公會主教的座堂。',
+        'Alfred 王子於 1868 年為大教堂奠基，中殿於 1874 年祝聖啟用。大教堂由英國建築師 George Frederick Bodley 設計，1936 年鐘樓落成，才完成他的全部設計。這裡是塔斯馬尼亞聖公會主教的座堂。',
       gallery: [{ caption: 'St David’s 大教堂', description: '位於 Macquarie Street 與 Murray Street 轉角的哥德復興式大教堂。' }],
     },
     9: {
       categoryLabel: '表演藝術遺產',
       description:
-        '這座劇院於 1834 年動工，如今是澳洲持續營運最久的劇院。維多利亞古典風格的立面大多建於 1857 年，內部則在 1984 年火災後大幅重建。1940 年代，Laurence Olivier 曾發起全國募款來拯救它。',
+        '建築師 John Lee Archer 於 1834 年為劇院奠基，劇院在 1837 年開幕。它被公認為澳洲現存最古老、仍在運作的劇院，立面大多建於 1857 年。1984 年一場大火後，劇院經修復於 1986 年重新開放。',
       gallery: [{ caption: '皇家劇院', description: 'Campbell Street 上的維多利亞古典式立面。' }],
     },
     10: {
       categoryLabel: '殖民時期花園',
       description:
-        '這座植物園於 1818 年在 Queens Domain 創立，是澳洲第二古老的植物園。1829 年由流放犯砌成的 Arthur Wall 至今仍沿著西側邊界延伸，華麗的主入口大門則建於 1878 年。園內還有全世界唯一的亞南極植物溫室。',
+        '這座植物園於 1818 年在 Queens Domain 創立，是澳洲第二古老的植物園。1829 年由流放犯砌成的 Arthur Wall 至今仍沿著西側邊界延伸。仿照英國邱園設計的華麗主入口大門建於 1878 年。',
       gallery: [{ caption: '主入口大門', description: 'Lower Domain Road 上建於 1878 年的入口大門。' }],
     },
     11: {
       categoryLabel: '軍事遺產',
       description:
-        '塔斯馬尼亞最主要的戰爭紀念碑矗立在 Queens Domain 的高地上，下方正是昔日 Queen’s Battery 砲台的所在。這座裝飾藝術風格的方尖碑建於 1925 年，最初是為紀念第一次世界大戰的陣亡者。每年澳紐軍團日，黎明紀念儀式都在熄燈號聲中於此舉行。',
+        '塔斯馬尼亞最主要的戰爭紀念碑於 1925 年 12 月在 Queens Domain 揭幕，正好建在昔日 Queen’s Battery 砲台的遺址上。這座花崗岩方尖碑最初是為紀念第一次世界大戰陣亡的塔斯馬尼亞人，如今也紀念之後的戰事。自 1919 年起，這裡就是荷巴特舉行澳紐軍團日與國殤紀念日儀式的地方。',
       gallery: [{ caption: '澳紐軍團日的花圈', description: '澳紐軍團日擺放在紀念碑基座的花圈。' }],
     },
     12: {
@@ -148,43 +148,43 @@ export default {
     13: {
       categoryLabel: '軍事遺產',
       description:
-        '位於對岸 Bellerive 的這座要塞建於 1878 至 1885 年間，當時殖民地擔心遭到海上攻擊。第一次世界大戰期間仍有駐軍，一直使用到 1920 年代。如今砲位、壕溝和地道都成了公園，可遠眺荷巴特市區。',
+        '位於對岸 Bellerive 的這座砲台於 1878 年動工、1885 年完工，用來防衛 Derwent 河。第一次世界大戰期間仍有駐軍，一直使用到 1920 年代。如今它的石砌壕溝與牆垣成了社區公園的一部分，可遠眺荷巴特。',
       gallery: [{ caption: '砲位', description: '砲台的一門大砲，隔著 Derwent 河望向荷巴特。' }],
     },
     14: {
       categoryLabel: '殖民遺產',
       description:
-        '這座綠意盎然的廣場坐落在舊總督府的遺址上，從 1804 年到 1858 年拆除為止，那裡一直是殖民地的權力中心。廣場以副總督兼北極探險家 John Franklin 爵士命名，他的雕像就立在廣場中央。如今這裡是市民逛市集、聚會和轉乘公車的地方。',
+        '殖民政府所在地舊總督府從 1804 年起矗立於此，直到 1858 年拆除。這塊地在 1863 年整平，並以 1837 至 1843 年擔任副總督的北極探險家 John Franklin 爵士命名。他的雕像在 1865 年安放在廣場中央。',
       gallery: [{ caption: 'Franklin 廣場', description: '廣場中央的 John Franklin 爵士雕像。' }],
     },
     15: {
       categoryLabel: '工業遺產',
       description:
-        '這座長長的木構貨棚於 1915 年 12 月完工，用來處理經荷巴特鐵路調車場激增的水果出口。它在 1940 年代加長，2014 年送走了最後一班列車。貨棚位於 Macquarie Point 重建區內，可能無法進入。',
+        '這座長長的木構貨棚於 1915 年 12 月完工，經荷巴特鐵路調車場處理水果出口與來自塔斯馬尼亞各地的貨物。1940 年代末加建了六個開間，2014 年鐵路貨運業務遷往 Brighton。貨棚位於 Macquarie Point 重建區內，可能無法進入。',
       gallery: [{ caption: '貨運棚', description: 'Macquarie Point 上長長的波浪鐵皮貨棚。' }],
     },
     16: {
       categoryLabel: '公共建築遺產',
       description:
-        'Van Diemen’s Land 最高法院於 1824 年首次開庭，是澳洲歷史最悠久的最高法院。這座緊鄰 St David’s Park 的現代主義建築群由公共工程部設計，最後一期於 1980 年啟用。2010 年，它獲得全國性的經典建築獎。',
+        'Van Diemen’s Land 最高法院於 1824 年首次開庭，是澳洲歷史最悠久的最高法院。這座緊鄰 St David’s Park 的現代主義建築群由公共工程部設計，最後一期於 1980 年啟用。2010 年，它獲得澳洲建築師學會的 25 年經典建築獎。',
       gallery: [{ caption: '塔斯馬尼亞最高法院', description: '現代主義風格的法院建築與廣場。' }],
     },
     17: {
       categoryLabel: '公共建築遺產',
       description:
-        '荷巴特第一座公共圖書館於 1907 年在此開館，由蘇格蘭裔美國慈善家 Andrew Carnegie 出資興建。這棟紅磚建築立在砂岩地基上，展現大膽的愛德華巴洛克細節。如今這裡是塔斯馬尼亞海事博物館。',
+        '塔斯馬尼亞公共圖書館於 1907 年在此開館，這是塔斯馬尼亞唯一由慈善家 Andrew Carnegie 出資興建的圖書館建築。這棟兩層樓紅磚建築立在砂岩地基上，展現大膽的愛德華巴洛克細節。塔斯馬尼亞海事博物館在 1999 年遷入。',
       gallery: [{ caption: 'Carnegie 大樓', description: '這棟紅磚圖書館建築如今是海事博物館。' }],
     },
     18: {
       categoryLabel: '軍事遺產',
       description:
-        '這座山頂要塞於 1871 年動工，1885 年完工，用來守衛通往荷巴特的河道。第一次世界大戰期間持續有人駐守，並作為訓練營一直使用到第二次世界大戰。自 1964 年起它成為公園，可以探索地道，也能遠眺 Derwent 河。',
+        '這座砲台於 1871 年動工，中途停工後在 1885 年完工，用來守衛通往荷巴特的河道。第一次世界大戰期間有部隊在此紮營，並作為軍事訓練營一直使用到第二次世界大戰。它在 1964 年成為公園，至今仍能探索石砌通道。',
       gallery: [{ caption: '砲台內的通道', description: '穿過砲台土壘的一條石砌通道。' }],
     },
     19: {
       categoryLabel: '殖民生活',
       description:
-        '這棟攝政風格的砂岩宅邸約建於 1836 年，屋主是律師 Robert Pitcairn。塔斯馬尼亞第一任聖公會主教 Francis Nixon 後來住在這裡，捕鯨船長 Charles Bayley 則以自己的一艘船為名，將它改名為 Runnymede。如今由國民信託照管這棟宅邸及其花園、馬車房與馬廄。',
+        '這棟攝政風格的濱海別墅是為 Robert Pitcairn 建造，他在 1836 年買下這塊地。Francis Nixon 主教從 1850 年起住在這裡，1863 年捕鯨船長 Charles Bayley 以自己的一艘船為名，將它改名為 Runnymede。州政府在 1965 年買下它，自 2011 年起由國民信託擁有。',
       gallery: [{ caption: 'Runnymede 宅邸', description: '宅邸的遊廊與落地窗。' }],
     },
   },

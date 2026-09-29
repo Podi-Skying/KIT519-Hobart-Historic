@@ -81,7 +81,8 @@ export default {
   },
   site: {
     keyFacts: 'Key facts',
-    heritageRegister: 'Tasmanian Heritage Register · THR {id}',
+    sources: 'Sources',
+    sourceThr: 'Tasmanian Heritage Register · THR {id}',
     startRoute: 'Start walking route',
     audioTour: 'Audio tour',
     viewInAr: 'View in AR',

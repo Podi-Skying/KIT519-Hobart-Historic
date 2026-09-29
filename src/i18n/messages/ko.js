@@ -78,7 +78,8 @@ export default {
   },
   site: {
     keyFacts: '주요 정보',
-    heritageRegister: '태즈메이니아 문화유산 목록 · THR {id}',
+    sources: '출처',
+    sourceThr: '태즈메이니아 문화유산 목록 · THR {id}',
     startRoute: '도보 길 안내 시작',
     audioTour: '오디오 가이드',
     viewInAr: 'AR로 보기',

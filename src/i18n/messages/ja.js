@@ -78,7 +78,8 @@ export default {
   },
   site: {
     keyFacts: '基本情報',
-    heritageRegister: 'タスマニア遺産登録簿 · THR {id}',
+    sources: '出典',
+    sourceThr: 'タスマニア遺産登録簿 · THR {id}',
     startRoute: '徒歩ルートを開始',
     audioTour: '音声ガイド',
     viewInAr: 'AR で見る',
