@@ -15,6 +15,12 @@ describe('pageTransition', () => {
     expect(pageTransition(r('/map', 'map'), r('/sites/3', 'home'))).toBe('fade')
     expect(pageTransition(r('/navigate/3/ar', 'map'), r('/navigate/3/map', 'map'))).toBe('fade')
   })
+  it('keeps the map in place between the Map tab and navigation (one surface)', () => {
+    const map = { path: '/map', matched: [{}], meta: { tab: 'map', mapSurface: true } }
+    const nav = { path: '/navigate/3/map', matched: [{}], meta: { tab: 'map', mapSurface: true } }
+    expect(pageTransition(nav, map)).toBe('none')
+    expect(pageTransition(map, nav)).toBe('none')
+  })
   it('plays nothing on first load or same path', () => {
     expect(pageTransition(r('/home', 'home'), undefined)).toBe('none')
     expect(pageTransition(r('/home', 'home'), { path: '/', matched: [] })).toBe('none')

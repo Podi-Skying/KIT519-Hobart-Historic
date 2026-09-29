@@ -11,6 +11,9 @@ export function pageTransition(to, from) {
   // First navigation (app launch): the splash covers it, nothing to animate.
   if (!from || !from.matched?.length) return 'none'
   if (to.path === from.path) return 'none'
+  // Map ↔ navigation is one surface: Go / End don't change page, the map stays and the
+  // bottom sheet turns into the trip summary (StandardNavigationView animates that itself).
+  if (to.meta?.mapSurface && from.meta?.mapSurface) return 'none'
   const toTab = to.meta?.tab
   const fromTab = from.meta?.tab
   if (!toTab || toTab !== fromTab) return 'fade'

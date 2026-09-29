@@ -35,8 +35,8 @@ const props = defineProps({
   user: { type: Object, default: null },
   /** Route start marker, shown when there is no live walker position. */
   start: { type: Object, default: null },
-  /** 'all' frames every pin (+ walker); 'route' frames the route. */
-  fit: { type: String, default: 'all', validator: (v) => ['all', 'route'].includes(v) },
+  /** 'all' frames every pin (+ walker); 'route' frames the route; 'start' zooms in on the walker (or the route start). */
+  fit: { type: String, default: 'all', validator: (v) => ['all', 'route', 'start'].includes(v) },
   interactive: { type: Boolean, default: true },
   showLabels: { type: Boolean, default: true },
   /** Map tab: hovering (or focusing) a landmark pops up its photo and name above the pin. */
@@ -173,8 +173,14 @@ function syncDensity() {
   container.value.classList.toggle('is-compact', zoom < COMPACT_BELOW_ZOOM)
 }
 
+const START_ZOOM = 17
 function recenter() {
   if (props.follow) return followCamera()
+  if (props.fit === 'start' && (props.user || props.start)) {
+    map.value?.setCenter(props.user ?? props.start)
+    map.value?.setZoom(START_ZOOM)
+    return
+  }
   if (props.fit === 'route' && props.routePath.length) return frame(props.routePath)
   frame([...props.sites.map((s) => s.coordinates), ...(props.user ? [props.user] : [])])
 }
@@ -399,6 +405,11 @@ watch(() => props.amenities, syncAmenities)
 watch(() => props.highlights, syncHighlights)
 watch(() => props.alternatives, syncAlternatives)
 watch(() => [props.user?.lat, props.user?.lng, props.start?.lat, props.start?.lng], syncPeople)
+// Navigation opens on the walker: when the first GPS fix arrives, move there once
+watch(
+  () => Boolean(props.user),
+  (has, had) => has && !had && props.fit === 'start' && recenter(),
+)
 
 /** Run a teardown step without letting a Google-side failure (e.g. after an auth error) block unmounting. */
 const safely = (fn) => {

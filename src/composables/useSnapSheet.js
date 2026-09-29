@@ -12,11 +12,12 @@ const TAP_SLOP = 8
  * mid-animation catches it where it is.
  *
  * Bind `handlers` + `swallowClick` (@click.capture) on the handle, `style` on the panel.
- * @param {{ element: () => HTMLElement | null | undefined, peek: () => number }} options
+ * @param {{ element: () => HTMLElement | null | undefined, peek: () => number, startCollapsed?: boolean }} options
  *   peek: px of the panel that stays visible when collapsed (measured from its top)
+ *   startCollapsed: open in the peek position (navigation starts with the map in view)
  */
-export function useSnapSheet({ element, peek }) {
-  const collapsed = ref(false)
+export function useSnapSheet({ element, peek, startCollapsed = false }) {
+  const collapsed = ref(startCollapsed)
   /** px pulled down from expanded while moving; null when at rest (then CSS keeps it in place). */
   const offset = ref(null)
   const dragging = ref(false)

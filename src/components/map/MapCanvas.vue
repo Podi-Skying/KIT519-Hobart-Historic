@@ -39,7 +39,7 @@ const emit = defineEmits(['select', 'select-route'])
 const { t } = useI18n()
 
 const bounds = computed(() =>
-  props.fit === 'route' && props.routePath.length > 1 ? boundsOf(props.routePath, 0.15) : SITE_BOUNDS,
+  (props.fit === 'route' || props.fit === 'start') && props.routePath.length > 1 ? boundsOf(props.routePath, 0.15) : SITE_BOUNDS,
 )
 const project = (p) => (p ? projectToBox(p, bounds.value, props.box) : null)
 

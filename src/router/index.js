@@ -65,7 +65,7 @@ const routes = [
     path: '/map',
     name: 'map',
     component: () => import('@/views/MapView.vue'),
-    meta: { tab: 'map', status: { tone: 'dark' } },
+    meta: { tab: 'map', mapSurface: true, status: { tone: 'dark' } },
   },
   // Navigating starts straight on the standard map; AR / printable are an option there
   // (NavigationModeSheet). Old links to the former "how would you like to navigate?" page land there too.
@@ -80,7 +80,7 @@ const routes = [
     component: () => import('@/views/StandardNavigationView.vue'),
     props: siteProps,
     beforeEnter: requireSite,
-    meta: { tab: 'map', hideTabBar: true, status: { tone: 'dark' } },
+    meta: { tab: 'map', hideTabBar: true, mapSurface: true, status: { tone: 'dark' } },
   },
   {
     path: '/navigate/:id(\\d+)/ar',

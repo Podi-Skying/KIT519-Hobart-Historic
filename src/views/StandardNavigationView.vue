@@ -3,7 +3,7 @@
  * Turn-by-turn navigation on Google Maps: the real walking route (Routes API),
  * the next manoeuvre from the walker's live position, zoom / recentre controls.
  */
-import { computed, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/base/AppIcon.vue'
@@ -69,11 +69,18 @@ const guidanceText = computed(() => {
 onMounted(() => location.acquire())
 onBeforeUnmount(() => location.release()) // GPS off when no screen needs it
 
-// Pull the panel down to a slim "time · distance" bar so the map is free
+// Go on the Map tab doesn't change page (router meta.mapSurface): the map stays, zooms in on the
+// walker, and the sheet turns into this trip summary — collapsed to the essentials (time ·
+// distance, route, Simulate / End) so it's obvious navigation has started. Pull it up for the
+// route types, stops and modes.
 const summaryEl = ref(null)
 const peekBar = ref(null)
-const peekHeight = () => (peekBar.value ? peekBar.value.offsetTop + peekBar.value.offsetHeight + 10 : 72)
-const snap = useSnapSheet({ element: () => summaryEl.value, peek: peekHeight })
+const peekRow = ref(null)
+const PEEK_GAP = 16
+const peekHeight = () => (peekRow.value ? peekRow.value.offsetTop + peekRow.value.offsetHeight + PEEK_GAP : 132)
+const snap = useSnapSheet({ element: () => summaryEl.value, peek: peekHeight, startCollapsed: true })
+/** 'start': zoomed in on the walker (or where the walk starts); 'route': the whole route. */
+const fitMode = ref('start')
 
 // ---- the map fills everything above the visible part of the panel ----
 const summaryHeight = ref(0)
@@ -96,8 +103,9 @@ function toggleVoice() {
 watch(() => guidance.value.arrived, (now) => now && (arrived.value = true))
 
 function recenter() {
-  if (user.value) map.value?.focusUser()
-  else map.value?.recenter()
+  if (user.value) return map.value?.focusUser()
+  fitMode.value = 'route' // no live position: the locate button shows the whole route
+  nextTick(() => map.value?.recenter())
 }
 const endRoute = () => router.push({ name: 'map' })
 </script>
@@ -118,7 +126,7 @@ const endRoute = () => router.push({ name: 'map' })
         :alternatives="walk.alternatives.value"
         :user="user"
         :start="location.origin"
-        fit="route"
+        :fit="fitMode"
         :padding="{ top: 170, right: 76, bottom: 40, left: 40 }"
         :box="{ x: [12, 84], y: [26, 86] }"
         @select-route="trip.setRouteType"
@@ -165,7 +173,7 @@ const endRoute = () => router.push({ name: 'map' })
     </div>
 
     <section ref="summaryEl" class="summary text-zoom" :style="snap.style.value" :aria-label="t('navigation.summary')">
-      <!-- Handle: drag or tap. Collapsed, only time · distance stays on screen. -->
+      <!-- Handle: drag or tap. Collapsed (the start), time · distance, route and Simulate / End stay on screen. -->
       <div ref="peekBar" class="summary__peek" v-on="snap.handlers" @click.capture="snap.swallowClick">
         <button
           type="button"
@@ -181,7 +189,7 @@ const endRoute = () => router.push({ name: 'map' })
           <span class="summary__distance">· {{ formatMeters(walk.distanceMeters.value) }}</span>
         </p>
       </div>
-      <div class="summary__row">
+      <div ref="peekRow" class="summary__row">
         <p class="t-small muted">{{ routeLine }}</p>
         <div class="summary__buttons">
           <BaseButton variant="quiet" size="sm" data-req="FR15" @click="arrived = true">{{ t('arNav.simulate') }}</BaseButton>
@@ -287,6 +295,35 @@ const endRoute = () => router.push({ name: 'map' })
   color: var(--paper);
   font: var(--t-caption);
   line-height: 1.25rem;
+}
+/* Navigation starts in place: the trip summary rises into its peek position and the
+   instruction card drops in, so it's clear guidance has begun (the map itself stays). */
+.summary {
+  animation: nav-sheet-in var(--dur-page) var(--ease-page) backwards;
+}
+.overlay {
+  animation: nav-card-in var(--dur-page) var(--ease-page) backwards;
+}
+@keyframes nav-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes nav-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-24px * var(--motion)));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .summary {
+    animation-name: nav-fade-in; /* no travel: a cross-fade */
+  }
+}
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+  }
 }
 .summary {
   position: absolute;
