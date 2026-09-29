@@ -201,8 +201,7 @@ const print = () => window.print()
   border-radius: 50%;
   background: var(--ink-900);
   color: var(--paper);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
 }
 .fact__pin.is-destination {
   background: var(--brand-600);

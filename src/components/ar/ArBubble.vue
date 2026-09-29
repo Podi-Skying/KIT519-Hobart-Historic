@@ -104,7 +104,7 @@ function onPointerUp() {
   gap: 0.375rem;
   transform: translate(-50%, -50%);
   touch-action: none;
-  animation: pop 0.35s var(--ease) backwards;
+  animation: pop var(--dur-page) var(--ease) backwards;
 }
 .bubble__circle {
   width: 60px;
@@ -131,7 +131,9 @@ function onPointerUp() {
   font: var(--t-label-sm); /* 12px 600: small text over live imagery needs the extra size */
 }
 .bubble.is-settling {
-  transition: left var(--dur-page) var(--ease), top var(--dur-page) var(--ease);
+  /* springs back to its spot (instantly with Reduce Motion); keeps the press easing */
+  transition: left calc(var(--dur-page) * var(--motion)) var(--ease), top calc(var(--dur-page) * var(--motion)) var(--ease),
+    scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 @keyframes pop {
   from {

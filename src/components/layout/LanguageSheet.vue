@@ -100,7 +100,7 @@ function choose(code, dismiss) {
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: left;
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .option.is-selected {
   border-color: var(--brand-600);
@@ -127,8 +127,7 @@ function choose(code, dismiss) {
   flex-direction: column;
 }
 .option__text b {
-  font: var(--t-h3);
-  font-weight: 600;
+  font: var(--t-row-title);
   color: var(--ink-900);
 }
 .option__text small {

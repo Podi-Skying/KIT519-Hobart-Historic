@@ -69,7 +69,7 @@ function choose(route, dismiss) {
   border-radius: var(--r-md);
   background: var(--paper);
   text-align: left;
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .mode.is-current {
   border-color: var(--brand-600);
@@ -98,8 +98,7 @@ function choose(route, dismiss) {
   gap: 0.125rem;
 }
 .mode__title {
-  font: var(--t-h3);
-  font-weight: 600;
+  font: var(--t-row-title);
   color: var(--ink-900);
 }
 .mode__description {

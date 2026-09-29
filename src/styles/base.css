@@ -146,7 +146,7 @@ a {
    Uses the `scale` property, not `transform`, so it composes with pins/bubbles that already translate. */
 .pressable,
 .pressable-card {
-  transition: scale var(--dur) var(--ease);
+  transition: scale var(--dur) var(--ease), opacity var(--dur) var(--ease); /* opacity: the reduced-motion dim eases back too */
 }
 .pressable-dim {
   transition: opacity var(--dur) var(--ease);

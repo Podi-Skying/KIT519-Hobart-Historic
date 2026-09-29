@@ -68,7 +68,7 @@ defineProps({
   -webkit-mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
   mask-image: radial-gradient(circle closest-side, #000 80%, transparent 100%);
   color: var(--brand-600);
-  font: 700 clamp(11px, calc(var(--tap) * 0.075), 12px) / 1 var(--font-label); /* 11px floor */
+  font: 700 clamp(0.6875rem, calc(var(--tap) * 0.075), 0.75rem) / 1 var(--font-label); /* 11px floor, grows with text size */
   letter-spacing: var(--track-cta);
   text-transform: uppercase;
 }

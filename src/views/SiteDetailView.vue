@@ -160,7 +160,7 @@ function startRoute() {
 }
 .sources__title {
   font: var(--t-label-sm);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-caption);
   text-transform: uppercase;
   color: var(--ink-500);
 }

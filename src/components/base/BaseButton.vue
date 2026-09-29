@@ -41,7 +41,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   font: var(--t-button);
   white-space: nowrap;
   /* `scale` = release of the press (base.css › Press feedback); the press itself is instant */
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .btn--md {
   min-height: 3rem;

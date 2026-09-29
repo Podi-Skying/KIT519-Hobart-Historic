@@ -229,7 +229,7 @@ function syncAlternatives() {
   alternativeLines.forEach((line) => line.setMap(null))
   alternativeLines = []
   if (!map.value) return
-  alternativeLines = props.alternatives.map((alt) => {
+  alternativeLines = props.alternatives.flatMap((alt) => {
     const line = new api.Polyline({
       map: map.value,
       path: alt.path,
@@ -238,10 +238,23 @@ function syncAlternatives() {
       strokeOpacity: 0.4,
       strokeWeight: 4,
       zIndex: 1,
-      clickable: props.interactive,
+      clickable: false,
     })
-    if (props.interactive) line.addListener('click', () => emit('select-route', alt.key))
-    return line
+    if (!props.interactive) return [line]
+    // A 4px line is too thin to tap: an invisible 24px line on the same path takes the tap
+    // (wide enough to hit, narrow enough not to swallow taps meant for the main route).
+    const hit = new api.Polyline({
+      map: map.value,
+      path: alt.path,
+      geodesic: true,
+      strokeColor: tokenColor(alt.color),
+      strokeOpacity: 0.01,
+      strokeWeight: 24,
+      zIndex: 0,
+      clickable: true,
+    })
+    hit.addListener('click', () => emit('select-route', alt.key))
+    return [line, hit]
   })
 }
 function syncHighlights() {
@@ -435,6 +448,7 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 6px; /* the rotated tip hangs 6px below the head's box: the marker anchors the box bottom, so the tip lands on the site */
   cursor: pointer;
 }
 .gm-pin::before {
@@ -481,8 +495,7 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   border-radius: var(--r-xs);
   background: var(--paper);
   color: var(--ink-900);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
   white-space: nowrap;
   box-shadow: var(--e-1);
   opacity: 0;

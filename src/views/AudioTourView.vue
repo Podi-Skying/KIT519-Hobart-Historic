@@ -158,7 +158,7 @@ function seekTo(value) {
   background: var(--cream);
 }
 .wave.is-playing i {
-  animation: wave 0.9s ease-in-out infinite;
+  animation: wave var(--dur-crossfade) var(--ease) infinite;
 }
 .track {
   padding: var(--s-5) var(--gutter) var(--s-6);
@@ -225,7 +225,7 @@ function seekTo(value) {
   margin-top: var(--s-4);
   padding: var(--s-4) var(--s-4) var(--s-4) var(--s-8);
   border: 1.5px solid var(--sand);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg); /* bordered paper card, like .comfort / .paper / .grid-card */
   background: var(--paper);
   font: var(--t-reading);
 }

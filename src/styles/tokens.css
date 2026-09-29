@@ -59,6 +59,11 @@
   --glass: rgba(44, 36, 23, 0.72); /* controls over photos / camera · cream text ≥ 4.5:1 even over a white sky */
   --photo-veil-top: rgba(44, 36, 23, 0.55);
   --photo-veil-bottom: rgba(44, 36, 23, 0.78);
+  /* splash: the title block sits on the brightest part of the photo, so the veil holds ≥ 0.64
+     down to 38% (measured: title ≥ 5.3:1, eyebrow ≥ 6.6:1 over splash-bg.webp) */
+  --splash-veil-top: rgba(44, 36, 23, 0.7);
+  --splash-veil-mid: rgba(44, 36, 23, 0.64);
+  --splash-veil-bottom: rgba(44, 36, 23, 0.45);
 
   /* ---- Weather hero card (charcoal → burgundy → dark amber; cream text ≥ 4.9:1 at every stop) ---- */
   --weather-hero: linear-gradient(160deg, #3b3326 0%, #6b3a3f 55%, #98572f 100%);
@@ -87,6 +92,7 @@
   --t-h1: 700 1.5rem/1.875rem var(--font-heading);
   --t-h2: 700 1.1875rem/1.5625rem var(--font-heading);
   --t-h3: 700 0.9375rem/1.3125rem var(--font-label);
+  --t-row-title: 600 0.9375rem/1.3125rem var(--font-label); /* list rows, sheet options, status pills */
   --t-body: 400 0.9375rem/1.4375rem var(--font-body);
   --t-small: 500 0.8125rem/1.125rem var(--font-body);
   --t-label: 600 0.8125rem/1rem var(--font-label);
@@ -152,6 +158,7 @@
   --dur: 220ms;
   --dur-page: 380ms;
   --dur-slow: 400ms;
+  --dur-loop: 1.2s; /* one beat of a looping hint (AR arrows, bob) */
   --dur-crossfade: 900ms; /* slow decorative cross-fades: condition icons, splash entrance */
   /* 1 = full movement · 0 under prefers-reduced-motion. Multiply every travel distance,
      zoom or tilt by it so motion turns into a plain cross-fade instead of vanishing. */
@@ -202,6 +209,9 @@
   --glass: rgba(28, 22, 14, 0.82);
   --photo-veil-top: rgba(28, 22, 14, 0.7);
   --photo-veil-bottom: rgba(28, 22, 14, 0.88);
+  --splash-veil-top: rgba(28, 22, 14, 0.82);
+  --splash-veil-mid: rgba(28, 22, 14, 0.78);
+  --splash-veil-bottom: rgba(28, 22, 14, 0.6);
   --like-glass: #7d3045; /* solid: no photo showing through behind the count */
   --ar-arrow: #a4c6d6; /* solid: high contrast wins over see-through */
   --ar-arrow-side: #4b778b;
@@ -238,6 +248,9 @@
     --glass: rgba(28, 22, 14, 0.82);
     --photo-veil-top: rgba(28, 22, 14, 0.7);
     --photo-veil-bottom: rgba(28, 22, 14, 0.88);
+    --splash-veil-top: rgba(28, 22, 14, 0.82);
+    --splash-veil-mid: rgba(28, 22, 14, 0.78);
+    --splash-veil-bottom: rgba(28, 22, 14, 0.6);
     --like-glass: #7d3045;
     --ar-arrow: #a4c6d6;
     --ar-arrow-side: #4b778b;

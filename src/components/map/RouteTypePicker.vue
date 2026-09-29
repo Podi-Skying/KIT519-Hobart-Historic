@@ -94,7 +94,7 @@ const stats = computed(() => {
   background: var(--paper);
   color: var(--ink-900);
   font: var(--t-label);
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .route-type small {
   display: block;

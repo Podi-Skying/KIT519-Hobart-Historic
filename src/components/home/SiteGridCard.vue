@@ -90,8 +90,7 @@ const likes = computed(() => favorites.likeCount(props.site))
   border-radius: var(--r-pill);
   background: var(--like-glass);
   color: var(--paper);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
 }
 .grid-card__like::before {
   content: '';

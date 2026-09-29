@@ -271,7 +271,7 @@ useKeydown({ ArrowLeft: () => step(-1), ArrowRight: () => step(1) })
   height: 68px;
   overflow: hidden;
   border-radius: var(--r-md); /* same as the photo rail on the site page */
-  transition: box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: box-shadow var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .thumbs__item.is-active {
   box-shadow: var(--ring-selected); /* same mark as the AR Photos panel */

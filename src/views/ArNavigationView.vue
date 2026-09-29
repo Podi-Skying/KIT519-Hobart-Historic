@@ -360,7 +360,7 @@ function blockKeyMoves(e) {
 }
 .ar-nav__arrows svg {
   filter: drop-shadow(0 0 10px var(--ar-glow));
-  animation: bob 1.2s ease-in-out infinite;
+  animation: bob var(--dur-loop) var(--ease) infinite;
 }
 .ar-nav__arrows svg:nth-child(2) { opacity: 0.8; }
 .ar-nav__arrows svg:nth-child(3) { opacity: 0.6; }
@@ -513,7 +513,7 @@ function blockKeyMoves(e) {
 }
 /* tapped: the arrows surge forward with the view */
 .ar-nav__go.is-going .ar-nav__chev {
-  animation: chev-surge 0.35s var(--ease) both;
+  animation: chev-surge var(--dur-page) var(--ease) both;
 }
 @media (min-width: 601px) and (hover: hover) and (pointer: fine) {
   .ar-nav {

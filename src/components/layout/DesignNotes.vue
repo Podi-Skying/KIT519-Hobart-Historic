@@ -429,7 +429,7 @@ onBeforeUnmount(() => cancelAnimationFrame(raf))
   color: var(--cream);
   font: var(--t-button);
   text-align: left;
-  transition: scale var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+  transition: scale var(--dur) var(--ease), opacity var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 .stage-btn.is-on {
   background: var(--accent-100); /* on: the action colour on dark surfaces (README §5.2) */

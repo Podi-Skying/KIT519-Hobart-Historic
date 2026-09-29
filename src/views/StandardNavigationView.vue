@@ -126,6 +126,8 @@ const endRoute = () => router.push({ name: 'map' })
     </div>
     <MapLoading class="nav-view__loading" :show="walk.pending.value" :label="t('navigation.finding')" />
 
+    <!-- One column: the controls sit under the instruction card however many lines it wraps to -->
+    <div class="overlay">
     <div class="instruction" role="status" aria-live="polite">
       <span class="instruction__icon"><AppIcon :name="maneuverIcon(guidance.maneuver)" :size="24" /></span>
       <div class="instruction__text">
@@ -159,6 +161,7 @@ const endRoute = () => router.push({ name: 'map' })
       <RouterLink :to="{ name: 'navigate-ar', params: { id } }" class="zoom__ar pressable" data-req="FR10" :aria-label="t('navigation.switchAr')">
         <AppIcon name="ar" :size="20" /><span>AR</span>
       </RouterLink>
+    </div>
     </div>
 
     <section ref="summaryEl" class="summary text-zoom" :style="snap.style.value" :aria-label="t('navigation.summary')">
@@ -211,12 +214,21 @@ const endRoute = () => router.push({ name: 'map' })
   inset: 0;
   /* no transition on bottom: the map resizes once, underneath the sliding panel */
 }
-.instruction {
+.overlay {
   position: absolute;
   top: calc(var(--chrome-top) + 2px);
   left: var(--gutter);
   right: var(--gutter);
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  pointer-events: none; /* the map stays draggable between the card and the buttons */
+}
+.overlay > * {
+  pointer-events: auto;
+}
+.instruction {
   display: flex;
   align-items: center;
   gap: var(--s-4);
@@ -247,10 +259,7 @@ const endRoute = () => router.push({ name: 'map' })
   opacity: 0.85;
 }
 .zoom {
-  position: absolute;
-  top: 160px;
-  right: var(--gutter);
-  z-index: 3;
+  align-self: flex-end;
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
@@ -266,8 +275,7 @@ const endRoute = () => router.push({ name: 'map' })
   border-radius: var(--r-md);
   background: var(--ink-900);
   color: var(--cream);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
   box-shadow: var(--e-2);
 }
 .summary__count {
@@ -277,8 +285,7 @@ const endRoute = () => router.push({ name: 'map' })
   border-radius: var(--r-pill);
   background: var(--brand-600);
   color: var(--paper);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
   line-height: 1.25rem;
 }
 .summary {

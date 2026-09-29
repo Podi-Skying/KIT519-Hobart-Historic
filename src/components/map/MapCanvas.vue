@@ -84,7 +84,7 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
         :points="alt.points"
         fill="none"
         :stroke="alt.color"
-        stroke-width="10"
+        stroke-width="24"
         stroke-opacity="0.001"
         vector-effect="non-scaling-stroke"
         @click="interactive && emit('select-route', alt.key)"
@@ -228,6 +228,7 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 6px; /* the rotated tip hangs 6px below the head: anchor the tip, not the box, on the site */
   transform: translate(-50%, -100%);
 }
 .pin::before {
@@ -339,8 +340,7 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   border-radius: var(--r-xs);
   background: var(--paper);
   color: var(--ink-900);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
   white-space: nowrap;
   box-shadow: var(--e-1);
 }

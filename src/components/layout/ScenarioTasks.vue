@@ -222,8 +222,8 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   color: var(--cream);
   font-weight: 600;
 }
-.task__row--locked {
-  opacity: 0.7;
+.task__row--locked .task__badge {
+  opacity: 0.7; /* only the lock fades: the text keeps its 6:1 contrast on the stage card */
 }
 .task__badge {
   flex-shrink: 0;
@@ -258,8 +258,7 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
 }
 .task__title {
   margin: var(--s-2) 0 0;
-  font: var(--t-h3);
-  font-weight: 600;
+  font: var(--t-row-title);
   color: var(--cream);
 }
 .task__text {
@@ -279,7 +278,7 @@ const meta = computed(() => [props.person?.age && `Age ${props.person.age}`, pro
   background: var(--accent-100);
   color: var(--ink-900);
   font: var(--t-button);
-  transition: scale var(--dur) var(--ease);
+  transition: scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 /* ---- all done ---- */
 .tasks__done {

@@ -348,7 +348,8 @@ function toggleOffline() {
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 28px;
+  height: var(--hit); /* 44pt tap target; the negative margins keep the bar's 28px footprint */
+  margin: -4px 0 -12px;
 }
 .panel__grip-btn .panel__grip {
   margin: 0;
@@ -439,8 +440,7 @@ function toggleOffline() {
   color: var(--accent-700);
 }
 .nearest__text b {
-  font: var(--t-h3);
-  font-weight: 600;
+  font: var(--t-row-title);
   color: var(--ink-900);
 }
 .nearest__text small {

@@ -184,7 +184,7 @@ const scrub = {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 38%, rgba(44, 36, 23, 0.8));
+  background: linear-gradient(to bottom, transparent 20%, var(--photo-veil-bottom) 75%) /* ≥ 0.78 under the name */;
 }
 .rank-card__rank {
   position: absolute;
@@ -192,7 +192,7 @@ const scrub = {
   right: 10px;
   z-index: 1;
   padding: 0.1875rem 0.5rem;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-pill); /* a capsule, like every other badge on a photo */
   background: rgba(255, 255, 255, 0.94);
   color: var(--ink-900);
   font: var(--t-label-sm);

@@ -58,7 +58,7 @@ const model = defineModel({ type: String, required: true })
   font: var(--t-label);
   font-weight: 500;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease),
-    scale var(--dur) var(--ease);
+    scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 @media (hover: hover) {
   .chip:hover {

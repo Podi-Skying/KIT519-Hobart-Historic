@@ -135,17 +135,17 @@ function choose(code) {
   object-fit: cover;
   animation: ken-burns 14s ease-out both;
 }
-/* Warm charcoal veil — same family as the Home palette, keeps text ≥ 4.5:1 */
+/* Warm charcoal veil — same family as the Home palette; stops are tokens so High contrast darkens them */
 .splash__veil {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(44, 36, 23, 0.62) 0%,
-    rgba(44, 36, 23, 0.3) 32%,
-    rgba(44, 36, 23, 0) 50%,
-    rgba(44, 36, 23, 0) 68%,
-    rgba(44, 36, 23, 0.45) 100%
+    var(--splash-veil-top) 0%,
+    var(--splash-veil-mid) 38%,
+    transparent 55%,
+    transparent 68%,
+    var(--splash-veil-bottom) 100%
   );
 }
 .splash__location {
@@ -200,12 +200,12 @@ function choose(code) {
 }
 .splash__title-main {
   display: block;
-  font-size: clamp(40px, 6.2cqh, 52px);
+  font-size: clamp(2.5rem, 6.2cqh, 3.25rem); /* rem ends follow the browser text size */
 }
 .splash__title-sub {
   display: block;
   margin-top: 4px;
-  font-size: clamp(31px, 4.8cqh, 40px);
+  font-size: clamp(1.9375rem, 4.8cqh, 2.5rem);
 }
 .splash__rule {
   display: block;
@@ -267,7 +267,7 @@ function choose(code) {
   background: var(--paper);
   color: var(--ink-900);
   text-align: left;
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease), scale var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .lang-card__option.is-current {
   border-color: var(--brand-600);
@@ -291,11 +291,10 @@ function choose(code) {
   color: var(--ink-500);
 }
 
-/* Tap-to-start gives way; the card materializes from the same spot (scale + blur resolve). */
+/* Tap-to-start gives way; the card grows out of the same spot (scale + fade: compositor only). */
 .cta-enter-active,
 .cta-leave-active {
-  transition: opacity var(--dur) var(--ease), transform var(--dur-page) var(--ease-page),
-    filter var(--dur-page) var(--ease-page);
+  transition: opacity var(--dur) var(--ease), transform var(--dur-page) var(--ease-page);
 }
 .cta-leave-active {
   animation: none; /* the entrance `rise` (fill: both) would otherwise pin its opacity */
@@ -303,7 +302,6 @@ function choose(code) {
 .cta-enter-from {
   opacity: 0;
   transform: scale(calc(1 - 0.12 * var(--motion)));
-  filter: blur(calc(10px * var(--motion)));
 }
 .cta-leave-to {
   opacity: 0;

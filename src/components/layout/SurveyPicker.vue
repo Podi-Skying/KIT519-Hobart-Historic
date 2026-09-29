@@ -157,7 +157,7 @@ const close = () => emit('close')
   border: 1px solid var(--stage-line);
   color: var(--cream);
   text-align: left;
-  transition: scale var(--dur) var(--ease), border-color var(--dur-fast) var(--ease);
+  transition: scale var(--dur) var(--ease), opacity var(--dur) var(--ease), border-color var(--dur-fast) var(--ease);
 }
 @media (hover: hover) {
   .scenario:hover {
@@ -171,8 +171,7 @@ const close = () => emit('close')
   flex-direction: column;
 }
 .scenario__text b {
-  font: var(--t-h3);
-  font-weight: 600;
+  font: var(--t-row-title);
 }
 .scenario__text small {
   font: var(--t-meta);
@@ -243,7 +242,7 @@ const close = () => emit('close')
   flex-shrink: 0;
   display: block;
   border-radius: var(--r-md);
-  transition: scale var(--dur) var(--ease), box-shadow var(--dur-fast) var(--ease);
+  transition: scale var(--dur) var(--ease), opacity var(--dur) var(--ease), box-shadow var(--dur-fast) var(--ease);
 }
 @media (hover: hover) {
   .survey__qr-link:hover {

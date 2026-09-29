@@ -648,8 +648,7 @@ function exit() {
   border-radius: var(--r-pill);
   background: var(--brand-50);
   color: var(--brand-600);
-  font: var(--t-micro);
-  font-weight: 700;
+  font: var(--t-caption);
   letter-spacing: var(--track-caption);
   text-transform: uppercase;
   vertical-align: 2px;
