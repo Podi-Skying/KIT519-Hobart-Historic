@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { SITES, smallVersion } from '@/data/sites'
 import { filterSites, nearestSite, rankByLikes, siteTimeline, walkMinutesFor, yearOf } from '@/lib/sites'
 import { getSiteById } from '@/data/sites'
+import { NARRATION } from '@/data/narration'
+import { CATEGORIES, categoryIcon } from '@/data/categories'
+import { ICONS } from '@/assets/icons'
 
 describe('filterSites', () => {
   it('returns every site for the "all" category and an empty query', () => {
@@ -15,8 +18,8 @@ describe('filterSites', () => {
 
   it('matches name, area and category label case-insensitively', () => {
     expect(filterSites(SITES, { query: 'SALA' }).map((s) => s.id)).toEqual([3])
-    expect(filterSites(SITES, { query: 'battery point' }).map((s) => s.id)).toEqual([2, 5])
-    expect(filterSites(SITES, { query: 'colonial living' }).map((s) => s.id)).toEqual([5])
+    expect(filterSites(SITES, { query: 'battery point' }).map((s) => s.id)).toEqual([2, 5, 6, 12])
+    expect(filterSites(SITES, { query: 'colonial living' }).map((s) => s.id)).toEqual([5, 19])
   })
 
   it('combines category and query', () => {
@@ -27,7 +30,8 @@ describe('filterSites', () => {
 describe('rankByLikes', () => {
   it('sorts by likes descending and keeps catalogue order on ties', () => {
     const likes = { 1: 5, 2: 10, 3: 5, 4: 1, 5: 10 }
-    expect(rankByLikes(SITES, (s) => likes[s.id]).map((s) => s.id)).toEqual([2, 5, 1, 3, 4])
+    const tour = SITES.filter((s) => s.id in likes)
+    expect(rankByLikes(tour, (s) => likes[s.id]).map((s) => s.id)).toEqual([2, 5, 1, 3, 4])
   })
 })
 
@@ -87,9 +91,9 @@ describe('siteTimeline', () => {
 })
 
 describe('site photos', () => {
-  it('every site has at least 10 photos, each new one credited to its author and licence', () => {
+  it('tour sites have at least 10 photos, every site at least one, each credited to its author and licence', () => {
     for (const site of SITES) {
-      expect(site.gallery.length).toBeGreaterThanOrEqual(10)
+      expect(site.gallery.length).toBeGreaterThanOrEqual(NARRATION[site.id] ? 10 : 1)
       for (const photo of site.gallery.filter((p) => p.image.startsWith('https://live.staticflickr.com') || p.image.includes('wikimedia.org'))) {
         expect(photo.credit?.author).toBeTruthy()
         expect(photo.credit?.license).toBeTruthy()
@@ -122,3 +126,28 @@ describe('smallVersion', () => {
   })
 })
 
+
+describe('site catalogue', () => {
+  it('ids are unique, and every site added from the heritage register carries its THR id', () => {
+    expect(new Set(SITES.map((s) => s.id)).size).toBe(SITES.length)
+    const thr = SITES.filter((s) => s.thr).map((s) => s.thr)
+    expect(new Set(thr).size).toBe(thr.length)
+    for (const site of SITES.filter((s) => !NARRATION[s.id])) expect(Number.isInteger(site.thr)).toBe(true)
+  })
+
+  it('every site belongs to a filter chip whose pin glyph exists', () => {
+    const keys = new Set(CATEGORIES.map((c) => c.key))
+    for (const site of SITES) {
+      expect(keys.has(site.category), site.name).toBe(true)
+      expect(ICONS[categoryIcon(site.category)], site.category).toBeTruthy()
+    }
+  })
+
+  it('a site with one photo uses it for the hero and both AR views', () => {
+    for (const site of SITES.filter((s) => s.gallery.length === 1)) {
+      expect(site.arImage).toBe(site.image)
+      expect(site.arApproachImage).toBe(site.image)
+      expect(site.gallery[0].credit?.url).toMatch(/^https:\/\//)
+    }
+  })
+})

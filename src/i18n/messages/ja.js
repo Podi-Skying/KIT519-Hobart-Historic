@@ -72,10 +72,13 @@ export default {
     convict: '流刑囚',
     religious: '宗教',
     colonial: '植民地時代',
+    civic: '公共建築',
+    military: '軍事',
     waterfront: 'ウォーターフロント',
   },
   site: {
     keyFacts: '基本情報',
+    heritageRegister: 'タスマニア遺産登録簿 · THR {id}',
     startRoute: '徒歩ルートを開始',
     audioTour: '音声ガイド',
     viewInAr: 'AR で見る',

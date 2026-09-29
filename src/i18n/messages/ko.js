@@ -72,10 +72,13 @@ export default {
     convict: '유형수',
     religious: '종교',
     colonial: '식민지',
+    civic: '공공건축',
+    military: '군사',
     waterfront: '해안',
   },
   site: {
     keyFacts: '주요 정보',
+    heritageRegister: '태즈메이니아 문화유산 목록 · THR {id}',
     startRoute: '도보 길 안내 시작',
     audioTour: '오디오 가이드',
     viewInAr: 'AR로 보기',

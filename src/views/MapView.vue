@@ -2,8 +2,8 @@
 /**
  * Map tab: every heritage site at its real coordinates (Google Maps, or the
  * illustrated map as a fallback), the walker's live position, and route planning.
- * The app covers a small, fixed set of Hobart sites, so there is no search —
- * sites are picked from the map markers or the "nearest" shortcut.
+ * Sites are picked from the map markers (glyph = kind of place; dots when zoomed out,
+ * see GoogleMap) or the "nearest" shortcut; searching by name lives on Home.
  * The browse panel can be dragged down out of the way; a small tab brings it back.
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'

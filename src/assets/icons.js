@@ -52,6 +52,10 @@ export const ICONS = {
   wifi: '<path d="M2 8.5a15 15 0 0120 0M5 12a10 10 0 0114 0M8.5 15.5a5 5 0 017 0"/><circle cx="12" cy="19" r="1" fill="currentColor"/>',
   // places & waypoints
   house: '<path d="M3 9.5L12 4l9 5.5"/><path d="M5.5 10v9M10 10v9M14 10v9M18.5 10v9M3 21h18"/>',
+  // colonial house: pitched roof, chimney and door
+  cottage: '<path d="M3.5 11L12 4l8.5 7"/><path d="M16 7.3V4.5h2.5v4.6"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>',
+  // military: a flag on its staff (batteries, memorials)
+  flag: '<path d="M5 21V4"/><path d="M5 4.5h11l-2.5 4 2.5 4H5"/>',
   church: '<path d="M12 2v4M10 4h4"/><path d="M6 21V11l6-5 6 5v10"/><path d="M10 21v-4a2 2 0 014 0v4M3 21h18"/>',
   anchor: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13a7 7 0 0014 0M8.5 10.5h7"/>',
   toilet: '<circle cx="7.5" cy="4.5" r="1.6"/><path d="M6 21v-6H4.8l1-7h3.4l1 7H9v6"/><circle cx="16.5" cy="4.5" r="1.6"/><path d="M14.5 21V8h4v13"/>',

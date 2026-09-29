@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import AppPage from '@/components/layout/AppPage.vue'
 import IconButton from '@/components/base/IconButton.vue'
+import AppIcon from '@/components/base/AppIcon.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseBadge from '@/components/base/BaseBadge.vue'
 import SectionHeader from '@/components/base/SectionHeader.vue'
@@ -66,6 +67,18 @@ function startRoute() {
       </ul>
 
       <p class="t-body sheet__description">{{ site.description }}</p>
+      <!-- Provenance: the official register entry this site comes from -->
+      <a
+        v-if="site.thr"
+        class="register pressable-dim"
+        :href="`https://onlineregister.heritage.tas.gov.au/Place/${site.thr}`"
+        target="_blank"
+        rel="noopener"
+      >
+        <AppIcon name="check" :size="16" />
+        <span>{{ t('site.heritageRegister', { id: site.thr }) }}</span>
+        <AppIcon name="external" :size="14" />
+      </a>
 
       <BaseButton block icon="navigate" data-req="FR8" @click="startRoute">{{ t('site.startRoute') }}</BaseButton>
       <div class="sheet__actions">
@@ -131,6 +144,23 @@ function startRoute() {
 }
 .sheet__description {
   margin-bottom: var(--s-6);
+}
+.sheet__description:has(+ .register) {
+  margin-bottom: var(--s-2);
+}
+/* A quiet source line under the story: full-height tap target, underlined like other outbound links */
+.register {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: var(--hit);
+  margin-bottom: var(--s-4);
+  color: var(--ink-500);
+  font: var(--t-body-sm);
+}
+.register span {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .sheet__actions {
   display: grid;

@@ -72,10 +72,13 @@ export default {
     convict: 'Tù nhân',
     religious: 'Tôn giáo',
     colonial: 'Thuộc địa',
+    civic: 'Công trình công',
+    military: 'Quân sự',
     waterfront: 'Bến cảng',
   },
   site: {
     keyFacts: 'Thông tin chính',
+    heritageRegister: 'Danh mục Di sản Tasmania · THR {id}',
     startRoute: 'Bắt đầu lộ trình đi bộ',
     audioTour: 'Thuyết minh',
     viewInAr: 'Xem bằng AR',

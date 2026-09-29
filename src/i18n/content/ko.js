@@ -103,6 +103,90 @@ export default {
         { caption: '죄수의 석조 조각', description: '죄수 석공이 새긴 석조 장식.' },
       ],
     },
+    6: {
+      categoryLabel: '식민지 거리 풍경',
+      description:
+        '고래잡이이자 탐험가인 James Kelly가 1839년에 절벽을 깎아 이 사암 계단을 만들어 Battery Point와 아래 부두를 이었습니다. Salamanca Place의 창고들은 같은 절벽에서 캐낸 돌로 지어졌습니다. 계단 꼭대기의 돌기둥에는 지금도 거리 이름과 1840년 1월이라는 날짜가 새겨져 있습니다.',
+      gallery: [{ caption: "Kelly's Steps", description: 'Salamanca Place에서 Battery Point로 올라가는 돌계단.' }],
+    },
+    7: {
+      categoryLabel: '공공 건축 유산',
+      description:
+        '이 사암 건물은 1830년부터 1840년 사이에 죄수들이 식민지 세관으로 지었습니다. 1841년 입법위원회가 이곳에서 처음 회의를 열었고, 그 뒤로 줄곧 태즈메이니아 의회의 보금자리가 되었습니다. 앞쪽 잔디밭은 1901년에 의회 정원으로 조성되었습니다.',
+      gallery: [{ caption: '의사당', description: '정원 너머로 보이는 의사당의 사암 정면.' }],
+    },
+    8: {
+      categoryLabel: '종교 유산',
+      description:
+        '1868년 Alfred 왕자가 머릿돌을 놓았고, 1874년에 대성당으로 봉헌되었습니다. 영국 건축가 George Frederick Bodley가 고딕 리바이벌 양식으로 설계했으며, 공사는 1936년까지 이어졌습니다. 태즈메이니아 성공회 주교좌가 있는 대성당입니다.',
+      gallery: [{ caption: 'St David’s 대성당', description: 'Macquarie Street와 Murray Street 모퉁이에 선 고딕 리바이벌 양식의 대성당.' }],
+    },
+    9: {
+      categoryLabel: '공연 예술 유산',
+      description:
+        '1834년에 공사를 시작한 이 극장은 오늘날 호주에서 가장 오래 쉬지 않고 운영된 극장입니다. 빅토리아 고전 양식의 정면은 대부분 1857년에 지어졌고, 내부는 1984년 화재 뒤 크게 다시 지어졌습니다. 1940년대에는 Laurence Olivier가 극장을 살리기 위한 전국 모금을 이끌었습니다.',
+      gallery: [{ caption: '시어터 로열', description: 'Campbell Street에 면한 빅토리아 고전 양식의 정면.' }],
+    },
+    10: {
+      categoryLabel: '식민지 시대 정원',
+      description:
+        '1818년 Queens Domain에 세워진 이곳은 호주에서 두 번째로 오래된 식물원입니다. 1829년 죄수들이 쌓은 Arthur Wall이 지금도 서쪽 경계를 따라 이어지고, 화려한 정문은 1878년에 만들어졌습니다. 세계에서 유일한 아남극 식물 온실도 이곳에 있습니다.',
+      gallery: [{ caption: '정문', description: 'Lower Domain Road에 있는 1878년의 정문.' }],
+    },
+    11: {
+      categoryLabel: '군사 유산',
+      description:
+        '태즈메이니아의 대표 전쟁 기념비는 Queens Domain의 언덕 위, 옛 Queen’s Battery 포대 자리 위에 서 있습니다. 1925년에 세워진 아르데코 양식의 오벨리스크는 처음에는 제1차 세계대전 전사자를 기렸습니다. 해마다 안작 데이에는 소등 나팔 소리와 함께 새벽 추모식이 이곳에서 열립니다.',
+      gallery: [{ caption: '안작 데이의 화환', description: '안작 데이에 기념비 아래 놓인 화환.' }],
+    },
+    12: {
+      categoryLabel: '군사 유산',
+      description:
+        '1818년 강을 지키기 위해 이 곶에 Mulgrave 포대가 세워졌고, 1841~42년에 Prince of Wales 포대로 다시 지어졌습니다. 이곳의 신호소는 호바트로 다가오는 배 소식을 Mount Nelson에서 받아 전했습니다. 옛 토루와 탄약고, 신호소 오두막은 이제 조용한 물가 공원 안에 남아 있습니다.',
+      gallery: [{ caption: 'Princes Park', description: '공원에서 바라본 Derwent 강.' }],
+    },
+    13: {
+      categoryLabel: '군사 유산',
+      description:
+        '강 건너 Bellerive에 있는 이 요새는 바다로부터의 공격이 우려되던 1878년부터 1885년 사이에 지어졌습니다. 제1차 세계대전 동안에도 병력이 배치되었고 1920년대까지 쓰였습니다. 포좌와 해자, 터널은 이제 공원이 되어 호바트를 넓게 바라볼 수 있습니다.',
+      gallery: [{ caption: '포좌', description: 'Derwent 강 너머 호바트를 향한 포대의 대포.' }],
+    },
+    14: {
+      categoryLabel: '식민지 유산',
+      description:
+        '이 푸른 광장은 옛 총독 관저 터에 자리하며, 관저는 1804년부터 1858년 철거될 때까지 식민지 권력의 중심이었습니다. 광장 이름은 부총독이자 북극 탐험가였던 John Franklin 경에게서 왔고, 한가운데에 그의 동상이 서 있습니다. 오늘날에는 시장과 모임, 버스 환승으로 붐비는 도심의 만남의 장소입니다.',
+      gallery: [{ caption: 'Franklin 광장', description: '광장 한가운데 선 John Franklin 경의 동상.' }],
+    },
+    15: {
+      categoryLabel: '산업 유산',
+      description:
+        '1915년 12월에 완공된 이 긴 목조 창고는 호바트 철도 조차장을 거쳐 급증하던 과일 수출 화물을 처리했습니다. 1940년대에 길이를 늘였고, 2014년에 마지막 열차를 보냈습니다. Macquarie Point 재개발 구역 안에 있어 출입이 제한될 수 있습니다.',
+      gallery: [{ caption: '화물 창고', description: 'Macquarie Point에 있는 골함석 벽의 긴 창고.' }],
+    },
+    16: {
+      categoryLabel: '공공 건축 유산',
+      description:
+        'Van Diemen’s Land 대법원은 1824년에 처음 열린, 호주에서 가장 오래된 대법원입니다. St David’s Park 옆의 이 모더니즘 건물군은 공공사업부가 설계했고, 마지막 단계가 1980년에 문을 열었습니다. 2010년에는 오래도록 가치를 인정받는 건축에 주는 전국 상을 받았습니다.',
+      gallery: [{ caption: '태즈메이니아 대법원', description: '모더니즘 양식의 법원 건물과 광장.' }],
+    },
+    17: {
+      categoryLabel: '공공 건축 유산',
+      description:
+        '호바트 최초의 공공도서관이 1907년 이곳에서 문을 열었으며, 스코틀랜드계 미국인 자선가 Andrew Carnegie가 건립 자금을 댔습니다. 사암 기초 위의 붉은 벽돌 건물에는 대담한 에드워드 시대 바로크 장식이 돋보입니다. 지금은 태즈메이니아 해양 박물관으로 쓰입니다.',
+      gallery: [{ caption: 'Carnegie 빌딩', description: '지금은 해양 박물관이 된 붉은 벽돌 도서관 건물.' }],
+    },
+    18: {
+      categoryLabel: '군사 유산',
+      description:
+        '언덕 위의 이 요새는 1871년에 공사를 시작해 호바트로 드는 강 입구를 지키기 위해 1885년에 완공되었습니다. 제1차 세계대전 내내 병력이 배치되었고, 제2차 세계대전까지 훈련소로 쓰였습니다. 1964년부터는 공원이 되어 터널을 둘러보고 Derwent 강을 내려다볼 수 있습니다.',
+      gallery: [{ caption: '포대 안의 통로', description: '포대의 토루를 가로지르는 돌 통로.' }],
+    },
+    19: {
+      categoryLabel: '식민지 생활',
+      description:
+        '이 리젠시 양식의 사암 저택은 1836년 무렵 변호사 Robert Pitcairn을 위해 지어졌습니다. 이후 태즈메이니아 최초의 성공회 주교 Francis Nixon이 살았고, 포경선 선장 Charles Bayley가 자신의 배 이름을 따 Runnymede로 바꾸었습니다. 지금은 내셔널 트러스트가 저택과 정원, 마차 차고, 마구간을 관리합니다.',
+      gallery: [{ caption: 'Runnymede 저택', description: '저택의 베란다와 프렌치 도어.' }],
+    },
   },
   narration: {
     1: {

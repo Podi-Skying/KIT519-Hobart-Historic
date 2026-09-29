@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n'
 import MapBackdrop from './MapBackdrop.vue'
 import AppIcon from '@/components/base/AppIcon.vue'
 import { FALLBACK_MAP_BOX, SITE_BOUNDS } from '@/data/sites'
+import { categoryIcon } from '@/data/categories'
 import { boundsOf, projectToBox } from '@/lib/geo'
 
 const props = defineProps({
@@ -154,7 +155,7 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
         <img :src="site.image" alt="" loading="lazy" decoding="async" />
         <span>{{ site.name }}</span>
       </span>
-      <span class="pin__head"><b>{{ site.id }}</b></span>
+      <span class="pin__head"><AppIcon :name="categoryIcon(site.category)" :size="15" :stroke-width="2.2" /></span>
       <span v-if="site.id === selectedId" class="pin__label">{{ site.shortName }}</span>
     </button>
   </div>
@@ -299,18 +300,37 @@ defineExpose({ recenter() {}, focusUser() {}, zoomIn() {}, zoomOut() {} })
   border: 2px solid var(--paper);
   background: var(--ink-900);
   box-shadow: var(--e-1);
-  transform: rotate(-45deg);
+  /* Scaled about the tip (half a diagonal below the centre) so the pin stays on its spot.
+     The whole catalogue shares this small schematic map, so unselected sites are dots that
+     grow into a glyph pin when pointed at, focused or selected (as GoogleMap zoomed out). */
+  --tip: 21.2px;
+  transform: translateY(var(--tip)) scale(var(--pin-scale, 0.5)) translateY(calc(-1 * var(--tip))) rotate(-45deg);
   transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
 }
-.pin__head b {
-  transform: rotate(45deg);
+.pin__head :deep(svg) {
+  transform: rotate(45deg); /* upright inside the rotated teardrop */
   color: var(--cream);
-  font: var(--t-label-sm);
-  font-weight: 700;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.pin:focus-visible .pin__head {
+  --pin-scale: 1;
 }
 .pin.is-selected .pin__head {
+  --pin-scale: 1.2;
   background: var(--brand-600);
-  transform: rotate(-45deg) scale(1.2);
+}
+.pin:focus-visible .pin__head :deep(svg),
+.pin.is-selected .pin__head :deep(svg) {
+  opacity: 1;
+}
+@media (hover: hover) {
+  .pin:not(:disabled):not(.is-selected):hover .pin__head {
+    --pin-scale: 1;
+  }
+  .pin:not(:disabled):hover .pin__head :deep(svg) {
+    opacity: 1;
+  }
 }
 .pin__label {
   position: absolute;

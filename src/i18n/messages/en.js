@@ -75,10 +75,13 @@ export default {
     convict: 'Convict',
     religious: 'Religious',
     colonial: 'Colonial',
+    civic: 'Civic',
+    military: 'Military',
     waterfront: 'Waterfront',
   },
   site: {
     keyFacts: 'Key facts',
+    heritageRegister: 'Tasmanian Heritage Register · THR {id}',
     startRoute: 'Start walking route',
     audioTour: 'Audio tour',
     viewInAr: 'View in AR',

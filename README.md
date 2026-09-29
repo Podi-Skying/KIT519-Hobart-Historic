@@ -117,7 +117,7 @@ Map 頁使用 Google Maps JavaScript API。**沒有設定 key 時會自動改用
 
 ### 景點照片與授權
 
-每個景點至少 10 張照片。新增的照片來自 Wikimedia Commons 與 Flickr 的開放授權作品（CC0、公有領域、CC BY／BY-SA／BY-ND／BY-NC 等），直接連結原站、不另存；相簿每張照片下方都會顯示作者與授權並連回來源頁（授權要求的署名）。資料在 `src/data/sites.js`（`openPhoto` + `credit`）。室內與特寫照片標記 `detail`，不放進 AR「穿越時光」播放。
+五個導覽景點（Cascades、St George’s、Salamanca、Penitentiary、Narryna）各至少 10 張照片；其餘 14 個由塔斯馬尼亞遺產登錄冊（THR）核對過的景點各有 1 張開放授權照片（`singlePhoto`），語音導覽由描述逐句朗讀。新增的照片來自 Wikimedia Commons 與 Flickr 的開放授權作品（CC0、公有領域、CC BY／BY-SA／BY-ND／BY-NC 等），直接連結原站、不另存；相簿每張照片下方都會顯示作者與授權並連回來源頁（授權要求的署名）。資料在 `src/data/sites.js`（`openPhoto` + `credit`）。室內與特寫照片標記 `detail`，不放進 AR「穿越時光」播放。
 
 ## 2. 技術架構
 
@@ -272,7 +272,7 @@ hobart-heritage/
 
 | 需求 | 修改位置 |
 | --- | --- |
-| 新增景點 | `src/data/sites.js` 加一筆（含 `coordinates` 經緯度、`gallery`）即可；距離、步行時間、地圖位置都會自動計算 |
+| 新增景點 | `src/data/sites.js` 加一筆（`thr` 登錄編號、`coordinates`、`category`，照片用 `singlePhoto` 或完整 `gallery`）＋ `src/i18n/content/<locale>.js` 的翻譯；距離、步行時間、地圖位置、語音導覽（沒有腳本時讀描述）都會自動產生 |
 | 新增分類 | `src/data/categories.js` ＋ 景點的 `category`（Home 篩選列自動出現） |
 | 調整品牌色／字體 | `src/styles/tokens.css` |
 | 新增圖示 | `src/assets/icons.js`（24×24、2px 線條） |

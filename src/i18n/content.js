@@ -41,10 +41,25 @@ export function localizeSite(site, locale) {
   }
 }
 
-/** Narration script for a site in the given language (title + transcript lines). */
+/** Sentences of a paragraph (Latin, CJK and Korean punctuation), trimmed. */
+export const sentencesOf = (text) =>
+  (text ?? '')
+    .split(/(?<=[.!?。！？])\s*/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+/**
+ * Narration script for a site in the given language (title + transcript lines).
+ * The five tour sites have written scripts; every other catalogue site is read from its
+ * (translated) description, one sentence per line, so each site has an audio tour.
+ */
 export function localizeNarration(siteId, locale) {
   const source = NARRATION[siteId]
-  if (!source) return null
+  if (!source) {
+    const site = localizeSite(SITES.find((s) => s.id === Number(siteId)), locale)
+    if (!site) return null
+    return { title: site.name, chapter: 1, chapterCount: 1, transcript: sentencesOf(site.description) }
+  }
   const t = CONTENT[locale]?.narration?.[siteId]
   return {
     ...source,

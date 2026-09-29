@@ -103,6 +103,90 @@ export default {
         { caption: 'Chạm đá của tù nhân', description: 'Đá chạm khắc bởi thợ đá là tù nhân.' },
       ],
     },
+    6: {
+      categoryLabel: 'Phố cổ thuộc địa',
+      description:
+        'Năm 1839, nhà thám hiểm kiêm thợ săn cá voi James Kelly đã đục những bậc đá sa thạch này vào vách đá để nối Battery Point với các bến tàu bên dưới. Những nhà kho ở Salamanca Place được xây bằng đá khai thác từ chính vách đá ấy. Cột đá trên đỉnh bậc thang đến nay vẫn khắc tên phố và thời điểm tháng 1 năm 1840.',
+      gallery: [{ caption: "Kelly's Steps", description: 'Những bậc đá dẫn từ Salamanca Place lên Battery Point.' }],
+    },
+    7: {
+      categoryLabel: 'Di sản công trình công',
+      description:
+        'Tòa nhà sa thạch này do tù nhân xây dựng từ năm 1830 đến 1840 để làm Sở Hải quan của thuộc địa. Hội đồng Lập pháp họp lần đầu tại đây vào năm 1841, và từ đó nơi này luôn là trụ sở Nghị viện Tasmania. Bãi cỏ phía trước được quy hoạch thành Vườn Nghị viện vào năm 1901.',
+      gallery: [{ caption: 'Tòa nhà Nghị viện', description: 'Mặt tiền sa thạch của Tòa nhà Nghị viện nhìn qua khu vườn.' }],
+    },
+    8: {
+      categoryLabel: 'Di sản tôn giáo',
+      description:
+        'Hoàng tử Alfred đặt viên đá móng năm 1868, và nhà thờ được thánh hiến năm 1874. Kiến trúc sư người Anh George Frederick Bodley thiết kế theo phong cách Phục hưng Gothic, và việc xây dựng kéo dài đến năm 1936. Đây là tòa giám mục của Giáo hội Anh giáo Tasmania.',
+      gallery: [{ caption: 'Nhà thờ chính tòa St David’s', description: 'Nhà thờ Phục hưng Gothic ở góc phố Macquarie và Murray.' }],
+    },
+    9: {
+      categoryLabel: 'Di sản nghệ thuật biểu diễn',
+      description:
+        'Khởi công năm 1834, đây là nhà hát hoạt động liên tục lâu đời nhất nước Úc. Mặt tiền kiểu Cổ điển Victoria phần lớn có từ năm 1857, còn nội thất được xây lại nhiều sau trận hỏa hoạn năm 1984. Vào thập niên 1940, Laurence Olivier đã dẫn đầu một cuộc quyên góp toàn quốc để cứu nhà hát.',
+      gallery: [{ caption: 'Nhà hát Hoàng gia', description: 'Mặt tiền kiểu Cổ điển Victoria trên phố Campbell.' }],
+    },
+    10: {
+      categoryLabel: 'Vườn thời thuộc địa',
+      description:
+        'Được thành lập năm 1818 tại Queens Domain, đây là vườn bách thảo lâu đời thứ hai ở Úc. Bức tường Arthur Wall do tù nhân xây năm 1829 vẫn chạy dọc rìa phía tây, còn cổng chính trang trí công phu có từ năm 1878. Vườn còn có nhà kính thực vật cận Nam Cực duy nhất trên thế giới.',
+      gallery: [{ caption: 'Cổng chính', description: 'Cổng vào năm 1878 trên đường Lower Domain.' }],
+    },
+    11: {
+      categoryLabel: 'Di sản quân sự',
+      description:
+        'Đài tưởng niệm chiến tranh chính của Tasmania đứng trên một gò cao ở Queens Domain, ngay trên nền pháo đài Queen’s Battery xưa. Ngọn tháp Art Deco có từ năm 1925, ban đầu tưởng nhớ những người hy sinh trong Thế chiến thứ nhất. Mỗi năm vào Ngày ANZAC, lễ tưởng niệm lúc bình minh diễn ra tại đây trong tiếng kèn Last Post.',
+      gallery: [{ caption: 'Vòng hoa Ngày ANZAC', description: 'Những vòng hoa đặt dưới chân đài vào Ngày ANZAC.' }],
+    },
+    12: {
+      categoryLabel: 'Di sản quân sự',
+      description:
+        'Pháo đài Mulgrave được xây trên mũi đất này năm 1818 để canh giữ dòng sông, và được xây lại năm 1841–42 với tên Prince of Wales Battery. Trạm tín hiệu tại đây chuyển tiếp tin tức từ Mount Nelson về những con tàu đang đến gần Hobart. Ụ đất, kho đạn và căn nhà tín hiệu xưa nay nằm trong một công viên yên tĩnh bên bờ nước.',
+      gallery: [{ caption: 'Princes Park', description: 'Nhìn ra sông Derwent từ công viên.' }],
+    },
+    13: {
+      categoryLabel: 'Di sản quân sự',
+      description:
+        'Nằm bên kia sông ở Bellerive, pháo đài này được xây từ năm 1878 đến 1885, khi thuộc địa lo sợ bị tấn công từ biển. Nơi đây có quân đồn trú trong Thế chiến thứ nhất và được dùng đến thập niên 1920. Các ụ pháo, hào và đường hầm nay là công viên với tầm nhìn rộng về Hobart.',
+      gallery: [{ caption: 'Ụ pháo', description: 'Một khẩu pháo của pháo đài hướng qua sông Derwent về Hobart.' }],
+    },
+    14: {
+      categoryLabel: 'Di sản thuộc địa',
+      description:
+        'Quảng trường xanh mát này nằm trên nền Dinh Thống đốc cũ, trung tâm quyền lực của thuộc địa từ năm 1804 cho đến khi bị phá bỏ năm 1858. Quảng trường mang tên Ngài John Franklin, Phó Thống đốc và nhà thám hiểm Bắc Cực, với tượng ông đứng ở giữa. Ngày nay đây là nơi gặp gỡ của thành phố cho chợ phiên, tụ họp và đón xe buýt.',
+      gallery: [{ caption: 'Quảng trường Franklin', description: 'Tượng Ngài John Franklin ở giữa quảng trường.' }],
+    },
+    15: {
+      categoryLabel: 'Di sản công nghiệp',
+      description:
+        'Hoàn thành vào tháng 12 năm 1915, nhà kho khung gỗ dài này xử lý lượng trái cây xuất khẩu tăng vọt qua bãi đường sắt Hobart. Nó được nối dài vào thập niên 1940 và tiễn chuyến tàu cuối cùng năm 2014. Nhà kho nằm trong khu tái phát triển Macquarie Point nên việc ra vào có thể bị hạn chế.',
+      gallery: [{ caption: 'Nhà kho hàng hóa', description: 'Nhà kho tôn múi dài ở Macquarie Point.' }],
+    },
+    16: {
+      categoryLabel: 'Di sản công trình công',
+      description:
+        'Tòa án Tối cao Van Diemen’s Land xét xử lần đầu năm 1824, là Tòa án Tối cao lâu đời nhất nước Úc. Quần thể kiến trúc hiện đại cạnh công viên St David’s Park do Sở Công chính thiết kế, và giai đoạn cuối khánh thành năm 1980. Năm 2010, công trình nhận giải thưởng quốc gia dành cho kiến trúc bền vững theo thời gian.',
+      gallery: [{ caption: 'Tòa án Tối cao Tasmania', description: 'Các tòa nhà tòa án kiến trúc hiện đại và quảng trường.' }],
+    },
+    17: {
+      categoryLabel: 'Di sản công trình công',
+      description:
+        'Thư viện công cộng đầu tiên của Hobart khai trương tại đây năm 1907, nhờ tài trợ của nhà hảo tâm người Mỹ gốc Scotland Andrew Carnegie. Tòa nhà gạch đỏ trên nền sa thạch mang những chi tiết Baroque thời Edward đầy ấn tượng. Ngày nay đây là Bảo tàng Hàng hải Tasmania.',
+      gallery: [{ caption: 'Tòa nhà Carnegie', description: 'Tòa thư viện gạch đỏ, nay là Bảo tàng Hàng hải.' }],
+    },
+    18: {
+      categoryLabel: 'Di sản quân sự',
+      description:
+        'Pháo đài trên đồi này khởi công năm 1871 và hoàn thành năm 1885 để canh giữ lối vào Hobart theo đường sông. Nơi đây có quân đồn trú suốt Thế chiến thứ nhất và làm trại huấn luyện đến Thế chiến thứ hai. Từ năm 1964, đây là công viên với các đường hầm để khám phá và tầm nhìn rộng ra sông Derwent.',
+      gallery: [{ caption: 'Lối đi bên trong', description: 'Một lối đi bằng đá xuyên qua ụ đất của pháo đài.' }],
+    },
+    19: {
+      categoryLabel: 'Đời sống thuộc địa',
+      description:
+        'Ngôi nhà sa thạch phong cách Regency này được xây khoảng năm 1836 cho luật sư Robert Pitcairn. Sau đó, giám mục Anh giáo đầu tiên của Tasmania là Francis Nixon từng sống ở đây, và thuyền trưởng săn cá voi Charles Bayley đã đổi tên nó thành Runnymede theo tên một con tàu của ông. Ngày nay National Trust chăm sóc ngôi nhà cùng khu vườn, nhà xe ngựa và chuồng ngựa.',
+      gallery: [{ caption: 'Nhà Runnymede', description: 'Hiên và cửa kiểu Pháp của ngôi nhà.' }],
+    },
   },
   narration: {
     1: {

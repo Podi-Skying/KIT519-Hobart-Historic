@@ -132,6 +132,17 @@ describe('player store', () => {
     vi.useRealTimers()
   })
 
+  it('reads catalogue sites without a script from their translated description', async () => {
+    const { localizeNarration, localizeSite } = await import('@/i18n/content')
+    const { getSiteById } = await import('@/data/sites')
+    const zh = localizeNarration(6, 'zh-Hant')
+    expect(zh.title).toBe("Kelly's Steps")
+    expect(zh.transcript).toHaveLength(3)
+    expect(zh.transcript.join('')).toBe(localizeSite(getSiteById(6), 'zh-Hant').description)
+    expect(localizeNarration(6, 'en').transcript[0]).toMatch(/^Whaler and explorer James Kelly/)
+    expect(localizeNarration(999, 'en')).toBeNull()
+  })
+
   it('has a narration script for every site, in every language', async () => {
     const { SITES } = await import('@/data/sites')
     const { LOCALES } = await import('@/i18n')

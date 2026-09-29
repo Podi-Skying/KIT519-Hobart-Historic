@@ -13,6 +13,7 @@ import { acquireMap, releaseMap } from '@/services/googlePool'
 import { HOBART_CENTRE } from '@/data/navigation'
 import { offsetPoint } from '@/lib/streetView'
 import { ICONS } from '@/assets/icons'
+import { categoryIcon } from '@/data/categories'
 
 const props = defineProps({
   sites: { type: Array, required: true },
@@ -74,9 +75,10 @@ function pinElement(site) {
   el.className = 'gm-pin pressable' // press feedback: base.css › Press feedback
   const head = document.createElement('span')
   head.className = 'gm-pin__head'
-  const num = document.createElement('b')
-  num.textContent = String(site.id)
-  head.append(num)
+  // Glyph = kind of place (church, battery, house…), like Apple Maps POI pins: with twenty
+  // sites a number means nothing, the category reads at a glance. Icon markup is from the
+  // trusted static registry, never from data.
+  head.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[categoryIcon(site.category)] ?? ''}</svg>`
   el.append(head)
   if (props.previews) {
     const card = document.createElement('span')
@@ -160,6 +162,17 @@ function syncHeadingArrow() {
 }
 
 /** Frame according to `fit`. */
+/**
+ * Zoomed out, pins shrink to small dots (the selected one stays full size) so neighbours in
+ * the CBD don't pile up; zoom in and the glyphs grow back. Toggled as one class on the map.
+ */
+const COMPACT_BELOW_ZOOM = 14.5
+function syncDensity() {
+  const zoom = map.value?.getZoom()
+  if (zoom == null || !container.value) return
+  container.value.classList.toggle('is-compact', zoom < COMPACT_BELOW_ZOOM)
+}
+
 function recenter() {
   if (props.follow) return followCamera()
   if (props.fit === 'route' && props.routePath.length) return frame(props.routePath)
@@ -326,6 +339,7 @@ onMounted(async () => {
   map.value = pooled.instance
   if (props.follow) mapListeners.push(map.value.addListener('renderingtype_changed', syncHeadingArrow)) // vector becomes ready
   mapListeners.push(map.value.addListener('idle', declutterHighlights))
+  mapListeners.push(map.value.addListener('zoom_changed', syncDensity))
 
   for (const site of props.sites) {
     const element = pinElement(site)
@@ -352,6 +366,7 @@ onMounted(async () => {
   syncAmenities()
   syncHighlights()
   recenter()
+  syncDensity()
   emit('ready')
 })
 
@@ -441,14 +456,23 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   border: 2px solid var(--paper);
   background: var(--ink-900);
   box-shadow: var(--e-1);
-  transform: rotate(-45deg);
+  /* Scaled about the pin's tip (half a diagonal below the centre), so a growing or shrinking
+     pin stays anchored on its spot: 1 normal, 1.2 selected, 0.5 zoomed out. */
+  --tip: 21.2px;
+  transform: translateY(var(--tip)) scale(var(--pin-scale, 1)) translateY(calc(-1 * var(--tip))) rotate(-45deg);
   transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
 }
-.gm-pin__head b {
-  transform: rotate(45deg);
+.gm-pin__head svg {
+  transform: rotate(45deg); /* upright inside the rotated teardrop */
   color: var(--cream);
-  font: var(--t-label-sm);
-  font-weight: 700;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+/* Zoomed out: small dots, scaled about the pin's tip so it stays on its spot */
+.google-map.is-compact .gm-pin:not(.is-selected) .gm-pin__head {
+  --pin-scale: 0.5;
+}
+.google-map.is-compact .gm-pin:not(.is-selected) .gm-pin__head svg {
+  opacity: 0;
 }
 .gm-pin__label {
   position: absolute;
@@ -467,8 +491,8 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
   pointer-events: none;
 }
 .gm-pin.is-selected .gm-pin__head {
+  --pin-scale: 1.2;
   background: var(--brand-600);
-  transform: rotate(-45deg) scale(1.2);
 }
 .gm-pin.is-selected .gm-pin__label {
   opacity: 1;
@@ -521,6 +545,21 @@ defineExpose({ recenter, focusUser, zoomIn: () => zoomBy(1), zoomOut: () => zoom
     opacity: 1;
     transform: none;
   }
+}
+/* A zoomed-out dot grows back into its full pin while pointed at or focused */
+@media (hover: hover) {
+  .google-map.is-compact .gm-pin:not(.is-selected):hover .gm-pin__head {
+    --pin-scale: 1;
+  }
+  .google-map.is-compact .gm-pin:hover .gm-pin__head svg {
+    opacity: 1;
+  }
+}
+.google-map.is-compact .gm-pin:not(.is-selected):focus-within .gm-pin__head {
+  --pin-scale: 1;
+}
+.google-map.is-compact .gm-pin:focus-within .gm-pin__head svg {
+  opacity: 1;
 }
 .gm-amenity {
   width: 28px;

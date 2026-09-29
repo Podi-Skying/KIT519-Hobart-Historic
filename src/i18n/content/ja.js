@@ -103,6 +103,90 @@ export default {
         { caption: '囚人による石彫', description: '囚人の石工による彫刻。' },
       ],
     },
+    6: {
+      categoryLabel: '植民地時代の街並み',
+      description:
+        '捕鯨家で探検家の James Kelly が 1839 年、崖に砂岩の階段を刻み、Battery Point と下の波止場を結びました。Salamanca Place の倉庫群は、同じ崖から切り出した石で建てられています。階段の上の石柱には、今も通りの名前と「1840 年 1 月」の日付が刻まれています。',
+      gallery: [{ caption: "Kelly's Steps", description: 'Salamanca Place から Battery Point へ上る石段。' }],
+    },
+    7: {
+      categoryLabel: '公共建築の遺産',
+      description:
+        'この砂岩の建物は 1830〜1840 年に囚人たちの手で植民地の税関として建てられました。1841 年に立法評議会が初めてここで開かれ、以来タスマニア議会の議事堂となっています。前庭の芝生は 1901 年に議会庭園として整備されました。',
+      gallery: [{ caption: '議事堂', description: '庭園越しに見る議事堂の砂岩の正面。' }],
+    },
+    8: {
+      categoryLabel: '宗教遺産',
+      description:
+        '1868 年に Alfred 王子が礎石を据え、1874 年に大聖堂として献堂されました。英国の建築家 George Frederick Bodley によるゴシック・リバイバル様式で、工事は 1936 年まで続きました。タスマニア聖公会の主教座が置かれた大聖堂です。',
+      gallery: [{ caption: 'St David’s 大聖堂', description: 'Macquarie Street と Murray Street の角に建つゴシック・リバイバル様式の大聖堂。' }],
+    },
+    9: {
+      categoryLabel: '舞台芸術の遺産',
+      description:
+        '1834 年に着工したこの劇場は、今ではオーストラリアで最も長く営業を続ける劇場です。ヴィクトリア朝古典様式のファサードは主に 1857 年のもので、内部は 1984 年の火災の後に大きく再建されました。1940 年代には Laurence Olivier が劇場を救うため全国に募金を呼びかけました。',
+      gallery: [{ caption: 'シアター・ロイヤル', description: 'Campbell Street に面したヴィクトリア朝古典様式のファサード。' }],
+    },
+    10: {
+      categoryLabel: '植民地時代の庭園',
+      description:
+        '1818 年に Queens Domain に開かれた、オーストラリアで 2 番目に古い植物園です。1829 年に囚人が築いた Arthur Wall が今も西側に続き、華やかな正門は 1878 年のものです。世界で唯一の亜南極植物温室もあります。',
+      gallery: [{ caption: '正門', description: 'Lower Domain Road にある 1878 年の正門。' }],
+    },
+    11: {
+      categoryLabel: '軍事遺産',
+      description:
+        'タスマニアの主要な戦争記念碑は Queens Domain の高台に立ち、その下にはかつての Queen’s Battery 砲台がありました。1925 年のアール・デコ様式のオベリスクは、はじめ第一次世界大戦の戦没者を追悼するものでした。毎年アンザック・デーには、消灯ラッパが響く中で夜明けの式典がここで行われます。',
+      gallery: [{ caption: 'アンザック・デーの花輪', description: 'アンザック・デーに記念碑の足元へ手向けられた花輪。' }],
+    },
+    12: {
+      categoryLabel: '軍事遺産',
+      description:
+        '1818 年、川を守るためこの岬に Mulgrave 砲台が築かれ、1841〜42 年に Prince of Wales 砲台として再建されました。ここの信号所は、ホバートに近づく船の知らせを Mount Nelson から中継していました。当時の土塁や弾薬庫、信号所の小屋は、今は静かな水辺の公園の中にあります。',
+      gallery: [{ caption: 'Princes Park', description: '公園から見渡す Derwent 川。' }],
+    },
+    13: {
+      categoryLabel: '軍事遺産',
+      description:
+        '対岸の Bellerive にあるこの要塞は、海からの攻撃が恐れられていた 1878〜1885 年に築かれました。第一次世界大戦中も兵が配置され、1920 年代まで使われました。砲座や空堀、トンネルは今では公園になり、ホバートを一望できます。',
+      gallery: [{ caption: '砲座', description: 'Derwent 川越しにホバートを望む砲台の大砲。' }],
+    },
+    14: {
+      categoryLabel: '植民地時代の遺産',
+      description:
+        'この緑豊かな広場は旧総督官邸の跡地にあり、官邸は 1804 年から 1858 年に取り壊されるまで植民地の政治の中心でした。広場の名は副総督で北極探検家の John Franklin 卿にちなみ、中央にはその像が立っています。今ではマーケットや集会、バスの乗り換えでにぎわう街の広場です。',
+      gallery: [{ caption: 'Franklin Square', description: '広場の中央に立つ John Franklin 卿の像。' }],
+    },
+    15: {
+      categoryLabel: '産業遺産',
+      description:
+        '1915 年 12 月に完成したこの細長い木造の倉庫は、ホバートの鉄道操車場を通る果物輸出の急増に対応しました。1940 年代に延長され、2014 年に最後の列車を見送りました。Macquarie Point の再開発区域内にあるため、立ち入りが制限される場合があります。',
+      gallery: [{ caption: '貨物倉庫', description: 'Macquarie Point に立つ波形鉄板の細長い倉庫。' }],
+    },
+    16: {
+      categoryLabel: '公共建築の遺産',
+      description:
+        'Van Diemen’s Land 最高裁判所は 1824 年に初めて開廷した、オーストラリアで最も古い最高裁判所です。St David’s Park に隣接するこのモダニズム建築群は公共事業局が設計し、最終期が 1980 年に完成しました。2010 年には、長く評価される建築として全国的な賞を受けました。',
+      gallery: [{ caption: 'タスマニア最高裁判所', description: 'モダニズム様式の裁判所の建物と広場。' }],
+    },
+    17: {
+      categoryLabel: '公共建築の遺産',
+      description:
+        'ホバート初の公共図書館は、スコットランド系アメリカ人の慈善家 Andrew Carnegie の寄付により、1907 年にここで開館しました。砂岩の基礎に建つ赤れんがの建物には、大胆なエドワード朝バロック様式の装飾が見られます。現在はタスマニア海事博物館になっています。',
+      gallery: [{ caption: 'Carnegie ビル', description: '海事博物館となった赤れんがの図書館建築。' }],
+    },
+    18: {
+      categoryLabel: '軍事遺産',
+      description:
+        '丘の上のこの要塞は 1871 年に着工し、ホバートへの川の入り口を守るため 1885 年に完成しました。第一次世界大戦中も兵が配置され、第二次世界大戦まで訓練キャンプとして使われました。1964 年からは公園となり、トンネルを探検したり Derwent 川を見渡したりできます。',
+      gallery: [{ caption: '砲台の通路', description: '砲台の土塁を抜ける石造りの通路。' }],
+    },
+    19: {
+      categoryLabel: '植民地時代の暮らし',
+      description:
+        'このリージェンシー様式の砂岩の邸宅は、1836 年ごろ弁護士 Robert Pitcairn のために建てられました。のちにタスマニア初の聖公会主教 Francis Nixon が住み、捕鯨船長 Charles Bayley が自分の船の名から Runnymede と改名しました。現在はナショナル・トラストが邸宅と庭園、馬車庫、厩舎を管理しています。',
+      gallery: [{ caption: 'Runnymede 邸', description: '邸宅のベランダとフランス窓。' }],
+    },
   },
   narration: {
     1: {
